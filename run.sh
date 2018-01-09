@@ -15,6 +15,7 @@ set -e
 
 # Run the container with shared X11
 docker run\
+  -h localhost\
   --net=host\
   -e SHELL\
   -e DISPLAY\
