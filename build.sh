@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
-
-# Check args
-if [ "$#" -ne 1 ]; then
-  echo "usage: ./build.sh IMAGE_NAME"
-  return 1
-fi
+export IMAGE_NAME=rosdocked-kinetic:latest
 
 # Get this script's path
 pushd `dirname $0` > /dev/null
@@ -18,4 +13,5 @@ docker build\
   --build-arg home=$HOME\
   --build-arg workspace=$SCRIPTPATH\
   --build-arg shell=$SHELL\
-  -t $1 .
+  --build-arg KERNELVER=$(uname -r  | cut -d '-' -f 1)\
+  -t $IMAGE_NAME .
