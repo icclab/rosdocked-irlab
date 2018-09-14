@@ -64,7 +64,7 @@ COPY official-source-repositories.list  /etc/apt/sources.list.d/official-source-
 RUN  apt-get -y update && apt-get install -y ros-kinetic-librealsense
 
 # Install turtlebot
-RUN apt-get -y update && apt-get install -y ros-kinetic-turtlebot-description ros-kinetic-turtlebot ros-kinetic-turtlebot-gazebo ros-kinetic-turtlebot-rviz-launchers; exit 0
+RUN apt-get -y update && apt-get install -y ros-kinetic-turtlebot-description ros-kinetic-turtlebot ros-kinetic-turtlebot-gazebo ros-kinetic-turtlebot-rviz-launchers
 
 # We also need to add a font to rviz for stuff to work: https://answers.ros.org/question/271750/error-when-trying-to-launch-moveit-created-robot-model/
 RUN cp  /usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf /opt/ros/kinetic/share/rviz/ogre_media/fonts
@@ -83,23 +83,4 @@ RUN apt-get -y update && apt-get -y upgrade
 # Make SSH available
 EXPOSE 22
 
-# Mount the user's home directory
-VOLUME "${home}"
 
-# Clone user into docker image and set up X11 sharing 
-RUN \
-  echo "${user}:x:${uid}:${uid}:${user},,,:${home}:${shell}" >> /etc/passwd && \
-  echo "${user}:x:${uid}:" >> /etc/group && \
-  echo "${user} ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/${user}" && \
-  chmod 0440 "/etc/sudoers.d/${user}"
-
-# add user to video group
-RUN adduser ${user} video
-
-# Switch to user
-USER "${user}"
-# This is required for sharing Xauthority
-ENV QT_X11_NO_MITSHM=1
-ENV CATKIN_TOPLEVEL_WS="${workspace}/devel"
-# Switch to the workspace
-WORKDIR ${workspace}

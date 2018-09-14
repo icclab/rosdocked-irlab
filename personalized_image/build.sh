@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export IMAGE_NAME=robopaas/rosdocked-kinetic:latest
+export IMAGE_NAME=robopaas/rosdocked-kinetic-$USER:latest
 
 # Get this script's path
 pushd `dirname $0` > /dev/null
