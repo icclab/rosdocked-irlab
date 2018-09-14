@@ -60,6 +60,9 @@ RUN apt-get -y update && \
     ros-kinetic-usb-cam ros-kinetic-rgbd-launch
 
 # workaround for realsense camera
+COPY official-source-repositories.list  /etc/apt/sources.list.d/official-source-repositories.list
+RUN  apt-get -y update && apt-get install -y ros-kinetic-librealsense
+
 # RUN apt-get update && apt-get install -y snapd squashfuse fuse 
 # ENV container docker
 # ADD snap /usr/local/bin/snap
@@ -67,7 +70,7 @@ RUN apt-get -y update && \
 
 # Turtlebot now with the problematic realsense camera wanting kernel module  
 # Workaround for ros-kinetic-librealsense - postinstall script doesn't correctly detect docker env and tries to use DKMS: https://github.com/IntelRealSense/librealsense/blob/538c8ed34bb60e0bffb2ef009454ccf5e9256aa0/debian/postinst
-# RUN apt-get -y update && apt-get install -y ros-kinetic-turtlebot-description ros-kinetic-turtlebot ros-kinetic-turtlebot-gazebo ros-kinetic-turtlebot-rviz-launchers; exit 0
+RUN apt-get -y update && apt-get install -y ros-kinetic-turtlebot-description ros-kinetic-turtlebot ros-kinetic-turtlebot-gazebo ros-kinetic-turtlebot-rviz-launchers; exit 0
 
 # We also need to add a font to rviz for stuff to work: https://answers.ros.org/question/271750/error-when-trying-to-launch-moveit-created-robot-model/
 RUN cp  /usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf /opt/ros/kinetic/share/rviz/ogre_media/fonts
