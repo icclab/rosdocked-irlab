@@ -63,13 +63,7 @@ RUN apt-get -y update && \
 COPY official-source-repositories.list  /etc/apt/sources.list.d/official-source-repositories.list
 RUN  apt-get -y update && apt-get install -y ros-kinetic-librealsense
 
-# RUN apt-get update && apt-get install -y snapd squashfuse fuse 
-# ENV container docker
-# ADD snap /usr/local/bin/snap
-# RUN systemctl enable snapd && snap install ros-realsense-d400 --devmode --beta
-
-# Turtlebot now with the problematic realsense camera wanting kernel module  
-# Workaround for ros-kinetic-librealsense - postinstall script doesn't correctly detect docker env and tries to use DKMS: https://github.com/IntelRealSense/librealsense/blob/538c8ed34bb60e0bffb2ef009454ccf5e9256aa0/debian/postinst
+# Install turtlebot
 RUN apt-get -y update && apt-get install -y ros-kinetic-turtlebot-description ros-kinetic-turtlebot ros-kinetic-turtlebot-gazebo ros-kinetic-turtlebot-rviz-launchers; exit 0
 
 # We also need to add a font to rviz for stuff to work: https://answers.ros.org/question/271750/error-when-trying-to-launch-moveit-created-robot-model/
@@ -82,6 +76,9 @@ RUN apt-get -y update && \
     apt-get install -y software-properties-common libpcl-dev libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler libgflags-dev libgoogle-glog-dev liblmdb-dev libblas-dev libatlas-dev libatlas-base-dev libpcl-dev
 RUN apt-get -y update && \
     apt-get install -y  libboost-all-dev libeigen3-dev # --no-install-recommends
+    
+# Base container has a bunch of old libs, do upgrade
+RUN apt-get -y update && apt-get -y upgrade
 
 # Make SSH available
 EXPOSE 22
