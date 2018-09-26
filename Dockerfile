@@ -55,16 +55,31 @@ RUN apt-get install -y ros-kinetic-desktop-full
 RUN apt-get install -y x11-apps python-pip build-essential
 RUN pip install catkin_tools defer kombu
 
-
-
 # We also need to add a font to rviz for stuff to work: https://answers.ros.org/question/271750/error-when-trying-to-launch-moveit-created-robot-model/
 RUN cp  /usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf /opt/ros/kinetic/share/rviz/ogre_media/fonts
 COPY liberation.fontdef /opt/ros/kinetic/share/rviz/ogre_media/fonts
 
 
-## Tof: add stuff for move-it
-#RUN apt-get -y update && \
-#    apt-get install -y ros-kinetic-moveit ros-kinetic-moveit-visual-tools
+# Tof: add stuff for move-it
+RUN apt-get -y update && \
+    apt-get install -y ros-kinetic-moveit ros-kinetic-moveit-visual-tools
+
+# Turtlebot arm dependencies + find object
+RUN apt-get -y update && \
+    apt-get install -y ros-kinetic-yocs-math-toolkit ros-kinetic-find-object-2d \
+    ros-kinetic-usb-cam ros-kinetic-rgbd-launch
+
+## GPD plus manipulation components from Lukasz
+RUN apt-get -y update && \
+    apt-get install -y software-properties-common libpcl-dev libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler libgflags-dev libgoogle-glog-dev liblmdb-dev libblas-dev libatlas-dev libatlas-base-dev libpcl-dev libboost-all-dev libeigen3-dev libgflags-dev ros-kinetic-moveit-python # --no-install-recommends
+# PCL library (point cloud python https://github.com/strawlab/python-pcl) -- avoid re-running, it takes forever!
+RUN apt-get update -y && apt-get install -y build-essential devscripts dh-exec python-sphinx doxygen doxygen-latex
+RUN add-apt-repository --remove ppa:v-launchpad-jochen-sprickerhof-de/pcl -y && \
+dget -u https://launchpad.net/ubuntu/+archive/primary/+files/pcl_1.7.2-14ubuntu1.16.04.1.dsc && \
+cd pcl-1.7.2 && DEB_BUILD_OPTIONS=nodocs dpkg-buildpackage -j3 -r -uc -b
+RUN dpkg -i *pcl*.deb
+
+
 #    
 ## Tof: add stuff for pr2
 #RUN apt-get -y update && \
@@ -74,19 +89,7 @@ COPY liberation.fontdef /opt/ros/kinetic/share/rviz/ogre_media/fonts
 #RUN apt-get -y update && \
 #    apt-get install -y ros-kinetic-ros-control ros-kinetic-ros-controllers ros-kinetic-gazebo-ros-pkgs ros-kinetic-gazebo-ros-control ros-kinetic-moveit-visual-tools ros-kinetic-moveit ros-kinetic-controller-manager
 #    
-## Turtlebot arm dependencies + find object
-#RUN apt-get -y update && \
-#    apt-get install -y ros-kinetic-yocs-math-toolkit ros-kinetic-find-object-2d \
-#    ros-kinetic-usb-cam ros-kinetic-rgbd-launch
 
-## GPD plus manipulation components from Lukasz
-#RUN apt-get -y update && \
-#    apt-get install -y software-properties-common libpcl-dev libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler libgflags-dev libgoogle-glog-dev liblmdb-dev libblas-dev libatlas-dev libatlas-base-dev libpcl-dev libboost-all-dev libeigen3-dev libgflags-dev ros-kinetic-moveit-python # --no-install-recommends
-## PCL library (point cloud python https://github.com/strawlab/python-pcl)
-#RUN apt-get update -y && apt-get install build-essential devscripts && \
-#add-apt-repository -remove ppa:v-launchpad-jochen-sprickerhof-de/pcl -y && \
-#dget -u https://launchpad.net/ubuntu/+archive/primary/+files/pcl_1.7.2-14ubuntu1.16.04.1.dsc && \
-#cd pcl-1.7.2 && dpkg-buildpackage -r -uc -b && dpkg -i pcl_*.deb
     
 # Make SSH available
 EXPOSE 22

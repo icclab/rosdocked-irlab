@@ -1,7 +1,6 @@
-## rosdocked
+# Rosdocked
 
-Run ROS Indigo / Ubuntu Trusty within Docker on Ubuntu Xenial or on any platform with a shared
-username, home directory, and X11.
+Run ROS Kinetic / Ubuntu Trusty within Docker on Ubuntu Xenial or on any platform with a shared username, home directory, and X11.
 
 This enables you to build and run a persistent ROS Indigo workspace as long as
 you can run Docker images.
@@ -10,25 +9,42 @@ Note that any changes made outside of your home directory from within the Docker
 
 For more info on Docker see here: https://docs.docker.com/engine/installation/linux/ubuntulinux/
 
-### Build
+Rather than having devs build the entire image, we split the build logic in two steps:
 
-This will create the image with your user/group ID and home directory.
+ - build.sh in the main folder creates a user agnostic container image (robopaas/rosdocked-kinetic:latest)
+ -  personalized_image/build.sh adds the current user to the image to mount home dir and access X server
 
-```
-./build.sh IMAGE_NAME
-```
 
-### Run
+## Build (ICCLab image - optional)
 
-This will run the docker image.
+This will create a common image for ICCLab (robopaas/rosdocked-kinetic:latest) still without your user/group ID and home directory.
 
 ```
-./dock.sh IMAGE_NAME
+./build.sh
 ```
 
-The image shares it's  network interface with the host, so you can run this in
+## Build personalized image
+
+To add the current user to the image to be able to mount home dir and access X server, run:
+
+	cd personalized_image/
+	./build.sh
+	
+This will pull robopaas/rosdocked-kinetic:latest (hence no need to build it in the optional step)
+
+## Run personalized image
+
+After building, this will run the docker image.
+
+```
+./personalized_image/run-with-devs.sh
+```
+
+The image shares its  network interface with the host, so you can run this in
 multiple terminals for multiple hooks into the docker environment.
 
-### Whale
+## Notes on what we added to the Dockerfile
 
-🐳
+- Turtlebot install files
+- Move_it
+- Point Cloud library
