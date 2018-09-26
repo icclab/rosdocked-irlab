@@ -14,18 +14,10 @@ RUN apt-get -y update && apt-get -y upgrade
 # Basic Utilities
 RUN apt-get -y update && apt-get install -y zsh screen tree sudo ssh
 
-# tentative workaround for realsense camera
-COPY ros-kinetic-librealsense.postinst  /ros-kinetic-librealsense.postinst
-COPY ros-kinetic-librealsense.control  /ros-kinetic-librealsense.control
-RUN apt-get download ros-kinetic-librealsense && \
-mkdir tmp_deb && cd tmp_deb && \
-ar p ../ros-kinetic-librealsense_1.12.1-0xenial-20180809-140204-0800_amd64.deb control.tar.gz | tar -xz && \
-cp ../ros-kinetic-librealsense.postinst postinst && cp ../ros-kinetic-librealsense.control control && \
-cp ../ros-kinetic-librealsense_1.12.1-0xenial-20180809-140204-0800_amd64.deb ../ros-kinetic-librealsense_1.12.1~icclab-0xenial-20180809-140204-0800_amd64.deb && \
-tar czf control.tar.gz *[!z] && \
-ar r ../ros-kinetic-librealsense_1.12.1~icclab-0xenial-20180809-140204-0800_amd64.deb control.tar.gz && \
-cd .. && dpkg -i ros-kinetic-librealsense_1.12.1~icclab-0xenial-20180809-140204-0800_amd64.deb && \
-rm -rf /tmp_deb #&&  apt-get remove -y dkms && apt -o APT::Sandbox::User=root update
+# install pre-built deb files (relasense camera + python pcl)
+# a previous version of this file shows how to build them
+COPY deb_files /deb_files
+RUN dpkg -i /deb_files/*.deb
 
 # Install turtlebot
 RUN apt-get -y update && apt-get install -y ros-kinetic-turtlebot-description ros-kinetic-turtlebot ros-kinetic-turtlebot-gazebo ros-kinetic-turtlebot-rviz-launchers
@@ -72,12 +64,11 @@ RUN apt-get -y update && \
 ## GPD plus manipulation components from Lukasz
 RUN apt-get -y update && \
     apt-get install -y software-properties-common libpcl-dev libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler libgflags-dev libgoogle-glog-dev liblmdb-dev libblas-dev libatlas-dev libatlas-base-dev libpcl-dev libboost-all-dev libeigen3-dev libgflags-dev ros-kinetic-moveit-python # --no-install-recommends
-# PCL library (point cloud python https://github.com/strawlab/python-pcl) -- avoid re-running, it takes forever!
-RUN apt-get update -y && apt-get install -y build-essential devscripts dh-exec python-sphinx doxygen doxygen-latex
-RUN add-apt-repository --remove ppa:v-launchpad-jochen-sprickerhof-de/pcl -y && \
-dget -u https://launchpad.net/ubuntu/+archive/primary/+files/pcl_1.7.2-14ubuntu1.16.04.1.dsc && \
-cd pcl-1.7.2 && DEB_BUILD_OPTIONS=nodocs dpkg-buildpackage -j3 -r -uc -b
-RUN dpkg -i *pcl*.deb
+
+
+## add ROS controller packages
+RUN apt-get -y update && \
+    apt-get install -y ros-kinetic-ros-control ros-kinetic-ros-controllers ros-kinetic-gazebo-ros-pkgs ros-kinetic-gazebo-ros-control ros-kinetic-moveit-visual-tools ros-kinetic-moveit ros-kinetic-controller-manager
 
 
 #    
@@ -85,9 +76,7 @@ RUN dpkg -i *pcl*.deb
 #RUN apt-get -y update && \
 #    apt-get install -y ros-kinetic-pr2-description
 #    
-## add stuff for Omron robot with arm
-#RUN apt-get -y update && \
-#    apt-get install -y ros-kinetic-ros-control ros-kinetic-ros-controllers ros-kinetic-gazebo-ros-pkgs ros-kinetic-gazebo-ros-control ros-kinetic-moveit-visual-tools ros-kinetic-moveit ros-kinetic-controller-manager
+
 #    
 
     

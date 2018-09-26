@@ -43,8 +43,35 @@ After building, this will run the docker image.
 The image shares its  network interface with the host, so you can run this in
 multiple terminals for multiple hooks into the docker environment.
 
+Once in the container you should source the devel/setup.bash file in your (kinetic) catkin workspace from your home directory
+
 ## Notes on what we added to the Dockerfile
 
 - Turtlebot install files
 - Move_it
-- Point Cloud library
+- Point Cloud library (manually built deb files)
+- fake Realsense camera packages (manually built deb files)
+
+## Notes on how we built deb files
+
+### Dockerfile workaround for realsense camera
+COPY ros-kinetic-librealsense.postinst  /ros-kinetic-librealsense.postinst
+COPY ros-kinetic-librealsense.control  /ros-kinetic-librealsense.control
+RUN apt-get download ros-kinetic-librealsense && \
+mkdir tmp_deb && cd tmp_deb && \
+ar p ../ros-kinetic-librealsense_1.12.1-0xenial-20180809-140204-0800_amd64.deb control.tar.gz | tar -xz && \
+cp ../ros-kinetic-librealsense.postinst postinst && cp ../ros-kinetic-librealsense.control control && \
+cp ../ros-kinetic-librealsense_1.12.1-0xenial-20180809-140204-0800_amd64.deb ../ros-kinetic-librealsense_1.12.1~icclab-0xenial-20180809-140204-0800_amd64.deb && \
+tar czf control.tar.gz *[!z] && \
+ar r ../ros-kinetic-librealsense_1.12.1~icclab-0xenial-20180809-140204-0800_amd64.deb control.tar.gz && \
+cd .. && dpkg -i ros-kinetic-librealsense_1.12.1~icclab-0xenial-20180809-140204-0800_amd64.deb && \
+rm -rf /tmp_deb #&&  apt-get remove -y dkms && apt -o APT::Sandbox::User=root update
+
+### Dockerfile build of deb packages for python point cloud library (PCL)
+
+##### PCL library (point cloud python https://github.com/strawlab/python-pcl) -- avoid re-running, it takes forever!
+RUN apt-get update -y && apt-get install -y build-essential devscripts dh-exec python-sphinx doxygen doxygen-latex
+RUN add-apt-repository --remove ppa:v-launchpad-jochen-sprickerhof-de/pcl -y && \
+dget -u https://launchpad.net/ubuntu/+archive/primary/+files/pcl_1.7.2-14ubuntu1.16.04.1.dsc && \
+cd pcl-1.7.2 && DEB_BUILD_OPTIONS=nodocs dpkg-buildpackage -j3 -r -uc -b
+RUN dpkg -i *pcl*.deb
