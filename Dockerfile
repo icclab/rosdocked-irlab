@@ -70,15 +70,34 @@ RUN apt-get -y update && \
 RUN apt-get -y update && \
     apt-get install -y ros-kinetic-ros-control ros-kinetic-ros-controllers ros-kinetic-gazebo-ros-pkgs ros-kinetic-gazebo-ros-control ros-kinetic-moveit-visual-tools ros-kinetic-moveit ros-kinetic-controller-manager
 
+# install eigen http://eigen.tuxfamily.org/index.php
+RUN cd /tmp && wget http://bitbucket.org/eigen/eigen/get/3.3.5.tar.gz && \
+tar xzvf 3.3.5.tar.gz && cd eigen-* && mkdir build && cd build && \
+cmake .. && make install
 
-#    
-## Tof: add stuff for pr2
-#RUN apt-get -y update && \
-#    apt-get install -y ros-kinetic-pr2-description
-#    
+# install caffe ( no GPU, CPU only: copied from another container https://github.com/intel/caffe/blob/master/docker/standalone/cpu-ubuntu/Dockerfile)
+ENV CLONE_TAG=1.0
+ENV CAFFE_ROOT=/opt/caffe
+RUN pip install --upgrade pip
+RUN mkdir -p $CAFFE_ROOT && cd $CAFFE_ROOT && \
+    git clone -b ${CLONE_TAG} --depth 1 https://github.com/BVLC/caffe.git . && \
+    for req in $(cat python/requirements.txt) pydot; do pip install $req; done && \
+    mkdir build && cd build && \
+    cmake -DCPU_ONLY=1 -DUSE_MLSL=1 -DCMAKE_BUILD_TYPE=Release .. && \
+    make all -j"$(nproc)" && make install && make runtest
+ENV PYCAFFE_ROOT $CAFFE_ROOT/python
+ENV PYTHONPATH $PYCAFFE_ROOT:$PYTHONPATH
+ENV PATH $CAFFE_ROOT/build/tools:$PYCAFFE_ROOT:$PATH
+ENV CAFFE_DIR=$CAFFE_ROOT/build
+RUN echo "$CAFFE_ROOT/build/lib" >> /etc/ld.so.conf.d/caffe.conf && ldconfig
+# do the actual install in /usr
+RUN cp -r $CAFFE_DIR/install/* /usr
 
-#    
-
+# install grasp pose generator (gpg)
+RUN mkdir -p /opt/gpg && cd /opt/gpg && \
+    git clone https://github.com/atenpas/gpg.git && \
+    cd gpg && mkdir build && cd build && cmake .. && \
+    make && make install
     
 # Make SSH available
 EXPOSE 22
