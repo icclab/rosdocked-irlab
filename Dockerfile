@@ -99,6 +99,12 @@ RUN mkdir -p /opt/gpg && cd /opt/gpg && \
     cd gpg && mkdir build && cd build && cmake .. && \
     make && make install
     
+# install other dependences for gpd
+RUN pip install --upgrade pip && pip install pyquaternion cython==0.25.2 numpy
+RUN cd /opt && git clone https://github.com/strawlab/python-pcl.git && \
+cd python-pcl && python setup.py build_ext -i && python setup.py install
+
+    
 # Make SSH available
 EXPOSE 22
 
