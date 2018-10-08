@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
+IMG=$1
+
 # Check args
 if [ "$#" -ne 1 ]; then
-  echo "usage: ./run.sh IMAGE_NAME"
-  return 1
+  # echo "usage: ./run.sh IMAGE_NAME"
+  # return 1
+  IMG='robopaas/rosdocked-kinetic'
 fi
 
 # Get this script's path
@@ -25,4 +28,4 @@ docker run\
   -e DOCKER=1\
   -v "$HOME:$HOME:rw"\
   -v "/tmp/.X11-unix:/tmp/.X11-unix:rw"\
-  -it $1 $SHELL
+  -it $IMG $SHELL
