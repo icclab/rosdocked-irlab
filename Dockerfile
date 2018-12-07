@@ -99,16 +99,17 @@ RUN mkdir -p /opt/gpg && cd /opt/gpg && \
     cd gpg && mkdir build && cd build && cmake .. && \
     make && make install
     
-# install other dependencies for gpd + fix f***ing pyassimp
+# install other dependencies for gpd + fix f***ing pyassimp + python-pcl
 COPY pyassimp_patch.txt /opt/pyassimp_patch.txt
 COPY planning_scene_patch.txt /opt/planning_scene_patch.txt
-RUN pip install pyquaternion && patch /usr/lib/python2.7/dist-packages/pyassimp/core.py /opt/pyassimp_patch.txt && patch /opt/ros/kinetic/lib/python2.7/dist-packages/moveit_python/planning_scene_interface.py /opt/planning_scene_patch.txt
+COPY pick_place_interface.py /opt/ros/kinetic/lib/python2.7/dist-packages/moveit_python
+RUN pip install pyquaternion && patch /usr/lib/python2.7/dist-packages/pyassimp/core.py /opt/pyassimp_patch.txt && patch /opt/ros/kinetic/lib/python2.7/dist-packages/moveit_python/planning_scene_interface.py /opt/planning_scene_patch.txt && cd /opt && wget https://github.com/strawlab/python-pcl/archive/v0.3.0rc1.tar.gz && tar xzvf v0.3.0rc1.tar.gz && cd python-pcl-0.3.0rc1 && pip install cython==0.25.2 && pip install numpy && python setup.py build_ext -i && python setup.py install && apt-get install 
+
+RUN apt-get update
+
 
 # install dependencies to control Summit-XL Steel
-# rosdep install --from-paths summit_xl_common
-# rosdep install --from-paths summit_xl_sim
-# rosdep install --from-paths ur_modern_driver
-
+# rosdep install -r -y --from-paths cakin_ws/src
 
 # Make SSH available
 EXPOSE 22
