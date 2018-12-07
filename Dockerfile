@@ -17,7 +17,7 @@ RUN apt-get -y update && apt-get install -y zsh screen tree sudo ssh
 # install pre-built deb files (relasense camera + python pcl)
 # a previous version of this file shows how to build them
 COPY deb_files /deb_files
-RUN dpkg -i /deb_files/*.deb
+RUN cd /deb_files && wget https://milhouse.cloudlab.zhaw.ch/s/pY8KBeLXkPgqngr && dpkg -i /deb_files/*.deb
 
 # Install turtlebot
 RUN apt-get -y update && apt-get install -y ros-kinetic-turtlebot-description ros-kinetic-turtlebot ros-kinetic-turtlebot-gazebo ros-kinetic-turtlebot-rviz-launchers
