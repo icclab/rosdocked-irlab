@@ -1,5 +1,36 @@
 # Rosdocked
 
+## TL;DR
+
+Run our ROS kinetic environment including the workspace and projects
+
+	cd workspace_included
+	./run-with-dev.sh
+
+A container (robopaas/rosdocked-kinetic-workspace-included) will be pulled and started, it will have access to your X server.
+
+You can try our projects within it, e.g.:
+
+	roslaunch icclab_summit_xl irlab_sim_summit_xls_complete.launch
+	
+or
+
+	roslaunch icclab_summit_xl irlab_sim_summit_xls_grasping.launch
+
+The first time you run them Gazebo will have to download all models, so it will take a while and a race condition will prevent arm control. Just restart the script and it will work.
+
+
+**NOTE** 
+If GUI-based apps don't work on your linux you'll have to allow the container to connect to your x-server:
+
+https://www.thegeekstuff.com/2010/06/xhost-cannot-open-display/
+
+(unsafe)  before starting the container, on the host run:
+
+	xhost +
+
+## Longer story (Only if you need to rebuild / edit code)
+
 Run ROS Kinetic / Ubuntu Trusty within Docker on Ubuntu Xenial or on any platform with a shared username, home directory, and X11.
 
 This enables you to build and run a persistent ROS Indigo workspace as long as

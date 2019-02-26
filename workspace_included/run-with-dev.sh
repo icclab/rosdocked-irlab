@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
-export IMAGE_NAME=robopaas/rosdocked-kinetic-$USER:latest
-
-# Get this script's path
-pushd `dirname $0` > /dev/null
-SCRIPTPATH=`pwd`
-popd > /dev/null
+export IMAGE_NAME=robopaas/rosdocked-kinetic-workspace-included:latest
 
 set -e
+
 
 # Run the container with shared X11
 #   --device=/dev/duo1:/dev/duo1\
@@ -22,6 +18,5 @@ docker run\
   -e SHELL\
   -e DISPLAY\
   -e DOCKER=1\
-  -v "$HOME:$HOME:rw"\
   -v "/tmp/.X11-unix:/tmp/.X11-unix:rw"\
   -it $IMAGE_NAME $SHELL
