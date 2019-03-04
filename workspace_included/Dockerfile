@@ -30,7 +30,7 @@ git clone https://github.com/JenniferBuehler/gazebo-pkgs.git && \
 git clone https://github.com/JenniferBuehler/general-message-pkgs.git && \
 git clone https://github.com/atenpas/gpg.git && \
 git clone https://github.com/icclab/icclab_turtlebot.git -b kinetic && \
-git clone https://github.com/icclab/irlab_point_cloud_filtering.git && \
+git clone https://github.com/icclab/irlab_point_cloud_filtering.git -b two_pcl_filtering && \
 git clone https://github.com/icclab/laser_filters.git -b indigo-devel && \
 git clone https://github.com/NiryoRobotics/niryo_one_ros.git && \
 git clone https://github.com/intel-ros/realsense.git -b development && \
