@@ -26,8 +26,8 @@ USER "${user}"
 RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/kinetic/setup.bash && catkin_make" && \
 cd src && \
 git clone https://github.com/icclab/icclab_summit_xl.git && \
-git clone https://github.com/JenniferBuehler/gazebo-pkgs.git && \
-git clone https://github.com/JenniferBuehler/general-message-pkgs.git && \
+git clone --branch 1.0.2 https://github.com/JenniferBuehler/gazebo-pkgs.git && \
+git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
 git clone https://github.com/atenpas/gpg.git && \
 git clone https://github.com/icclab/icclab_turtlebot.git -b kinetic && \
 git clone https://github.com/icclab/irlab_point_cloud_filtering.git -b two_pcl_filtering && \
