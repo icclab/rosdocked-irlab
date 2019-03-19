@@ -45,6 +45,24 @@ git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b ind
 git clone https://github.com/scanse/sweep-sdk.git && \
 git clone https://github.com/RobotnikAutomation/ur_modern_driver.git 
 
+# wget gazebo models to decrease initial gazebo bringup time
+RUN mkdir -p ~/.gazebo/models/wood_block_10_2_1cm && cd ~/.gazebo/models/wood_block_10_2_1cm && \
+wget https://bitbucket.org/osrf/gazebo_models/raw/e6d645674e8a99cb7955ce3b9a1fbe26c58c41f2/wood_block_10_2_1cm/model.config && \
+wget https://bitbucket.org/osrf/gazebo_models/raw/e6d645674e8a99cb7955ce3b9a1fbe26c58c41f2/wood_block_10_2_1cm/model.rsdf && \
+wget https://bitbucket.org/osrf/gazebo_models/raw/e6d645674e8a99cb7955ce3b9a1fbe26c58c41f2/wood_block_10_2_1cm/model.sdf && \
+mkdir ../ground_plane && cd ~/.gazebo/models/ground_plane && \
+wget https://bitbucket.org/osrf/gazebo_models/raw/e6d645674e8a99cb7955ce3b9a1fbe26c58c41f2/ground_plane/model-1_2.sdf && \
+wget https://bitbucket.org/osrf/gazebo_models/raw/e6d645674e8a99cb7955ce3b9a1fbe26c58c41f2/ground_plane/model-1_3.sdf && \
+wget https://bitbucket.org/osrf/gazebo_models/raw/e6d645674e8a99cb7955ce3b9a1fbe26c58c41f2/ground_plane/model-1_4.sdf && \
+wget https://bitbucket.org/osrf/gazebo_models/raw/e6d645674e8a99cb7955ce3b9a1fbe26c58c41f2/ground_plane/model.config && \
+wget https://bitbucket.org/osrf/gazebo_models/raw/e6d645674e8a99cb7955ce3b9a1fbe26c58c41f2/ground_plane/model.sdf && \
+mkdir ../sun && cd ~/.gazebo/models/sun && \
+wget https://bitbucket.org/osrf/gazebo_models/raw/e6d645674e8a99cb7955ce3b9a1fbe26c58c41f2/sun/model-1_2.sdf && \
+wget https://bitbucket.org/osrf/gazebo_models/raw/e6d645674e8a99cb7955ce3b9a1fbe26c58c41f2/sun/model-1_3.sdf && \
+wget https://bitbucket.org/osrf/gazebo_models/raw/e6d645674e8a99cb7955ce3b9a1fbe26c58c41f2/sun/model-1_4.sdf && \
+wget https://bitbucket.org/osrf/gazebo_models/raw/e6d645674e8a99cb7955ce3b9a1fbe26c58c41f2/sun/model.config && \
+wget https://bitbucket.org/osrf/gazebo_models/raw/e6d645674e8a99cb7955ce3b9a1fbe26c58c41f2/sun/model.sdf
+
 # patch gpd fwd
 RUN cd ~/catkin_ws/src/gpd && \
 wget https://patch-diff.githubusercontent.com/raw/atenpas/gpd/pull/63.patch && \
