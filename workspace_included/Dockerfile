@@ -23,7 +23,7 @@ chmod 0440 "/etc/sudoers.d/${user}"
 USER "${user}"
 
 # create catkin ws and clone projects
-RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/kinetic/setup.bash && catkin_make" && \
+RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/kinetic/setup.bash && catkin build" && \
 cd src && \
 git clone https://github.com/icclab/icclab_summit_xl.git && \
 git clone --branch 1.0.2 https://github.com/JenniferBuehler/gazebo-pkgs.git && \
@@ -33,7 +33,7 @@ git clone https://github.com/icclab/icclab_turtlebot.git -b kinetic && \
 git clone https://github.com/icclab/irlab_point_cloud_filtering.git -b two_pcl_filtering && \
 git clone https://github.com/icclab/laser_filters.git -b indigo-devel && \
 git clone https://github.com/NiryoRobotics/niryo_one_ros.git && \
-git clone https://github.com/intel-ros/realsense.git -b development && \
+git clone --branch 2.2.1 https://github.com/intel-ros/realsense.git -b development && \
 git clone https://github.com/atenpas/gpd.git -b forward && \
 mkdir summit_xl_sources && cd summit_xl_sources && \
 git clone https://github.com/RobotnikAutomation/rcomponent.git && \
@@ -56,13 +56,13 @@ patch < 63.patch
 
 # update dependencies
 RUN sudo apt-get update && cd ~/catkin_ws && \
-rosdep update && rosdep install -ry --from-paths src 
+rosdep update && rosdep install -ry --from-paths src --skip-keys "ddynamic_reconfigure"
 
 # realsense / tb3 still missing?
 RUN sudo apt-get install -y librealsense2 ros-kinetic-turtlebot3
 
 # build workspace 
-RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/kinetic/setup.bash && catkin_make"
+RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/kinetic/setup.bash && catkin build"
 
 # edit bashrc
 RUN echo "source catkin_ws/devel/setup.bash" >> ~/.bashrc
