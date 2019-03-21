@@ -11,16 +11,19 @@ A container (robopaas/rosdocked-kinetic-workspace-included) will be pulled and s
 
 You can try our projects within it, e.g.:
 
-	roslaunch icclab_summit_xl irlab_sim_summit_xls_complete.launch
+	roslaunch icclab_summit_xl irlab_sim_summit_xls_amcl.launch
 	
 or
 
 	roslaunch icclab_summit_xl irlab_sim_summit_xls_grasping.launch
 
-The first time you run them Gazebo will have to download all models, so it will take a while and a race condition will prevent arm control. Just restart the script and it will work.
+**UPDATE**
+
+The following [commit](https://github.com/icclab/rosdocked-irlab/commit/4adff15aee80e0dc04fe4ef7a8f9b847ea7593eb) fixes the issue of having to restart the script when initially running Gazebo causing a race condition which prevents arm control.
 
 
 **NOTE** 
+
 If GUI-based apps don't work on your linux you'll have to allow the container to connect to your x-server:
 
 https://www.thegeekstuff.com/2010/06/xhost-cannot-open-display/
