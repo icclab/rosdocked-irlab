@@ -9,13 +9,16 @@ Run our ROS kinetic environment including the workspace and projects
 
 A container (robopaas/rosdocked-kinetic-workspace-included) will be pulled and started, it will have access to your X server.
 
-You can try our projects within it, e.g.:
+You can try our projects within it, e.g. for the robot navigation project run:
 
 	roslaunch icclab_summit_xl irlab_sim_summit_xls_amcl.launch
 	
-or
+or to run the grasping project run:
 
 	roslaunch icclab_summit_xl irlab_sim_summit_xls_grasping.launch
+
+For the grasping project you can test the python script to grasp the given object in the environment:
+
 	cd catkin_ws/src/icclab_summit_xl/scripts
 	python  icclab_summit_xl irlab_sim_summit_xls_grasping.launch
 
