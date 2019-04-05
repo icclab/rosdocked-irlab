@@ -20,7 +20,7 @@ or to run the grasping project run:
 For the grasping project you can test the python script to grasp the given object in the environment:
 
 	cd catkin_ws/src/icclab_summit_xl/scripts
-	python  icclab_summit_xl irlab_sim_summit_xls_grasping.launch
+	python irlab_sim_summit_xls_grasping.launch
 
 
 
