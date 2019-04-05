@@ -16,10 +16,9 @@ You can try our projects within it, e.g.:
 or
 
 	roslaunch icclab_summit_xl irlab_sim_summit_xls_grasping.launch
+	cd catkin_ws/src/icclab_summit_xl/scripts
+	python  icclab_summit_xl irlab_sim_summit_xls_grasping.launch
 
-**UPDATE**
-
-The following [commit](https://github.com/icclab/rosdocked-irlab/commit/4adff15aee80e0dc04fe4ef7a8f9b847ea7593eb) fixes the issue of having to restart the script when initially running Gazebo causing a race condition which prevents arm control.
 
 
 **NOTE** 
