@@ -22,7 +22,7 @@ For the grasping project you can test the python script to grasp the given objec
 	cd catkin_ws/src/icclab_summit_xl/scripts
 	python pick_and_place_summit_simulation.py
 	
-Our default setup uses a Schunck gripper. You can simulate also a Robotiq gripper by setting a parameter:
+Our default setup uses a Schunk gripper. You can simulate also a Robotiq gripper by setting a parameter:
 
 	roslaunch icclab_summit_xl irlab_sim_summit_xls_grasping.launch robotiq_gripper:=true
 	cd catkin_ws/src/icclab_summit_xl/scripts
