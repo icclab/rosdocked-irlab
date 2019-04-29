@@ -3,8 +3,6 @@ export TAG=latest
 export BASE_IMAGE=robopaas/rosdocked-kinetic-workspace-included
 export IMAGE_NAME=$BASE_IMAGE:$TAG
 
-set -e
-
 local_image=$(docker images | grep $BASE_IMAGE | grep $TAG)
 if ! [[ -z "$local_image" ]] ; then
   read -p "Do you wish to delete local $IMAGE_NAME image and pull an updated version? (y/n) " yn
@@ -13,6 +11,8 @@ if ! [[ -z "$local_image" ]] ; then
    [Nn]* ) echo "Using local image $IMAGE_NAME";;
   esac
 fi
+
+set -e
 
 # Run the container with shared X11
 #   --device=/dev/duo1:/dev/duo1\
