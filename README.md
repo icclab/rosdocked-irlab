@@ -11,7 +11,7 @@ A container (robopaas/rosdocked-kinetic-workspace-included) will be pulled and s
 
 You can try our projects within it, e.g., to run the robot navigation project:
 
-	roslaunch icclab_summit_xl irlab_sim_summit_xls_amcl.launch
+	roslaunch icclab_summit_xl irlab_sim_summit_xls_complete.launch
 	
 Or to run the grasping project:
 
