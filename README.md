@@ -9,18 +9,28 @@ Run our ROS kinetic environment including the workspace and projects
 
 A container (robopaas/rosdocked-kinetic-workspace-included) will be pulled and started, it will have access to your X server.
 
-You can try our projects within it, e.g.:
+You can try our projects within it, e.g., to run the robot navigation project:
 
 	roslaunch icclab_summit_xl irlab_sim_summit_xls_complete.launch
 	
-or
+Or to run the grasping project:
 
 	roslaunch icclab_summit_xl irlab_sim_summit_xls_grasping.launch
 
-The first time you run them Gazebo will have to download all models, so it will take a while and a race condition will prevent arm control. Just restart the script and it will work.
+For the grasping project you can test the python script to grasp the given object in the environment:
+
+	cd catkin_ws/src/icclab_summit_xl/scripts
+	python pick_and_place_summit_simulation.py
+	
+Our default setup uses a Schunk gripper. You can simulate also a Robotiq gripper by setting a parameter:
+
+	roslaunch icclab_summit_xl irlab_sim_summit_xls_grasping.launch robotiq_gripper:=true
+	cd catkin_ws/src/icclab_summit_xl/scripts
+	python pick_and_place_summit_simulation_robotiq.py 
 
 
 **NOTE** 
+
 If GUI-based apps don't work on your linux you'll have to allow the container to connect to your x-server:
 
 https://www.thegeekstuff.com/2010/06/xhost-cannot-open-display/

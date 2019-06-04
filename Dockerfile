@@ -46,7 +46,8 @@ RUN apt-get install -y\
   libeigen3-dev libgflags-dev ros-kinetic-moveit-python \
   ros-kinetic-ros-control ros-kinetic-ros-controllers ros-kinetic-gazebo-ros-pkgs \
   ros-kinetic-gazebo-ros-control ros-kinetic-moveit-visual-tools \
-  ros-kinetic-moveit ros-kinetic-controller-manager
+  ros-kinetic-moveit ros-kinetic-controller-manager \
+  python-catkin-tools
 
 
 RUN pip install catkin_tools defer kombu
