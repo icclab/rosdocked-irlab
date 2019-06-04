@@ -57,6 +57,24 @@ rosdep update && rosdep install -ry --from-paths src
 # realsense / tb3 still missing?
 RUN sudo apt-get install -y librealsense2 ros-kinetic-turtlebot3
 
+#Added x11vnc
+RUN sudo apt-get install -y x11vnc xvfb
+
+# Environment variables for noVNC
+# Setup demo environment variables
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    DISPLAY=:0.0 \
+    DISPLAY_WIDTH=1024 \
+    DISPLAY_HEIGHT=768 \
+    RUN_FLUXBOX=yes
+
+# Clone noVNC
+RUN sudo git clone -b v1.1.0 https://github.com/novnc/noVNC.git /opt/novnc \
+    && sudo rm -rf /opt/novnc/.git
+
 # build workspace 
 RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/kinetic/setup.bash && catkin_make"
 
@@ -68,3 +86,8 @@ ENV QT_X11_NO_MITSHM=1
 ENV CATKIN_TOPLEVEL_WS="${workspace}/devel"
 # Switch to the workspace
 WORKDIR ${workspace}
+
+# For noVNC and launching xvfb, x11vnc - doesn't work right now
+EXPOSE 8080
+
+CMD ["sudo", "supervisord", "-c", "/opt/novnc/supervisord/supervisord.conf"]
