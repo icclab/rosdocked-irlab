@@ -7,12 +7,9 @@ ARG home
 ARG workspace
 ARG shell
 
-## Clone user into docker image and set up X11 sharing 
-#RUN \
-#  echo "${user}:x:${uid}:${uid}:${user},,,:${home}:${shell}" >> /etc/passwd && \
-#  echo "${user}:x:${uid}:" >> /etc/group && \
-#  echo "${user} ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/${user}" && \
-#  chmod 0440 "/etc/sudoers.d/${user}"
+# update ros.org keys
+RUN apt-key del 421C365BD9FF1F717815A3895523BAEEB01FA116 && \
+apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 
 # add ros user to container and make sudoer
 RUN useradd -m -s /bin/bash -G video,plugdev  ${user} && \
@@ -56,13 +53,10 @@ patch < 63.patch
 
 # update dependencies
 RUN sudo apt-get update && cd ~/catkin_ws && \
-rosdep update && rosdep install -ry --from-paths src --skip-keys "ddynamic_reconfigure"
+rosdep update && rosdep install -ry --from-paths src
 
 # realsense / tb3 still missing?
 RUN sudo apt-get install -y librealsense2 ros-kinetic-turtlebot3
-
-#Added x11vnc
-RUN sudo apt-get install -y x11vnc xvfb
 
 # Environment variables for noVNC
 # Setup demo environment variables
@@ -82,6 +76,11 @@ RUN sudo git clone -b v1.1.0 https://github.com/novnc/noVNC.git /opt/novnc \
 # build workspace 
 RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/kinetic/setup.bash && catkin build"
 
+# update gazebo + x11vnc
+RUN sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' && \
+wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - && \
+sudo apt-get update && sudo apt-get install -y gazebo7 x11vnc xvfb fluxbox
+
 # edit bashrc
 RUN echo "source catkin_ws/devel/setup.bash" >> ~/.bashrc
 
@@ -91,7 +90,7 @@ ENV CATKIN_TOPLEVEL_WS="${workspace}/devel"
 # Switch to the workspace
 WORKDIR ${workspace}
 
-# For noVNC and launching xvfb, x11vnc - doesn't work right now
-EXPOSE 8080
+# For noVNC and launching xvfb, x11vnc 
+EXPOSE 6080
 
 CMD ["sudo", "supervisord", "-c", "/opt/novnc/supervisord/supervisord.conf"]
