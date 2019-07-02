@@ -87,12 +87,12 @@ RUN mkdir -p /opt/gpg && cd /opt/gpg && \
     git clone https://github.com/atenpas/gpg.git && \
     cd gpg && mkdir build && cd build && cmake .. && \
     make && make install
-    
+
 # install other dependencies for gpd + fix f***ing pyassimp + python-pcl
 COPY pyassimp_patch.txt /opt/pyassimp_patch.txt
 COPY planning_scene_patch.txt /opt/planning_scene_patch.txt
 COPY pick_place_interface.py /opt/ros/kinetic/lib/python2.7/dist-packages/moveit_python
-RUN pip install pyquaternion && patch /usr/lib/python2.7/dist-packages/pyassimp/core.py /opt/pyassimp_patch.txt && patch /opt/ros/kinetic/lib/python2.7/dist-packages/moveit_python/planning_scene_interface.py /opt/planning_scene_patch.txt && cd /opt && git clone https://github.com/strawlab/python-pcl.git && cd python-pcl && pip install cython==0.25.2 && pip install numpy && python setup.py build_ext -i && python setup.py install
+RUN pip install pyquaternion && patch /usr/lib/python2.7/dist-packages/pyassimp/core.py /opt/pyassimp_patch.txt && patch /opt/ros/kinetic/lib/python2.7/dist-packages/moveit_python/planning_scene_interface.py /opt/planning_scene_patch.txt && cd /opt && git clone https://github.com/strawlab/python-pcl.git && cd python-pcl && git checkout 9491615033f85db317c9e29b6a9fe89603f97365 && pip install cython==0.25.2 && pip install numpy==1.14 && python setup.py build_ext -i && python setup.py install
 
 # add realsense2 camera support
 RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key C8B3A55A6F3EFCDE
