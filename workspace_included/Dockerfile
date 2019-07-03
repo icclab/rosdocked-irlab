@@ -52,8 +52,9 @@ wget https://patch-diff.githubusercontent.com/raw/atenpas/gpd/pull/63.patch && \
 patch < 63.patch
 
 # update dependencies
+# TODO: remove '; exit 0' workaround made for messy realsense dependencies
 RUN sudo apt-get update && cd ~/catkin_ws && \
-rosdep update && rosdep install -ry --from-paths src
+rosdep update && rosdep install -ry --from-paths src; exit 0
 
 # realsense / tb3 still missing?
 RUN sudo apt-get install -y librealsense2 ros-kinetic-turtlebot3
