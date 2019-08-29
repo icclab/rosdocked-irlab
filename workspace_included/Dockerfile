@@ -57,7 +57,8 @@ RUN sudo apt-get update && cd ~/catkin_ws && \
 rosdep update && rosdep install -ry --from-paths src; exit 0
 
 # realsense / tb3 still missing?
-RUN sudo apt-get install -y librealsense2 ros-kinetic-turtlebot3
+# this stuff is now in the base image
+# RUN sudo apt-get install -y librealsense2 ros-kinetic-turtlebot3
 
 # Environment variables for noVNC
 # Setup demo environment variables
