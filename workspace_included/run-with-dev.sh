@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export TAG=latest
+export TAG=gio_20190829  # revert to latest once CI/CD process is ok
 export BASE_IMAGE=robopaas/rosdocked-kinetic-workspace-included
 export IMAGE_NAME=$BASE_IMAGE:$TAG
 
