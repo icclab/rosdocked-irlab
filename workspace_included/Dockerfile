@@ -81,7 +81,7 @@ RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/kinetic/setup.bash && catkin
 # update gazebo + x11vnc
 RUN sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' && \
 wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - && \
-sudo apt-get update && sudo apt-get install -y gazebo7 x11vnc xvfb fluxbox
+sudo apt-get update && sudo apt-get install -y gazebo7 x11vnc xvfb fluxbox ; exit 0
 
 # edit bashrc
 RUN echo "source catkin_ws/devel/setup.bash" >> ~/.bashrc
