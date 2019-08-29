@@ -40,7 +40,7 @@ git clone https://github.com/RobotnikAutomation/ros-system-monitor && \
 git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b indigo-devel && \
 git clone https://github.com/scanse/sweep-sdk.git && \
-git clone https://github.com/RobotnikAutomation/ur_modern_driver.git 
+git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
 
 # add gazebo models to decrease initial gazebo bringup time
 RUN mkdir -p ~/.gazebo
@@ -51,14 +51,11 @@ RUN cd ~/catkin_ws/src/gpd && \
 wget https://patch-diff.githubusercontent.com/raw/atenpas/gpd/pull/63.patch && \
 patch < 63.patch
 
-# update dependencies
-# TODO: remove '; exit 0' workaround made for messy realsense dependencies
-RUN sudo apt-get update && cd ~/catkin_ws && \
-rosdep update && rosdep install -ry --from-paths src; exit 0
+RUN sudo apt-get install -y apt-utils
 
-# realsense / tb3 still missing?
-# this stuff is now in the base image
-# RUN sudo apt-get install -y librealsense2 ros-kinetic-turtlebot3
+# update dependencies
+RUN sudo apt-get update && cd ~/catkin_ws && \
+rosdep update && rosdep install -ry --from-paths src
 
 # Environment variables for noVNC
 # Setup demo environment variables
@@ -75,14 +72,13 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN sudo git clone -b v1.1.0 https://github.com/novnc/noVNC.git /opt/novnc \
     && sudo rm -rf /opt/novnc/.git
 
-# build workspace 
+# build workspace
 RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/kinetic/setup.bash && catkin build"
 
 # update gazebo + x11vnc
-# TODO: remove '; exit 0' workaround made for messy realsense dependencies
 RUN sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' && \
 wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - && \
-sudo apt-get update && sudo apt-get install -y gazebo7 x11vnc xvfb fluxbox ; exit 0
+sudo apt-get update && sudo apt-get install -y gazebo7 x11vnc xvfb fluxbox
 
 # edit bashrc
 RUN echo "source catkin_ws/devel/setup.bash" >> ~/.bashrc
@@ -93,7 +89,7 @@ ENV CATKIN_TOPLEVEL_WS="${workspace}/devel"
 # Switch to the workspace
 WORKDIR ${workspace}
 
-# For noVNC and launching xvfb, x11vnc 
+# For noVNC and launching xvfb, x11vnc
 EXPOSE 6080
 
 CMD ["sudo", "supervisord", "-c", "/opt/novnc/supervisord/supervisord.conf"]
