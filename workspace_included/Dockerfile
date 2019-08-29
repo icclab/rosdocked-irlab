@@ -79,6 +79,7 @@ RUN sudo git clone -b v1.1.0 https://github.com/novnc/noVNC.git /opt/novnc \
 RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/kinetic/setup.bash && catkin build"
 
 # update gazebo + x11vnc
+# TODO: remove '; exit 0' workaround made for messy realsense dependencies
 RUN sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' && \
 wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - && \
 sudo apt-get update && sudo apt-get install -y gazebo7 x11vnc xvfb fluxbox ; exit 0
