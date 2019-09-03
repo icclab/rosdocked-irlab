@@ -102,6 +102,9 @@ sudo apt-get update && sudo apt-get install -y gazebo7 x11vnc xvfb fluxbox
 # edit bashrc
 RUN echo "source catkin_ws/devel/setup.bash" >> ~/.bashrc
 
+# fix for missing deps - there is prob a better way TODO: reeval this
+RUN sudo apt-get install ros-kinetic-gazebo-ros-pkgs ros-kinetic-gazebo-ros-control ros-kinetic-ur-gazebo ros-kinetic-ur5-moveit-config ros-kinetic-ur-kinematics ros-kinetic-timed-roslaunch ros-kinetic-ira-laser-tools
+
 # This is required for sharing Xauthority
 ENV QT_X11_NO_MITSHM=1
 ENV CATKIN_TOPLEVEL_WS="${workspace}/devel"
