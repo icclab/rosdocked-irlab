@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export TAG=gio_20190829  # revert to latest once CI/CD process is ok
+export TAG=latest
 export BASE_IMAGE=robopaas/rosdocked-kinetic-workspace-included
 export IMAGE_NAME=$BASE_IMAGE:$TAG
 
@@ -17,7 +17,9 @@ set -e
 # Run the container with shared X11
 #   --device=/dev/duo1:/dev/duo1\
 docker run\
-  -h `hostname` \
+  -h `hostname`\
+  --name irlab\
+  --rm\
   --privileged\
   --net=host\
   --device=/dev/video0\
