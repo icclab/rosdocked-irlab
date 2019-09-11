@@ -106,6 +106,8 @@ RUN echo "source catkin_ws/devel/setup.bash" >> ~/.bashrc
 RUN sudo apt-get install -y ros-kinetic-gazebo-ros-pkgs ros-kinetic-gazebo-ros-control ros-kinetic-ur-gazebo ros-kinetic-ur5-moveit-config ros-kinetic-ur-kinematics ros-kinetic-timed-roslaunch ros-kinetic-ira-laser-tools ros-kinetic-spatio-temporal-voxel-layer
 
 # fix for lower version numpy so pick and place works
+RUN sudo rm -rf /usr/lib/python2.7/dist-packages/numpy*
+RUN sudo rm -rf /usr/local/lib/python2.7/dist-packages/numpy*
 RUN sudo pip install --upgrade numpy==1.16.0
 
 # This is required for sharing Xauthority
