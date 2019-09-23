@@ -50,7 +50,8 @@ RUN apt-get install -y\
   ros-kinetic-ros-control ros-kinetic-ros-controllers ros-kinetic-gazebo-ros-pkgs \
   ros-kinetic-gazebo-ros-control ros-kinetic-moveit-visual-tools \
   ros-kinetic-moveit ros-kinetic-controller-manager \
-  python-catkin-tools
+  python-catkin-tools \
+  libignition-math2-dev
 
 
 RUN pip install catkin_tools defer kombu

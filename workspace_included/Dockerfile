@@ -100,7 +100,7 @@ wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - && \
 sudo apt-get update && sudo apt-get install -y gazebo7 x11vnc xvfb fluxbox
 
 # edit bashrc
-RUN echo "source catkin_ws/devel/setup.bash" >> ~/.bashrc
+RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
 # fix for missing deps - there is prob a better way TODO: reeval this
 RUN sudo apt-get install -y ros-kinetic-gazebo-ros-pkgs ros-kinetic-gazebo-ros-control ros-kinetic-ur-gazebo ros-kinetic-ur5-moveit-config ros-kinetic-ur-kinematics ros-kinetic-timed-roslaunch ros-kinetic-ira-laser-tools ros-kinetic-spatio-temporal-voxel-layer
