@@ -42,6 +42,7 @@ USER "${user}"
 RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/kinetic/setup.bash && catkin build" && \
 cd src && \
 git clone https://github.com/icclab/icclab_summit_xl.git && \
+git clone https://github.com/icclab/icclab_grasping_niryo.git && \
 git clone --branch 1.0.2 https://github.com/JenniferBuehler/gazebo-pkgs.git && \
 git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
 git clone https://github.com/atenpas/gpg.git && \
@@ -109,6 +110,9 @@ RUN sudo apt-get install -y ros-kinetic-gazebo-ros-pkgs ros-kinetic-gazebo-ros-c
 RUN sudo rm -rf /usr/lib/python2.7/dist-packages/numpy*
 RUN sudo rm -rf /usr/local/lib/python2.7/dist-packages/numpy*
 RUN sudo pip install --upgrade numpy==1.16.0
+
+#fix missing dep - jsonpickle
+RUN sudo pip install jsonpickle
 
 # This is required for sharing Xauthority
 ENV QT_X11_NO_MITSHM=1
