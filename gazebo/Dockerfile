@@ -31,7 +31,18 @@ cd ~/catkin_ws && /bin/bash -c "source /opt/ros/melodic/setup.bash && catkin_mak
 RUN cd ~/catkin_ws/src/pcg_gazebo_pkgs/pcg_libraries && pip install --user -r requirements.txt
 
 # install jupyter and add binaries to path
-RUN pip install --user jupyter && echo "export PATH=$PATH:~/.local/bin" > ~/.bashrc
+RUN pip install --user jupyter && echo "export PATH=$PATH:~/.local/bin" >> ~/.bashrc
+
+# add chair model
+ADD office_chair /home/ros/.gazebo/models/office_chair
+RUN sudo chown -R ros:ros /home/ros/.gazebo
+
+# add jupiter playbook
+ADD office_chairs.ipynb /home/ros/catkin_ws/src/pcg_gazebo_pkgs/pcg_notebooks/simulation/office_chairs.ipynb
+RUN sudo chown -R ros:ros /home/ros/catkin_ws/src/pcg_gazebo_pkgs/pcg_notebooks/simulation/office_chairs.ipynb
+
+# auto source ROS env in bash
+RUN echo "source /home/ros/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
 # This is required for sharing Xauthority
 ENV QT_X11_NO_MITSHM=1
