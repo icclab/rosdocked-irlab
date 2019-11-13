@@ -12,6 +12,7 @@ set -e
 #   --device=/dev/duo1:/dev/duo1\
 docker run\
   -h `hostname` \
+  -v "$SCRIPTPATH/notebooks:/home/ros/notebooks:rw" \
   --privileged\
   --net=host\
   --device=/dev/video0\
@@ -22,6 +23,5 @@ docker run\
   -e SHELL\
   -e DISPLAY\
   -e DOCKER=1\
-  -v "$HOME:$HOME:rw"\
   -v "/tmp/.X11-unix:/tmp/.X11-unix:rw"\
   -it $IMAGE_NAME $SHELL
