@@ -34,7 +34,6 @@ RUN dpkg -i ros-kinetic-librealsense_1.12.1-0xenial-20190830_icrlab_amd64.deb
 # lock from updates
 RUN apt-mark hold ros-kinetic-librealsense
 
-
 # Switch to user
 USER "${user}"
 
@@ -51,7 +50,7 @@ git clone https://github.com/icclab/icclab_turtlebot.git -b kinetic && \
 git clone https://github.com/icclab/irlab_point_cloud_filtering.git && \
 git clone https://github.com/icclab/laser_filters.git -b indigo-devel && \
 git clone https://github.com/icclab/niryo_one_ros.git && \
-git clone --branch 2.2.1 https://github.com/intel-ros/realsense.git -b development && \
+git clone --branch 2.2.1 https://github.com/intel-ros/realsense.git && \
 git clone https://github.com/atenpas/gpd.git -b forward && \
 mkdir summit_xl_sources && cd summit_xl_sources && \
 git clone https://github.com/RobotnikAutomation/rcomponent.git && \
@@ -61,7 +60,8 @@ git clone https://github.com/RobotnikAutomation/ros-system-monitor && \
 git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b indigo-devel && \
 git clone https://github.com/scanse/sweep-sdk.git && \
-git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
+git clone https://github.com/RobotnikAutomation/ur_modern_driver.git && \
+git clone https://github.com/utecrobotics/robotiq
 
 # add gazebo models to decrease initial gazebo bringup time
 RUN mkdir -p ~/.gazebo
