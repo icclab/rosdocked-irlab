@@ -7,6 +7,7 @@ if [ "$#" -ne 1 ]; then
   # echo "usage: ./run.sh IMAGE_NAME"
   # return 1
   IMG='robopaas/rosdocked-kinetic'
+  echo "using default image:" $IMG
 fi
 
 # Get this script's path

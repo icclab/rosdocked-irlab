@@ -11,9 +11,13 @@ set -e
 # Run the container with shared X11
 #   --device=/dev/duo1:/dev/duo1\
 docker run\
-  -h localhost\
+  -h `hostname` \
+  --privileged\
   --net=host\
-  --device=/dev/video0:/dev/video0\
+  --device=/dev/video0\
+  --device=/dev/video1\
+  --device=/dev/video2\
+  --device=/dev/video3\
   --device=/dev/dri\
   -e SHELL\
   -e DISPLAY\

@@ -19,6 +19,7 @@ RUN \
 
 # add user to video group
 RUN adduser ${user} video
+RUN adduser ${user} plugdev
 
 # Switch to user
 USER "${user}"

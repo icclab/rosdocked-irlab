@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export IMAGE_NAME=robopaas/rosdocked-kinetic:latest
+export IMAGE_NAME=robopaas/rosdocked-kinetic-workspace-included:latest
 
 # Get this script's path
 pushd `dirname $0` > /dev/null
@@ -10,7 +10,7 @@ popd > /dev/null
 docker build --no-cache \
   --build-arg user=$USER\
   --build-arg uid=$UID\
-  --build-arg home=$HOME\
-  --build-arg workspace=$SCRIPTPATH\
+  --build-arg home=/home/ros \
+  --build-arg workspace=/home/ros \
   --build-arg shell=$SHELL\
   -t $IMAGE_NAME .
