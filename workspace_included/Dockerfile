@@ -1,4 +1,4 @@
-FROM robopaas/rosdocked-kinetic
+FROM robopaas/rosdocked-kinetic-gpu
 
 # Arguments
 ENV user=ros
@@ -6,10 +6,6 @@ ARG uid
 ARG home
 ARG workspace
 ARG shell
-
-# update ros.org keys
-RUN apt-key del 421C365BD9FF1F717815A3895523BAEEB01FA116 && \
-apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 
 # add ros user to container and make sudoer
 RUN useradd -m -s /bin/bash -G video,plugdev  ${user} && \
@@ -123,5 +119,9 @@ WORKDIR ${workspace}
 
 # For noVNC and launching xvfb, x11vnc
 EXPOSE 6080
+
+# Copy run-vnc script
+COPY run-vnc.sh .
+RUN sudo chmod +x run-vnc.sh
 
 CMD ["sudo", "supervisord", "-c", "/opt/novnc/supervisord/supervisord.conf"]

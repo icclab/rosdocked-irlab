@@ -8,9 +8,6 @@ ARG home
 ARG workspace
 ARG shell
 
-# Fix GPG keyes https://discourse.ros.org/t/new-gpg-keys-deployed-for-packages-ros-org/9454
-RUN apt-key del 421C365BD9FF1F717815A3895523BAEEB01FA116 && apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
-
 # Base container has a bunch of old libs, do upgrade
 RUN apt-get -y update && apt-get -y upgrade
 
@@ -65,23 +62,37 @@ RUN cd /tmp && wget http://bitbucket.org/eigen/eigen/get/3.3.5.tar.gz && \
 tar xzvf 3.3.5.tar.gz && cd eigen-* && mkdir build && cd build && \
 cmake .. && make install
 
-## install caffe ( no GPU, CPU only: copied from another container https://github.com/intel/caffe/blob/master/docker/standalone/cpu-ubuntu/Dockerfile)
-#ENV CLONE_TAG=1.0
-#ENV CAFFE_ROOT=/opt/caffe
-##RUN pip install --upgrade pip
-#RUN mkdir -p $CAFFE_ROOT && cd $CAFFE_ROOT && \
-#    git clone -b ${CLONE_TAG} --depth 1 https://github.com/BVLC/caffe.git . && \
-#    for req in $(cat python/requirements.txt) pydot; do pip install $req; done && \
-#    mkdir build && cd build && \
-#    cmake -DCPU_ONLY=1 -DUSE_MLSL=1 -DCMAKE_BUILD_TYPE=Release .. && \
-#    make all -j"$(nproc)" && make install && make runtest
-#ENV PYCAFFE_ROOT $CAFFE_ROOT/python
-#ENV PYTHONPATH $PYCAFFE_ROOT:$PYTHONPATH
-#ENV PATH $CAFFE_ROOT/build/tools:$PYCAFFE_ROOT:$PATH
-#ENV CAFFE_DIR=$CAFFE_ROOT/build
-#RUN echo "$CAFFE_ROOT/build/lib" >> /etc/ld.so.conf.d/caffe.conf && ldconfig
-## do the actual install in /usr
-#RUN cp -r $CAFFE_DIR/install/* /usr
+# additonal deps for CUDA
+#ENV DEBIAN_FRONTEND=noninteractive
+#RUN apt-get install -y keyboard-configuration
+
+# install CUDA Toolkit 10.2
+#RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-ubuntu1604.pin && \
+#mv cuda-ubuntu1604.pin /etc/apt/preferences.d/cuda-repository-pin-600 && \
+#wget http://developer.download.nvidia.com/compute/cuda/10.2/Prod/local_installers/cuda-repo-ubuntu1604-10-2-local-10.2.89-440.33.01_1.0-1_amd64.deb && \
+#dpkg -i cuda-repo-ubuntu1604-10-2-local-10.2.89-440.33.01_1.0-1_amd64.deb && \
+#apt-key add /var/cuda-repo-10-2-local-10.2.89-440.33.01/7fa2af80.pub && \
+#apt-get update && apt-get -y install --no-install-recommends cuda
+
+# install caffe ( with GPU: copied from another container https://github.com/intel/caffe/blob/master/docker/standalone/cpu-ubuntu/Dockerfile)
+ENV CLONE_TAG=1.0
+ENV CAFFE_ROOT=/opt/caffe
+ENV CUDA_ARCH_BIN "75"
+ENV CUDA_ARCH_PTX "75"
+RUN mkdir -p $CAFFE_ROOT && cd $CAFFE_ROOT && \
+    git clone -b ${CLONE_TAG} --depth 1 https://github.com/BVLC/caffe.git . && \
+    for req in $(cat python/requirements.txt) pydot; do pip install $req; done && \
+    mkdir build && cd build && \
+    cmake -DCMAKE_BUILD_TYPE=Release -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="${CUDA_ARCH_BIN}" -DCUDA_ARCH_PTX="${CUDA_ARCH_PTX}" -DCUDA_NVCC_FLAGS="-O3" \
+    -DUSE_CUDNN=ON -DUSE_OPENCV=ON -DBUILD_SHARED_LIBS=ON .. && \
+    make all -j"$(nproc)" && make install 
+ENV PYCAFFE_ROOT $CAFFE_ROOT/python
+ENV PYTHONPATH $PYCAFFE_ROOT:$PYTHONPATH
+ENV PATH $CAFFE_ROOT/build/tools:$PYCAFFE_ROOT:$PATH
+ENV CAFFE_DIR=$CAFFE_ROOT/build
+RUN echo "$CAFFE_ROOT/build/lib" >> /etc/ld.so.conf.d/caffe.conf && ldconfig
+# do the actual install in /usr
+RUN cp -r $CAFFE_DIR/install/* /usr
 
 # install grasp pose generator (gpg)
 RUN mkdir -p /opt/gpg && cd /opt/gpg && \
