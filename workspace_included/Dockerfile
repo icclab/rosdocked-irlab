@@ -40,7 +40,7 @@ git clone https://github.com/icclab/icclab_summit_xl.git && \
 git clone https://github.com/icclab/icclab_grasping_niryo.git && \
 git clone --branch 1.0.2 https://github.com/JenniferBuehler/gazebo-pkgs.git && \
 git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
-git clone https://github.com/atenpas/gpg.git && \
+git clone --branch 1.0.0 https://github.com/atenpas/gpg.git && \
 git clone https://github.com/icclab/icclab_turtlebot.git -b kinetic && \
 #If need two cameras for PCL add -b two_pcl_filtering below
 git clone https://github.com/icclab/irlab_point_cloud_filtering.git && \
@@ -62,11 +62,6 @@ git clone https://github.com/utecrobotics/robotiq
 # add gazebo models to decrease initial gazebo bringup time
 RUN mkdir -p ~/.gazebo
 ADD .gazebo /home/"${user}"/.gazebo/
-
-# patch gpd fwd
-RUN cd ~/catkin_ws/src/gpd && \
-wget https://patch-diff.githubusercontent.com/raw/atenpas/gpd/pull/63.patch && \
-patch < 63.patch
 
 RUN sudo apt-get install -y apt-utils
 
