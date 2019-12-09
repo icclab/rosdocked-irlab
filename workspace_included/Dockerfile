@@ -40,14 +40,14 @@ git clone https://github.com/icclab/icclab_summit_xl.git && \
 git clone https://github.com/icclab/icclab_grasping_niryo.git && \
 git clone --branch 1.0.2 https://github.com/JenniferBuehler/gazebo-pkgs.git && \
 git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
-git clone --branch 1.0.0 https://github.com/atenpas/gpg.git && \
+git clone https://github.com/atenpas/gpg.git && \
 git clone https://github.com/icclab/icclab_turtlebot.git -b kinetic && \
 #If need two cameras for PCL add -b two_pcl_filtering below
 git clone https://github.com/icclab/irlab_point_cloud_filtering.git && \
 git clone https://github.com/icclab/laser_filters.git -b indigo-devel && \
 git clone https://github.com/icclab/niryo_one_ros.git && \
 git clone --branch 2.2.1 https://github.com/intel-ros/realsense.git && \
-git clone https://github.com/atenpas/gpd.git -b forward && \
+git clone https://github.com/atenpas/gpd.git -b 1.0.0 && \
 mkdir summit_xl_sources && cd summit_xl_sources && \
 git clone https://github.com/RobotnikAutomation/rcomponent.git && \
 git clone https://github.com/RobotnikAutomation/robotnik_msgs.git && \

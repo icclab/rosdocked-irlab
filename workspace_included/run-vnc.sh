@@ -5,6 +5,9 @@ if [[ $# -ne 1 ]]; then
     exit 2
 fi
 
+echo "----- Fixing hosts for ros -----"
+sed "/127.0.0.1/ s/$/ $HOSTNAME/" /etc/hosts | sudo tee /etc/hosts
+
 echo "----- Starting virtual screen -----"
 Xvfb :0 -screen 0 1920x1080x16  &
 sleep 3
