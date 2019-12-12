@@ -46,7 +46,7 @@ RUN apt-get install -y\
   libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev \
   protobuf-compiler libgflags-dev libgoogle-glog-dev liblmdb-dev \
   libblas-dev libatlas-dev libatlas-base-dev libpcl-dev libboost-all-dev \
-  libeigen3-dev libgflags-dev ros-kinetic-moveit-python \
+  libgflags-dev ros-kinetic-moveit-python \
   ros-kinetic-ros-control ros-kinetic-ros-controllers ros-kinetic-gazebo-ros-pkgs \
   ros-kinetic-gazebo-ros-control ros-kinetic-moveit-visual-tools \
   ros-kinetic-moveit ros-kinetic-controller-manager \
@@ -61,8 +61,8 @@ RUN cp  /usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf /opt/ros
 COPY liberation.fontdef /opt/ros/kinetic/share/rviz/ogre_media/fonts
 
 # install eigen http://eigen.tuxfamily.org/index.php
-RUN cd /tmp && wget http://bitbucket.org/eigen/eigen/get/3.3.5.tar.gz && \
-tar xzvf 3.3.5.tar.gz && cd eigen-* && mkdir build && cd build && \
+RUN cd /tmp && wget  https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.gz && \
+tar xzvf eigen-3.3.7.tar.gz && cd eigen-* && mkdir build && cd build && \
 cmake .. && make install
 
 ## install caffe ( no GPU, CPU only: copied from another container https://github.com/intel/caffe/blob/master/docker/standalone/cpu-ubuntu/Dockerfile)
