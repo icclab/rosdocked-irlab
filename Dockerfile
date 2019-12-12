@@ -40,7 +40,7 @@ RUN apt-get install -y\
   ros-kinetic-yocs-math-toolkit ros-kinetic-find-object-2d \
   ros-kinetic-usb-cam ros-kinetic-rgbd-launch \
   software-properties-common libpcl-dev libprotobuf-dev \
-  libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev \
+  libleveldb-dev libsnappy-dev libhdf5-serial-dev \
   protobuf-compiler libgflags-dev libgoogle-glog-dev liblmdb-dev \
   libblas-dev libatlas-dev libatlas-base-dev libpcl-dev libboost-all-dev \
   libgflags-dev ros-kinetic-moveit-python \
@@ -49,7 +49,6 @@ RUN apt-get install -y\
   ros-kinetic-moveit ros-kinetic-controller-manager \
   python-catkin-tools \
   libignition-math2-dev
-
 
 RUN pip install catkin_tools defer kombu
 
@@ -62,25 +61,30 @@ RUN cd /tmp && wget  https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3
 tar xzvf eigen-3.3.7.tar.gz && cd eigen-* && mkdir build && cd build && \
 cmake .. && make install
 
-# additonal deps for CUDA
-#ENV DEBIAN_FRONTEND=noninteractive
-#RUN apt-get install -y keyboard-configuration
+# install CUDA 10.2 toolkit required to build caffe GPU
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get install -y keyboard-configuration
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-ubuntu1604.pin && \
+    mv cuda-ubuntu1604.pin /etc/apt/preferences.d/cuda-repository-pin-600 && \
+    wget http://developer.download.nvidia.com/compute/cuda/10.2/Prod/local_installers/cuda-repo-ubuntu1604-10-2-local-10.2.89-440.33.01_1.0-1_amd64.deb && \
+    dpkg -i cuda-repo-ubuntu1604-10-2-local-10.2.89-440.33.01_1.0-1_amd64.deb && \
+    apt-key add /var/cuda-repo-10-2-local-10.2.89-440.33.01/7fa2af80.pub && \
+    apt-get update && apt-get -y install --no-install-recommends cuda
 
-# install CUDA Toolkit 10.2
-#RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-ubuntu1604.pin && \
-#mv cuda-ubuntu1604.pin /etc/apt/preferences.d/cuda-repository-pin-600 && \
-#wget http://developer.download.nvidia.com/compute/cuda/10.2/Prod/local_installers/cuda-repo-ubuntu1604-10-2-local-10.2.89-440.33.01_1.0-1_amd64.deb && \
-#dpkg -i cuda-repo-ubuntu1604-10-2-local-10.2.89-440.33.01_1.0-1_amd64.deb && \
-#apt-key add /var/cuda-repo-10-2-local-10.2.89-440.33.01/7fa2af80.pub && \
-#apt-get update && apt-get -y install --no-install-recommends cuda
+# install opencv 4.1.2
+RUN mkdir -p /opt/opencv && cd /opt/opencv && \
+    git clone --depth 1 https://github.com/opencv/opencv -b 4.1.2 && \
+    git clone --depth 1 https://github.com/opencv/opencv_contrib -b 4.1.2 && \
+    cd opencv && mkdir build && cd build && \
+    cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local .. && \
+    make -j"$(nproc)" && make install
 
 # install caffe ( with GPU: copied from another container https://github.com/intel/caffe/blob/master/docker/standalone/cpu-ubuntu/Dockerfile)
-ENV CLONE_TAG=1.0
 ENV CAFFE_ROOT=/opt/caffe
 ENV CUDA_ARCH_BIN "75"
 ENV CUDA_ARCH_PTX "75"
 RUN mkdir -p $CAFFE_ROOT && cd $CAFFE_ROOT && \
-    git clone -b ${CLONE_TAG} --depth 1 https://github.com/BVLC/caffe.git . && \
+    git clone --depth 1 https://github.com/fitter22/caffe . && \
     for req in $(cat python/requirements.txt) pydot; do pip install $req; done && \
     mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="${CUDA_ARCH_BIN}" -DCUDA_ARCH_PTX="${CUDA_ARCH_PTX}" -DCUDA_NVCC_FLAGS="-O3" \

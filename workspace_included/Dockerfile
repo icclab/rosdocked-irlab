@@ -85,6 +85,11 @@ RUN sudo git clone -b v1.1.0 https://github.com/novnc/noVNC.git /opt/novnc \
 # build workspace
 RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/kinetic/setup.bash && catkin build"
 
+# remove CUDA toolkit (we are mounting CUDA libs from host VM when running container, having them inside container breaks nvidia-docker)
+RUN sudo apt-get remove --purge -y cuda && sudo apt-get autoremove -y
+# instal cublas lib (caffe complains about it)
+RUN sudo apt-get install -y libcublas10
+
 # update gazebo + x11vnc
 RUN sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' && \
 wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - && \
