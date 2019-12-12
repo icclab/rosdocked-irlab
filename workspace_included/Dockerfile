@@ -20,7 +20,7 @@ chmod 0440 "/etc/sudoers.d/${user}"
 RUN apt-get update
 # dependencies needed by librealsense. `deb -i` will not resolve these
 RUN apt-get install -y binutils cpp cpp-5 dkms fakeroot gcc gcc-5 kmod libasan2 libatomic1 libc-dev-bin libc6-dev libcc1-0 libcilkrts5 libfakeroot libgcc-5-dev libgmp10 libgomp1 libisl15 libitm1 liblsan0 libmpc3 libmpfr4 libmpx0 libquadmath0 libssl-dev libssl-doc libtsan0 libubsan0 libusb-1.0-0 libusb-1.0-0-dev libusb-1.0-doc linux-headers-4.4.0-159 linux-headers-4.4.0-159-generic linux-headers-generic linux-libc-dev make manpages manpages-dev menu patch zlib1g-dev
-RUN apt-get install -y libssl-dev libssl-doc libusb-1.0-0 libusb-1.0-0-dev libusb-1.0-doc linux-headers-4.4.0-159 linux-headers-4.4.0-159-generic linux-headers-generic zlib1g-dev
+RUN apt-get install -y libssl-dev libssl-doc libusb-1.0-0 libusb-1.0-0-dev libusb-1.0-doc linux-headers-4.4.0-159 linux-headers-4.4.0-159-generic linux-headers-generic zlib1g-dev apt-utils
 
 # modify librealsense deb (unpack, replace script, repack)
 RUN apt-get download ros-kinetic-librealsense
@@ -38,13 +38,12 @@ RUN apt-mark hold ros-kinetic-librealsense
 USER "${user}"
 
 # create catkin ws and clone projects
-RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/kinetic/setup.bash && catkin build" && \
+RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/kinetic/setup.bash" && \
 cd src && \
 git clone https://github.com/icclab/icclab_summit_xl.git && \
 git clone https://github.com/icclab/icclab_grasping_niryo.git && \
 git clone --branch 1.0.2 https://github.com/JenniferBuehler/gazebo-pkgs.git && \
 git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
-git clone https://github.com/atenpas/gpg.git && \
 git clone https://github.com/icclab/icclab_turtlebot.git -b kinetic && \
 #If need two cameras for PCL add -b two_pcl_filtering below
 git clone https://github.com/icclab/irlab_point_cloud_filtering.git && \
@@ -71,8 +70,6 @@ ADD .gazebo /home/"${user}"/.gazebo/
 RUN cd ~/catkin_ws/src/gpd && \
 wget https://patch-diff.githubusercontent.com/raw/atenpas/gpd/pull/63.patch && \
 patch < 63.patch
-
-RUN sudo apt-get install -y apt-utils
 
 # update dependencies
 RUN sudo apt-get update && cd ~/catkin_ws && \
