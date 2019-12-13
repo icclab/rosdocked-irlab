@@ -62,6 +62,10 @@ git clone https://github.com/scanse/sweep-sdk.git && \
 git clone https://github.com/RobotnikAutomation/ur_modern_driver.git && \
 git clone https://github.com/utecrobotics/robotiq
 
+# configure repos for niryo
+#RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
+#RUN cd ~/catkin_ws/src/irlab_point_cloud_filtering && git checkout -b dev && git pull origin dev
+
 # add gazebo models to decrease initial gazebo bringup time
 RUN mkdir -p ~/.gazebo
 ADD .gazebo /home/"${user}"/.gazebo/
