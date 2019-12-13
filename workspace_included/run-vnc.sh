@@ -6,25 +6,26 @@ if [[ $# -ne 1 ]]; then
 fi
 
 echo "----- Fixing hosts for ros -----"
-sed "/127.0.0.1/ s/$/ $HOSTNAME/" /etc/hosts | sudo tee /etc/hosts
+sed "/127.0.0.1/ s/$/ $HOSTNAME/" /etc/hosts | sudo tee /etc/hosts > /dev/null 2>&1
 
 echo "----- Starting virtual screen -----"
-Xvfb :0 -screen 0 1920x1080x16  &
+Xvfb :0 -screen 0 1920x1080x16 > /dev/null 2>&1 &
 sleep 3
 
 echo "----- Strting VNC -----"
-x11vnc --passwd $1 &
+x11vnc --passwd $1 > /dev/null 2>&1 &
 sleep 3
 
 echo "----- Starting fluxbox -----"
-fluxbox &
+fluxbox > /dev/null 2>&1 &
 sleep 3
 
 echo "----- Starting novnc -----"
 cd /opt/novnc/utils
 sudo openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 \
        -subj "/C=CH" \
-       -keyout key.pem -out self.pem
+       -keyout key.pem -out self.pem > /dev/null 2>&1
 sleep 3
-cat key.pem | sudo tee -a self.pem
-sudo ./launch.sh  --listen 443 --ssl-only &
+cat key.pem | sudo tee -a self.pem > /dev/null 2>&1
+sudo ./launch.sh  --listen 443 --ssl-only > /dev/null 2>&1 &
+
