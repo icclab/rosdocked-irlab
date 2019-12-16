@@ -91,8 +91,8 @@ RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/kinetic/setup.bash && catkin
 
 # remove CUDA toolkit (we are mounting CUDA libs from host VM when running container, having them inside container breaks nvidia-docker)
 RUN sudo apt-get remove --purge -y cuda && sudo apt-get autoremove -y
-# instal cublas lib (caffe complains about it)
-RUN sudo apt-get install -y libcublas10
+# instal cublas lib (caffe complains about it) && symlink fix for gpd
+RUN sudo apt-get install -y libcublas10 && cd /usr/lib/x86_64-linux-gnu && sudo ln -s libcublas.so.10.2.2.89 libcublas.so
 
 # update gazebo + x11vnc
 RUN sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' && \
