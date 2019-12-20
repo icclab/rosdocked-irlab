@@ -12,7 +12,7 @@ echo "----- Starting virtual screen -----"
 Xvfb :0 -screen 0 1920x1080x16 > /dev/null 2>&1 &
 sleep 3
 
-echo "----- Strting VNC -----"
+echo "----- Starting VNC -----"
 x11vnc --passwd $1 > /dev/null 2>&1 &
 sleep 3
 
