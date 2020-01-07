@@ -67,6 +67,7 @@ RUN apt-get install -y keyboard-configuration && \
     mv cuda-ubuntu1604.pin /etc/apt/preferences.d/cuda-repository-pin-600 && \
     wget http://developer.download.nvidia.com/compute/cuda/10.2/Prod/local_installers/cuda-repo-ubuntu1604-10-2-local-10.2.89-440.33.01_1.0-1_amd64.deb && \
     dpkg -i cuda-repo-ubuntu1604-10-2-local-10.2.89-440.33.01_1.0-1_amd64.deb && \
+    rm cuda-repo-ubuntu1604-10-2-local-10.2.89-440.33.01_1.0-1_amd64.deb && \
     apt-key add /var/cuda-repo-10-2-local-10.2.89-440.33.01/7fa2af80.pub && \
     apt-get update && apt-get -y install --no-install-recommends cuda
 
@@ -112,7 +113,9 @@ RUN pip install pyquaternion && patch /usr/lib/python2.7/dist-packages/pyassimp/
 # add realsense2 camera support
 RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key C8B3A55A6F3EFCDE && \
     add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo xenial main" -u && \
-    apt-get install -y librealsense2 librealsense2-dev librealsense2-utils ros-kinetic-ar-track-alvar vim
+    apt-get install -y --no-install-recommends librealsense2 librealsense2-dev librealsense2-utils ros-kinetic-ar-track-alvar vim && \
+    rm -rf /var/lib/apt/lists/*
+    
 
 # Make SSH available
 EXPOSE 22
