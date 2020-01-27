@@ -38,7 +38,7 @@ RUN apt-mark hold ros-kinetic-librealsense
 USER "${user}"
 
 # create catkin ws and clone projects
-RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/kinetic/setup.bash" && \
+#RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/kinetic/setup.bash" && \
 cd src && \
 git clone https://github.com/icclab/icclab_summit_xl.git && \
 git clone https://github.com/icclab/icclab_grasping_niryo.git && \
@@ -48,7 +48,7 @@ git clone https://github.com/icclab/icclab_turtlebot.git -b kinetic && \
 #If need two cameras for PCL add -b two_pcl_filtering below
 git clone https://github.com/icclab/irlab_point_cloud_filtering.git && \
 git clone https://github.com/icclab/laser_filters.git -b indigo-devel && \
-git clone https://github.com/icclab/niryo_one_ros.git && \
+git clone --branch gazebo-simulator https://github.com/icclab/niryo_one_ros.git && \
 git clone --branch 2.2.1 https://github.com/intel-ros/realsense.git && \
 git clone https://github.com/atenpas/gpd.git -b forward && \
 mkdir summit_xl_sources && cd summit_xl_sources && \
@@ -63,8 +63,8 @@ git clone https://github.com/RobotnikAutomation/ur_modern_driver.git && \
 git clone https://github.com/utecrobotics/robotiq
 
 # configure repos for niryo
-#RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
-#RUN cd ~/catkin_ws/src/irlab_point_cloud_filtering && git checkout -b dev && git pull origin dev
+# RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
+# RUN cd ~/catkin_ws/src/irlab_point_cloud_filtering && git checkout -b dev && git pull origin dev
 
 # add gazebo models to decrease initial gazebo bringup time
 RUN mkdir -p ~/.gazebo
