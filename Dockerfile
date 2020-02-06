@@ -1,4 +1,4 @@
-#FROM ros:kinetic
+#ROM ros:kinetic
 FROM osrf/ros:kinetic-desktop-full-xenial
 
 # Arguments
@@ -47,8 +47,9 @@ RUN apt-get install -y\
   ros-kinetic-ros-control ros-kinetic-ros-controllers ros-kinetic-gazebo-ros-pkgs \
   ros-kinetic-gazebo-ros-control ros-kinetic-moveit-visual-tools \
   ros-kinetic-moveit ros-kinetic-controller-manager \
-  python-catkin-tools \
+  python-catkin-tools \ 
   libignition-math2-dev
+ 
 
 RUN pip install catkin_tools defer kombu
 
@@ -69,7 +70,7 @@ RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86
     wget http://developer.download.nvidia.com/compute/cuda/10.2/Prod/local_installers/cuda-repo-ubuntu1604-10-2-local-10.2.89-440.33.01_1.0-1_amd64.deb && \
     dpkg -i cuda-repo-ubuntu1604-10-2-local-10.2.89-440.33.01_1.0-1_amd64.deb && \
     apt-key add /var/cuda-repo-10-2-local-10.2.89-440.33.01/7fa2af80.pub && \
-    apt-get update && apt-get -y install --no-install-recommends cuda
+    apt-get update && apt-get -y install --no-install-recommends cuda  
 
 # install opencv 4.1.2
 RUN mkdir -p /opt/opencv && cd /opt/opencv && \
@@ -78,9 +79,28 @@ RUN mkdir -p /opt/opencv && cd /opt/opencv && \
     cd opencv && mkdir build && cd build && \
     cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local .. && \
     make -j"$(nproc)" && make install
+#
+### install cmake-3.16.3
+#RUN cd /opt && wget https://github.com/Kitware/CMake/releases/download/v3.16.3/cmake-3.16.3.tar.gz && \
+#    tar -xvzf cmake-3.16.3.tar.gz && cd cmake-3.16.3 &&  ./bootstrap -- -DCMAKE_BUILD_TYPE:STRING=Release && make -j8 && make install 
+#
+## install old pcl Modude 
+#RUN sudo apt-get update -y && sudo apt-get install libpcl-dev libflann1.8 -y 
+#
+## install vtk 8.1 from repositories
+#RUN cd /opt && wget https://github.com/Kitware/VTK/archive/v8.1.0.tar.gz && \
+#    tar -xvzf v8.1.0.tar.gz && cd VTK-* && mkdir build && cd build && cmake .. && make -j8 && make install 
+#
+## install pcl from source 1.9.1
+#RUN cd /opt && wget https://github.com/PointCloudLibrary/pcl/archive/pcl-1.9.1.tar.gz && \
+#    tar -xzf pcl-1.9.1.tar.gz && cd pcl-pcl-1.9.1 && mkdir build && cd build && \
+#    cmake -DCMAKE_BUILD_TYPE=Release .. && make -j8 && sudo make -j8 install  
+
+
 
 # install caffe ( with GPU: copied from another container https://github.com/intel/caffe/blob/master/docker/standalone/cpu-ubuntu/Dockerfile)
 ENV CAFFE_ROOT=/opt/caffe
+
 ENV CUDA_ARCH_BIN "75"
 ENV CUDA_ARCH_PTX "75"
 RUN mkdir -p $CAFFE_ROOT && cd $CAFFE_ROOT && \
@@ -108,14 +128,19 @@ RUN mkdir -p /opt/gpg && cd /opt/gpg && \
 COPY pyassimp_patch.txt /opt/pyassimp_patch.txt
 COPY planning_scene_patch.txt /opt/planning_scene_patch.txt
 COPY pick_place_interface.py /opt/ros/kinetic/lib/python2.7/dist-packages/moveit_python
-RUN pip install pyquaternion && patch /usr/lib/python2.7/dist-packages/pyassimp/core.py /opt/pyassimp_patch.txt && patch /opt/ros/kinetic/lib/python2.7/dist-packages/moveit_python/planning_scene_interface.py /opt/planning_scene_patch.txt && cd /opt && git clone https://github.com/strawlab/python-pcl.git && cd python-pcl && git checkout 9491615033f85db317c9e29b6a9fe89603f97365 && pip install cython==0.25.2 && pip install numpy==1.14 && python setup.py build_ext -i && python setup.py install
 
-# add realsense2 camera support
-RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key C8B3A55A6F3EFCDE
-RUN add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo xenial main" -u && \
-apt-get install -y librealsense2 librealsense2-dev librealsense2-utils ros-kinetic-ar-track-alvar vim
+RUN  pip install pyquaternion && patch /usr/lib/python2.7/dist-packages/pyassimp/core.py /opt/pyassimp_patch.txt && patch /opt/ros/kinetic/lib/python2.7/dist-packages/moveit_python/planning_scene_interface.py /opt/planning_scene_patch.txt && pip install python-pcl && \ 
+ pip install cython==0.25.2 && pip install numpy==1.14  
+# cd /opt && git clone https://github.com/strawlab/python-pcl.git && cd python-pcl && git checkout 9491615033f85db317c9e29b6a9fe89603f97365 &&
+##&& git checkout 9491615033f85db317c9e29b6a9fe89603f97365
+#  
+## add realsense2 camera support
+RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key C8B3A55A6F3EFCDE && \
+    add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo xenial main" -u && \
+    apt-get install -y --no-install-recommends librealsense2 librealsense2-dev librealsense2-utils ros-kinetic-ar-track-alvar vim && \
+    rm -rf /var/lib/apt/lists/* 
 
-# Make SSH available
+## Make SSH available
 EXPOSE 22
 
 

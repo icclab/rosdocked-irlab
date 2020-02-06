@@ -1,4 +1,4 @@
-FROM robopaas/rosdocked-kinetic-gpu
+FROM robopaas/rosdocked-kinetic-gpu:build-gpd2
 
 # Arguments
 ENV user=ros
@@ -42,10 +42,12 @@ git clone --branch 1.0.2 https://github.com/JenniferBuehler/gazebo-pkgs.git && \
 git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
 git clone https://github.com/icclab/icclab_turtlebot.git -b kinetic && \
 #If need two cameras for PCL add -b two_pcl_filtering below
-git clone https://github.com/icclab/irlab_point_cloud_filtering.git && \
+git clone --branch kinetic https://github.com/icclab/irlab_point_cloud_filtering.git && \
 git clone https://github.com/icclab/laser_filters.git -b indigo-devel && \
-git clone https://github.com/icclab/niryo_one_ros.git && \
+git clone https://github.com/icclab/niryo_one_ros.git -b gazebo-simulator && \
 git clone --branch 2.2.1 https://github.com/intel-ros/realsense.git && \
+# add gpd_ros (for gpd tag 2.0.0)
+# git clone https://github.com/leankyr/gpd_ros && \
 git clone https://github.com/atenpas/gpd.git -b 1.0.0 && \
 mkdir summit_xl_sources && cd summit_xl_sources && \
 git clone https://github.com/RobotnikAutomation/rcomponent.git && \
@@ -56,7 +58,13 @@ git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b kinetic-
 git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b indigo-devel && \
 git clone https://github.com/scanse/sweep-sdk.git && \
 git clone https://github.com/RobotnikAutomation/ur_modern_driver.git && \
-git clone https://github.com/utecrobotics/robotiq
+git clone https://github.com/utecrobotics/robotiq  
+
+
+
+# add gpd tag 2.0.0 out of the workspace
+#RUN cd ~/opt && git clone --branch 2.0.0 https://github.com/atenpas/gpd && cd gpd && \
+#    mkdir build && cd build && cmake .. && make -j && sudo make install 
 
 # configure repos for niryo
 # RUN cd ~/catkin_ws/src/niryo_one_ros/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
@@ -80,20 +88,37 @@ ENV DEBIAN_FRONTEND=noninteractive \
     DISPLAY=:0.0 \
     DISPLAY_WIDTH=1024 \
     DISPLAY_HEIGHT=768 \
+    CPLUS_INCLUDE_PATH=/usr/local/include/opencv4 \
     RUN_FLUXBOX=yes
 
 # Clone noVNC
 RUN sudo git clone -b v1.1.0 https://github.com/novnc/noVNC.git /opt/novnc \
     && sudo rm -rf /opt/novnc/.git
 
+##### FOR GPD TAG 2 ####
+### ADDING MISSING DEPENDENCIES ###
+
+
+#RUN sudo apt-get update && sudo apt-get install libignition-math2-dev -y && sudo apt-get upgrade libignition-math2 -y && sudo apt-get upgrade libignition-math2-dev -y
+
+# RUN sudo apt-get update && sudo apt-get install libignition-math2-dev=2.9.0 -y
+
+
+#RUN cd ~/ && wget https://github.com/IntelRealSense/librealsense/archive/v2.31.0.tar.gz && \
+#    tar -xzf v2.31.0.tar.gz && cd librealsense-2.31.0 && mkdir build && cd build && cmake .. && \
+#    sudo make -j2 && sudo make -j2 install
+
+
+
+
 # build workspace
 RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/kinetic/setup.bash && catkin build"
-
-# remove CUDA toolkit (we are mounting CUDA libs from host VM when running container, having them inside container breaks nvidia-docker)
+#
+## remove CUDA toolkit (we are mounting CUDA libs from host VM when running container, having them inside container breaks nvidia-docker)
 RUN sudo apt-get remove --purge -y cuda && sudo apt-get autoremove -y
 # instal cublas lib (caffe complains about it)
 RUN sudo apt-get install -y libcublas10
-
+#
 # update gazebo + x11vnc
 RUN sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' && \
 wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - && \
@@ -102,28 +127,28 @@ sudo apt-get update && sudo apt-get install -y gazebo7 x11vnc xvfb fluxbox
 # edit bashrc
 RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
-# fix for missing deps - there is prob a better way TODO: reeval this
+## fix for missing deps - there is prob a better way TODO: reeval this
 RUN sudo apt-get install -y ros-kinetic-gazebo-ros-pkgs ros-kinetic-gazebo-ros-control ros-kinetic-ur-gazebo ros-kinetic-ur5-moveit-config ros-kinetic-ur-kinematics ros-kinetic-timed-roslaunch ros-kinetic-ira-laser-tools ros-kinetic-spatio-temporal-voxel-layer
-
-# fix for lower version numpy so pick and place works
+#
+## fix for lower version numpy so pick and place works
 RUN sudo rm -rf /usr/lib/python2.7/dist-packages/numpy*
 RUN sudo rm -rf /usr/local/lib/python2.7/dist-packages/numpy*
 RUN sudo pip install --upgrade numpy==1.16.0
-
-#fix missing dep - jsonpickle
+#
+##fix missing dep - jsonpickle
 RUN sudo pip install jsonpickle
-
-# This is required for sharing Xauthority
+#
+## This is required for sharing Xauthority
 ENV QT_X11_NO_MITSHM=1
 ENV CATKIN_TOPLEVEL_WS="${workspace}/devel"
-# Switch to the workspace
+## Switch to the workspace
 WORKDIR ${workspace}
-
-# For noVNC and launching xvfb, x11vnc
+#
+## For noVNC and launching xvfb, x11vnc
 EXPOSE 6080
-
+#
 # Copy run-vnc script
 COPY run-vnc.sh .
 RUN sudo chmod +x run-vnc.sh
-
-CMD ["sudo", "supervisord", "-c", "/opt/novnc/supervisord/supervisord.conf"]
+#
+# CMD ["sudo", "supervisord", "-c", "/opt/novnc/supervisord/supervisord.conf"]
