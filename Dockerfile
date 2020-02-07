@@ -80,21 +80,21 @@ RUN mkdir -p /opt/opencv && cd /opt/opencv && \
     cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local .. && \
     make -j"$(nproc)" && make install
 #
-### install cmake-3.16.3
-#RUN cd /opt && wget https://github.com/Kitware/CMake/releases/download/v3.16.3/cmake-3.16.3.tar.gz && \
-#    tar -xvzf cmake-3.16.3.tar.gz && cd cmake-3.16.3 &&  ./bootstrap -- -DCMAKE_BUILD_TYPE:STRING=Release && make -j8 && make install 
-#
+## install cmake-3.16.3
+RUN cd /opt && wget https://github.com/Kitware/CMake/releases/download/v3.16.3/cmake-3.16.3.tar.gz && \
+    tar -xvzf cmake-3.16.3.tar.gz && cd cmake-3.16.3 &&  ./bootstrap -- -DCMAKE_BUILD_TYPE:STRING=Release && make -j8 && make install 
+
 ## install old pcl Modude 
 #RUN sudo apt-get update -y && sudo apt-get install libpcl-dev libflann1.8 -y 
 #
 ## install vtk 8.1 from repositories
-#RUN cd /opt && wget https://github.com/Kitware/VTK/archive/v8.1.0.tar.gz && \
-#    tar -xvzf v8.1.0.tar.gz && cd VTK-* && mkdir build && cd build && cmake .. && make -j8 && make install 
-#
+RUN cd /opt && wget https://github.com/Kitware/VTK/archive/v8.1.0.tar.gz && \
+    tar -xvzf v8.1.0.tar.gz && cd VTK-* && mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr .. && make -j8 && make install 
+
 ## install pcl from source 1.9.1
-#RUN cd /opt && wget https://github.com/PointCloudLibrary/pcl/archive/pcl-1.9.1.tar.gz && \
-#    tar -xzf pcl-1.9.1.tar.gz && cd pcl-pcl-1.9.1 && mkdir build && cd build && \
-#    cmake -DCMAKE_BUILD_TYPE=Release .. && make -j8 && sudo make -j8 install  
+RUN cd /opt && wget https://github.com/PointCloudLibrary/pcl/archive/pcl-1.9.1.tar.gz && \
+    tar -xzf pcl-1.9.1.tar.gz && cd pcl-pcl-1.9.1 && mkdir build && cd build && \
+    cmake -DCMAKE_BUILD_TYPE=Release .. && make -j8 && sudo make -j8 install  
 
 
 
@@ -129,11 +129,10 @@ COPY pyassimp_patch.txt /opt/pyassimp_patch.txt
 COPY planning_scene_patch.txt /opt/planning_scene_patch.txt
 COPY pick_place_interface.py /opt/ros/kinetic/lib/python2.7/dist-packages/moveit_python
 
-RUN  pip install pyquaternion && patch /usr/lib/python2.7/dist-packages/pyassimp/core.py /opt/pyassimp_patch.txt && patch /opt/ros/kinetic/lib/python2.7/dist-packages/moveit_python/planning_scene_interface.py /opt/planning_scene_patch.txt && pip install python-pcl && \ 
- pip install cython==0.25.2 && pip install numpy==1.14  
-# cd /opt && git clone https://github.com/strawlab/python-pcl.git && cd python-pcl && git checkout 9491615033f85db317c9e29b6a9fe89603f97365 &&
-##&& git checkout 9491615033f85db317c9e29b6a9fe89603f97365
-#  
+RUN  pip install pyquaternion && patch /usr/lib/python2.7/dist-packages/pyassimp/core.py /opt/pyassimp_patch.txt && patch /opt/ros/kinetic/lib/python2.7/dist-packages/moveit_python/planning_scene_interface.py /opt/planning_scene_patch.txt && \ 
+ pip install cython==0.25.2 && pip install numpy==1.14 && \
+ cd /opt && git clone https://github.com/fitter22/python-pcl.git && cd python-pcl && python setup.py build_ext -i && python setup.py install
+
 ## add realsense2 camera support
 RUN apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key C8B3A55A6F3EFCDE && \
     add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo xenial main" -u && \

@@ -13,11 +13,9 @@ echo "${user} ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/${user}" && \
 chmod 0440 "/etc/sudoers.d/${user}"
 
 # fix intel librealsense
-RUN apt-get update
 # dependencies needed by librealsense. `deb -i` will not resolve these
-RUN apt-get install -y binutils cpp cpp-5 dkms fakeroot gcc gcc-5 kmod libasan2 libatomic1 libc-dev-bin libc6-dev libcc1-0 libcilkrts5 libfakeroot libgcc-5-dev libgmp10 libgomp1 libisl15 libitm1 liblsan0 libmpc3 libmpfr4 libmpx0 libquadmath0 libssl-dev libssl-doc libtsan0 libubsan0 libusb-1.0-0 libusb-1.0-0-dev libusb-1.0-doc linux-headers-4.4.0-159 linux-headers-4.4.0-159-generic linux-headers-generic linux-libc-dev make manpages manpages-dev menu patch zlib1g-dev
-RUN apt-get install -y libssl-dev libssl-doc libusb-1.0-0 libusb-1.0-0-dev libusb-1.0-doc linux-headers-4.4.0-159 linux-headers-4.4.0-159-generic linux-headers-generic zlib1g-dev apt-utils
-
+RUN apt-get update && apt-get install -y binutils cpp cpp-5 dkms fakeroot gcc gcc-5 kmod libasan2 libatomic1 libc-dev-bin libc6-dev libcc1-0 libcilkrts5 libfakeroot libgcc-5-dev libgmp10 libgomp1 libisl15 libitm1 liblsan0 libmpc3 libmpfr4 libmpx0 libquadmath0 libssl-dev libssl-doc libtsan0 libubsan0 libusb-1.0-0 libusb-1.0-0-dev libusb-1.0-doc linux-headers-4.4.0-159 linux-headers-4.4.0-159-generic linux-headers-generic linux-libc-dev make manpages manpages-dev menu patch zlib1g-dev
+RUN apt-get install -y libssl-dev libssl-doc libusb-1.0-0 libusb-1.0-0-dev libusb-1.0-doc linux-headers-4.4.0-159 linux-headers-4.4.0-159-generic linux-headers-generic zlib1g-dev apt-utils libignition-math2-dev
 # modify librealsense deb (unpack, replace script, repack)
 RUN apt-get download ros-kinetic-librealsense
 RUN dpkg-deb -R ros-kinetic-librealsense*.deb ros-rslib/
@@ -47,7 +45,7 @@ git clone https://github.com/icclab/laser_filters.git -b indigo-devel && \
 git clone https://github.com/icclab/niryo_one_ros.git -b gazebo-simulator && \
 git clone --branch 2.2.1 https://github.com/intel-ros/realsense.git && \
 # add gpd_ros (for gpd tag 2.0.0)
-git clone https://github.com/leankyr/gpd_ros && \
+git clone https://github.com/fitter22/gpd_ros && \
 #git clone https://github.com/atenpas/gpd.git -b 1.0.0 && \
 mkdir summit_xl_sources && cd summit_xl_sources && \
 git clone https://github.com/RobotnikAutomation/rcomponent.git && \
@@ -63,8 +61,8 @@ git clone https://github.com/utecrobotics/robotiq
 
 
 # add gpd tag 2.0.0 out of the workspace
-RUN cd ~/opt && git clone --branch 2.0.0 https://github.com/atenpas/gpd && cd gpd && \
-    mkdir build && cd build && cmake .. && make -j && sudo make install 
+RUN cd /opt && sudo git clone --branch 2.0.0 https://github.com/atenpas/gpd && cd gpd && \
+    sudo mkdir build && cd build && sudo cmake .. && sudo make -j8 && sudo make install 
 
 # configure repos for niryo
 # RUN cd ~/catkin_ws/src/niryo_one_ros/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
@@ -113,12 +111,12 @@ RUN sudo git clone -b v1.1.0 https://github.com/novnc/noVNC.git /opt/novnc \
 
 # build workspace
 RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/kinetic/setup.bash && catkin build"
-#
-## remove CUDA toolkit (we are mounting CUDA libs from host VM when running container, having them inside container breaks nvidia-docker)
+
+# remove CUDA toolkit (we are mounting CUDA libs from host VM when running container, having them inside container breaks nvidia-docker)
 RUN sudo apt-get remove --purge -y cuda && sudo apt-get autoremove -y
 # instal cublas lib (caffe complains about it)
 RUN sudo apt-get install -y libcublas10
-#
+
 # update gazebo + x11vnc
 RUN sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' && \
 wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - && \
@@ -129,24 +127,25 @@ RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
 ## fix for missing deps - there is prob a better way TODO: reeval this
 RUN sudo apt-get install -y ros-kinetic-gazebo-ros-pkgs ros-kinetic-gazebo-ros-control ros-kinetic-ur-gazebo ros-kinetic-ur5-moveit-config ros-kinetic-ur-kinematics ros-kinetic-timed-roslaunch ros-kinetic-ira-laser-tools ros-kinetic-spatio-temporal-voxel-layer
-#
+
 ## fix for lower version numpy so pick and place works
-RUN sudo rm -rf /usr/lib/python2.7/dist-packages/numpy*
-RUN sudo rm -rf /usr/local/lib/python2.7/dist-packages/numpy*
-RUN sudo pip install --upgrade numpy==1.16.0
-#
+RUN sudo rm -rf /usr/lib/python2.7/dist-packages/numpy* && \ 
+    sudo rm -rf /usr/local/lib/python2.7/dist-packages/numpy* && \
+    sudo pip install --upgrade numpy==1.16.0
+
 ##fix missing dep - jsonpickle
 RUN sudo pip install jsonpickle
-#
-## This is required for sharing Xauthority
+
+# This is required for sharing Xauthority
 ENV QT_X11_NO_MITSHM=1
 ENV CATKIN_TOPLEVEL_WS="${workspace}/devel"
-## Switch to the workspace
+
+# Switch to the workspace
 WORKDIR ${workspace}
-#
-## For noVNC and launching xvfb, x11vnc
+
+# For noVNC and launching xvfb, x11vnc
 EXPOSE 6080
-#
+
 # Copy run-vnc script
 COPY run-vnc.sh .
 RUN sudo chmod +x run-vnc.sh
