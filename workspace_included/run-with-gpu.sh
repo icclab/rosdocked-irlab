@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #export TAG=latest
-#export TAG=build-gpd2
-export TAG=debugging-pcl
+export TAG=build-gpd2
+#export TAG=debugging-pcl
 export BASE_IMAGE=robopaas/rosdocked-kinetic-gpu-workspace-included
 #export BASE_IMAGE=robopaas/rosdocked-kinetic-gpu
 export IMAGE_NAME=$BASE_IMAGE:$TAG

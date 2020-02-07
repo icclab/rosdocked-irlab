@@ -47,8 +47,8 @@ git clone https://github.com/icclab/laser_filters.git -b indigo-devel && \
 git clone https://github.com/icclab/niryo_one_ros.git -b gazebo-simulator && \
 git clone --branch 2.2.1 https://github.com/intel-ros/realsense.git && \
 # add gpd_ros (for gpd tag 2.0.0)
-# git clone https://github.com/leankyr/gpd_ros && \
-git clone https://github.com/atenpas/gpd.git -b 1.0.0 && \
+git clone https://github.com/leankyr/gpd_ros && \
+#git clone https://github.com/atenpas/gpd.git -b 1.0.0 && \
 mkdir summit_xl_sources && cd summit_xl_sources && \
 git clone https://github.com/RobotnikAutomation/rcomponent.git && \
 git clone https://github.com/RobotnikAutomation/robotnik_msgs.git && \
@@ -63,8 +63,8 @@ git clone https://github.com/utecrobotics/robotiq
 
 
 # add gpd tag 2.0.0 out of the workspace
-#RUN cd ~/opt && git clone --branch 2.0.0 https://github.com/atenpas/gpd && cd gpd && \
-#    mkdir build && cd build && cmake .. && make -j && sudo make install 
+RUN cd ~/opt && git clone --branch 2.0.0 https://github.com/atenpas/gpd && cd gpd && \
+    mkdir build && cd build && cmake .. && make -j && sudo make install 
 
 # configure repos for niryo
 # RUN cd ~/catkin_ws/src/niryo_one_ros/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
