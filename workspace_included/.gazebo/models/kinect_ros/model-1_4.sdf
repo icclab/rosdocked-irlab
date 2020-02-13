@@ -3,7 +3,8 @@
   <model name="kinect_ros">
     <!--pose>0.443618 0.140320 0.160948 -0.070526 0.697036 -2.089595</pose-->
     <pose>0.611237 0.433886 0.443974 -0.070526 0.697037 -2.089600</pose>
-			<static>false</static>
+      <!-- in order to keep the camera in the air -->
+      <static>true</static>
     <link name="kinect_camera_link">
       <inertial>
         <mass>0.1</mass>
