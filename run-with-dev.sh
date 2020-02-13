@@ -6,7 +6,7 @@ IMG=$1
 if [ "$#" -ne 1 ]; then
   # echo "usage: ./run.sh IMAGE_NAME"
   # return 1
-  IMG='robopaas/rosdocked-kinetic'
+  IMG='robopaas/rosdocked-melodic'
   echo "using default image:" $IMG
 fi
 
