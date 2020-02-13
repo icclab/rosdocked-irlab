@@ -1,4 +1,3 @@
-#FROM ros:kinetic
 FROM osrf/ros:melodic-desktop-full-bionic
 
 # Arguments
