@@ -33,13 +33,10 @@ RUN cd ~/catkin_ws/src/pcg_gazebo_pkgs/pcg_libraries && pip install --user -r re
 # install jupyter and add binaries to path
 RUN pip install --user jupyter && echo "export PATH=$PATH:~/.local/bin" >> ~/.bashrc
 
-# add chair model
+# add models
 ADD office_chair /home/ros/.gazebo/models/office_chair
+ADD kinect_ros /home/ros/.gazebo/models/kinect_ros
 RUN sudo chown -R ros:ros /home/ros/.gazebo
-
-# add jupiter playbook
-ADD office_chairs.ipynb /home/ros/catkin_ws/src/pcg_gazebo_pkgs/pcg_notebooks/simulation/office_chairs.ipynb
-RUN sudo chown -R ros:ros /home/ros/catkin_ws/src/pcg_gazebo_pkgs/pcg_notebooks/simulation/office_chairs.ipynb
 
 # auto source ROS env in bash
 RUN echo "source /home/ros/catkin_ws/devel/setup.bash" >> ~/.bashrc
