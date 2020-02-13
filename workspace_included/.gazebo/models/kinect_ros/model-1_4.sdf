@@ -1,10 +1,9 @@
 <?xml version="1.0"?>
 <sdf version="1.4">
   <model name="kinect_ros">
-    <!--pose>0.443618 0.140320 0.160948 -0.070526 0.697036 -2.089595</pose-->
-    <pose>0.611237 0.433886 0.443974 -0.070526 0.697037 -2.089600</pose>
-			<static>true</static>
+    <static>true</static>
     <link name="kinect_camera_link">
+    <pose>0 0 0 0 0 0</pose>
       <inertial>
         <mass>0.1</mass>
       </inertial>
