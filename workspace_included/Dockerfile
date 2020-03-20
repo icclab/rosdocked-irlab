@@ -70,6 +70,7 @@ git clone https://github.com/utecrobotics/robotiq
 # add gazebo models to decrease initial gazebo bringup time
 RUN mkdir -p ~/.gazebo
 ADD .gazebo /home/"${user}"/.gazebo/
+RUN sudo chown ros:ros ~/.gazebo/models
 
 # patch gpd fwd
 RUN cd ~/catkin_ws/src/gpd && \
