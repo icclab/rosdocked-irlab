@@ -125,6 +125,5 @@ ENV CATKIN_TOPLEVEL_WS="${workspace}/devel"
 WORKDIR ${workspace}
 
 # For noVNC and launching xvfb, x11vnc
-EXPOSE 6080
-
-CMD ["sudo", "supervisord", "-c", "/opt/novnc/supervisord/supervisord.conf"]
+ADD run-vnc.sh /home/ros/run-vnc.sh
+EXPOSE 443

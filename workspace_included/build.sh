@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export IMAGE_NAME=robopaas/rosdocked-kinetic-workspace-included:latest
+export IMAGE_NAME=robopaas/rosdocked-irlab-ws-novnc:latest
 
 # Get this script's path
 pushd `dirname $0` > /dev/null
@@ -7,7 +7,7 @@ SCRIPTPATH=`pwd`
 popd > /dev/null
 
 # Build the docker image
-docker build --no-cache \
+docker build \
   --build-arg user=$USER\
   --build-arg uid=$UID\
   --build-arg home=/home/ros \
