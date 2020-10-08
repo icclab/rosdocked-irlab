@@ -9,15 +9,15 @@ echo "----- Fixing hosts for ros -----"
 sed "/127.0.0.1/ s/$/ $HOSTNAME/" /etc/hosts | sudo tee /etc/hosts > /dev/null 2>&1
 
 echo "----- Starting virtual screen -----"
-Xvfb :0 -screen 0 1920x1080x16 > /dev/null 2>&1 &
+sudo Xvfb :0 -screen 0 1920x1080x16 &
 sleep 3
 
 echo "----- Starting VNC -----"
-x11vnc --passwd $1 > /dev/null 2>&1 &
+sudo x11vnc -forever -shared -noxrecord --passwd $1 &
 sleep 3
 
 echo "----- Starting fluxbox -----"
-fluxbox > /dev/null 2>&1 &
+sudo fluxbox > /dev/null 2>&1 &
 sleep 3
 
 echo "----- Starting novnc -----"
