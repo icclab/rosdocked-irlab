@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export IMAGE_NAME=robopaas/rosdocked-irlab-ws-novnc:latest
+export IMAGE_NAME=robopaas/rosdocked-kinetic-workspace-included:latest
 
 # Get this script's path
 pushd `dirname $0` > /dev/null

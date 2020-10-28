@@ -40,7 +40,7 @@ USER "${user}"
 # create catkin ws and clone projects
 RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/kinetic/setup.bash" && \
 cd src && \
-git clone https://github.com/icclab/icclab_summit_xl.git && \
+git clone https://github.com/icclab/icclab_summit_xl.git &&  \
 git clone https://github.com/icclab/icclab_grasping_niryo.git && \
 git clone --branch 1.0.2 https://github.com/JenniferBuehler/gazebo-pkgs.git && \
 git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
@@ -61,7 +61,8 @@ git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b kinetic-
 git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b indigo-devel && \
 git clone https://github.com/scanse/sweep-sdk.git && \
 git clone https://github.com/RobotnikAutomation/ur_modern_driver.git && \
-git clone https://github.com/utecrobotics/robotiq
+git clone https://github.com/utecrobotics/robotiq && \
+git clone https://github.com/Danfoa/robotiq_2finger_grippers.git
 
 # configure repos for niryo
 # RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
@@ -81,28 +82,13 @@ patch < 63.patch
 RUN sudo apt-get update && cd ~/catkin_ws && \
 rosdep update && rosdep install -ry --from-paths src
 
-# Environment variables for noVNC
-# Setup demo environment variables
-ENV DEBIAN_FRONTEND=noninteractive \
-    LANG=en_US.UTF-8 \
-    LANGUAGE=en_US.UTF-8 \
-    LC_ALL=C.UTF-8 \
-    DISPLAY=:0.0 \
-    DISPLAY_WIDTH=1024 \
-    DISPLAY_HEIGHT=768 \
-    RUN_FLUXBOX=yes
-
-# Clone noVNC
-RUN sudo git clone -b v1.1.0 https://github.com/novnc/noVNC.git /opt/novnc \
-    && sudo rm -rf /opt/novnc/.git
-
 # build workspace
 RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/kinetic/setup.bash && catkin build"
 
-# update gazebo + x11vnc
+# update gazebo
 RUN sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' && \
 wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add - && \
-sudo apt-get update && sudo apt-get install -y gazebo7 x11vnc xvfb fluxbox
+sudo apt-get update && sudo apt-get install -y gazebo7
 
 # edit bashrc
 RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
@@ -124,6 +110,3 @@ ENV CATKIN_TOPLEVEL_WS="${workspace}/devel"
 # Switch to the workspace
 WORKDIR ${workspace}
 
-# For noVNC and launching xvfb, x11vnc
-ADD run-vnc.sh /home/ros/run-vnc.sh
-EXPOSE 443

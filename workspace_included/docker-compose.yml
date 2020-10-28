@@ -1,7 +1,7 @@
 version: '3'
 services:
   rosdocked:
-    image: robopaas/rosdocked-irlab-ws-novnc
+    image: robopaas/rosdocked-kinetic-workspace-included
 #   build:
 #      context: .
 #      dockerfile: Dockerfile
