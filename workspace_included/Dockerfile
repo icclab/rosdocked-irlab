@@ -94,7 +94,7 @@ sudo apt-get update && sudo apt-get install -y gazebo7
 RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
 # fix for missing deps - there is prob a better way TODO: reeval this
-RUN sudo apt-get install -y ros-kinetic-gazebo-ros-pkgs ros-kinetic-gazebo-ros-control ros-kinetic-ur-gazebo ros-kinetic-ur5-moveit-config ros-kinetic-ur-kinematics ros-kinetic-timed-roslaunch ros-kinetic-ira-laser-tools ros-kinetic-spatio-temporal-voxel-layer
+RUN sudo apt-get install -y ros-kinetic-gazebo-ros-pkgs ros-kinetic-gazebo-ros-control ros-kinetic-ur-gazebo ros-kinetic-ur5-moveit-config ros-kinetic-ur-kinematics ros-kinetic-timed-roslaunch ros-kinetic-ira-laser-tools ros-kinetic-spatio-temporal-voxel-layer ros-kinetic-turtlebot-apps ros-kinetic-turtlebot-interactions ros-kinetic-turtlebot-simulator ros-kinetic-ar-track-alvar-msgs
 
 # fix for lower version numpy so pick and place works
 RUN sudo rm -rf /usr/lib/python2.7/dist-packages/numpy*
