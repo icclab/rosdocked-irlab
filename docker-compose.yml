@@ -1,0 +1,29 @@
+version: '3'
+services:
+  ros2:
+    image: robopaas/ros2docked-foxy:latest
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    hostname: rosdocked
+    environment:
+      - ROS_HOSTNAME=rosdocked
+      - DISPLAY=novnc:0.0
+    depends_on:
+      - novnc
+        #   command: bash -c "source /opt/ros/foxy/setup.bash" 
+  
+  novnc:  
+    build:
+      context: novnc/
+      dockerfile: Dockerfile
+    environment:
+      # Adjust to your screen size
+      - DISPLAY_WIDTH= 1920
+      - DISPLAY_HEIGHT= 1080
+    shm_size: 2gb
+    # ipc: host
+    ports:
+      - "443:8080"
+  
+
