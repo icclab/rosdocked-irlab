@@ -1,7 +1,8 @@
 FROM osrf/ros:foxy-desktop
 
-RUN apt-get update &&  apt-get install -y wget unzip ros-foxy-rviz2 ros-foxy-rqt-image-view libconsole-bridge-dev ros-foxy-gazebo-ros-pkgs ros-foxy-ros-core ros-foxy-geometry2  && \
-   rm -rf /var/lib/apt/lists/*
+RUN apt update &&  apt upgrade && \
+apt-get install -y wget unzip ros-foxy-rviz2 ros-foxy-rqt-image-view libconsole-bridge-dev ros-foxy-gazebo-ros-pkgs ros-foxy-ros-core ros-foxy-geometry2  && \
+rm -rf /var/lib/apt/lists/*
 
 # fix missing libconsole_bridge.so.1.0
 RUN cd /opt ; wget https://github.com/ros/console_bridge/archive/1.0.1.zip ; \
