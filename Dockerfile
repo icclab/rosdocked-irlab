@@ -1,6 +1,6 @@
 FROM osrf/ros:foxy-desktop
 
-RUN apt update &&  apt upgrade && \
+RUN apt -y update &&  apt -y upgrade && \ 
 apt-get install -y wget unzip ros-foxy-rviz2 ros-foxy-rqt-image-view libconsole-bridge-dev ros-foxy-gazebo-ros-pkgs ros-foxy-ros-core ros-foxy-geometry2  && \
 rm -rf /var/lib/apt/lists/*
 
