@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-export IMAGE_NAME=robopaas/ros2docked-foxy:latest
+export IMAGE_NAME=robopaas/ros2docked-eloquent:latest
+
 
 # Get this script's path
 pushd `dirname $0` > /dev/null

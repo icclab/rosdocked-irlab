@@ -2,7 +2,7 @@
 
 ## TL;DR
 
-Run a containerized basic ROS2 foxy environment and novnc for the graphical interface.
+Run a containerized basic ROS2 eloquent  environment and novnc for the graphical interface.
 First build the ROS2 foxy container image and then run docker-compose. This will pull the novnc image and run two containers.
 
 	cd rosdocked-irlab

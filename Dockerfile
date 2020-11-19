@@ -1,7 +1,7 @@
-FROM osrf/ros:foxy-desktop
+FROM osrf/ros:eloquent-desktop
 
-RUN apt update &&  apt upgrade && \
-apt-get install -y wget unzip ros-foxy-rviz2 ros-foxy-rqt-image-view libconsole-bridge-dev ros-foxy-gazebo-ros-pkgs ros-foxy-ros-core ros-foxy-geometry2  && \
+RUN apt update &&  \
+apt-get install -y wget unzip ros-eloquent-rviz2 ros-eloquent-rqt-image-view libconsole-bridge-dev ros-eloquent-gazebo-ros-pkgs ros-eloquent-ros-core ros-eloquent-geometry2 ros-eloquent-gazebo-ros-pkgs ros-eloquent-cartographer ros-eloquent-cartographer-ros ros-eloquent-navigation2 ros-eloquent-nav2-bringup  && \
 rm -rf /var/lib/apt/lists/*
 
 # fix missing libconsole_bridge.so.1.0
@@ -24,14 +24,7 @@ RUN adduser ${user} plugdev
 USER "${user}"
 
 # edit bashrc
-#RUN echo "source opt/ros/foxy/setup.bash" >> ~/.bashrc
-
-
-# This is required for sharing Xauthority
-#ENV QT_X11_NO_MITSHM=1
-#ENV CATKIN_TOPLEVEL_WS="${workspace}/devel"
-# Switch to the workspace
-#WORKDIR ${workspace}
+RUN echo "source opt/ros/eloquent/setup.bash" >> ~/.bashrc
 
 # launch rviz2 package
 CMD ["ros2", "run", "rviz2", "rviz2"]
