@@ -5,7 +5,7 @@ RUN set -ex; \
     apt-get update; \
     apt-get install -y \
       bash \
-      fluxbox \
+      icewm \
       git \
       net-tools \
       novnc \
@@ -23,8 +23,8 @@ ENV HOME=/root \
     DISPLAY=:0.0 \
     DISPLAY_WIDTH=1024 \
     DISPLAY_HEIGHT=768 \
-    RUN_XTERM=np \
-    RUN_FLUXBOX=yes
+    RUN_XTERM=no \
+    RUN_ICEWM=yes
 COPY . /app
 
 RUN chmod +x /app/entrypoint.sh

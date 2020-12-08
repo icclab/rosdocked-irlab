@@ -53,7 +53,7 @@ git clone https://github.com/icclab/icclab_summit_xl.git -b noetic &&  \
 #git clone --branch gazebo-simulator https://github.com/icclab/niryo_one_ros.git && \
 #git clone --branch 2.2.1 https://github.com/intel-ros/realsense.git && \
 #git clone https://github.com/atenpas/gpd.git -b forward && \
-#git clone https://github.com/roboticsgroup/roboticsgroup_gazebo_plugins && \
+git clone https://github.com/roboticsgroup/roboticsgroup_gazebo_plugins && \
 git clone https://github.com/scanse/sweep-sdk.git && \
 #git clone https://github.com/utecrobotics/robotiq && \
 git clone https://github.com/Danfoa/robotiq_2finger_grippers.git && \
