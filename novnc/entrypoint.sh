@@ -1,11 +1,11 @@
 #!/bin/bash
 set -ex
 
-RUN_FLUXBOX=${RUN_FLUXBOX:-yes}
+RUN_ICEWM=${RUN_ICEWM:-yes}
 
-case $RUN_FLUXBOX in
+case $RUN_ICEWM in
   false|no|n|0)
-    rm -f /app/conf.d/fluxbox.conf
+    rm -f /app/conf.d/icewm.conf
     ;;
 esac
 
