@@ -35,17 +35,20 @@ chmod 0440 "/etc/sudoers.d/${user}"
 # Switch to user
 USER "${user}"
 
-# install git
+# install git and other needed libs including catkin build
 RUN sudo apt-get update && \
-    sudo apt-get install -y git apt-utils
+    sudo apt-get install -y git apt-utils \
+    ros-${ROS_DISTRO}-pcl-ros python3-catkin-tools \
+    python3-osrf-pycommon && \
+    sudo apt-get upgrade -y
 
 # create catkin ws and clone projects
 RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" && \
 cd src && \
 git clone https://github.com/icclab/icclab_summit_xl.git -b noetic &&  \
 #git clone https://github.com/icclab/icclab_grasping_niryo.git && \
-#git clone --branch 1.0.2 https://github.com/JenniferBuehler/gazebo-pkgs.git && \
-#git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
+git clone --branch noetic https://github.com/JenniferBuehler/gazebo-pkgs.git && \
+git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
 #git clone https://github.com/icclab/icclab_turtlebot.git -b ${ROS_DISTRO} && \
 #If need two cameras for PCL add -b two_pcl_filtering below
 #git clone https://github.com/icclab/irlab_point_cloud_filtering.git && \
@@ -64,6 +67,7 @@ git clone https://github.com/ros-industrial/universal_robot.git && \
 git clone https://github.com/ros-perception/depthimage_to_laserscan.git && \
 git clone https://github.com/rst-tu-dortmund/costmap_prohibition_layer.git && \
 git clone https://github.com/SteveMacenski/spatio_temporal_voxel_layer.git -b noetic-devel && \
+git clone https://github.com/iralabdisco/ira_laser_tools.git && \
 git clone https://github.com/MoriKen254/timed_roslaunch.git && \
 mkdir summit_xl_sources && cd summit_xl_sources && \
 git clone https://github.com/RobotnikAutomation/rcomponent.git && \
@@ -87,17 +91,19 @@ RUN sudo chown ros:ros ~/.gazebo/models ; rm -rf /home/ros/catkin_ws/src/robotiq
 RUN sudo apt-get update && cd ~/catkin_ws && \
 rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths src 
 
+# install ros-pcl AGAIN. No clue why it doesn't see it
+RUN sudo apt-get update && \
+    sudo apt-get install -y ros-${ROS_DISTRO}-pcl-ros
+
 # build workspace
-RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin_make_isolated"
+RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build"
 
 # patch summit_xl files and update packages
 RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
-    git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro ; \
-    sudo apt-get update ; \
-    sudo apt-get upgrade -y"
+    git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro"
 
 # edit bashrc
-RUN echo "source ~/catkin_ws/devel_isolated/setup.bash" >> ~/.bashrc
+RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
 ## fix for missing deps - there is prob a better way TODO: reeval this
 #RUN sudo apt-get install -y ros-${ROS_DISTRO}-gazebo-ros-pkgs ros-${ROS_DISTRO}-gazebo-ros-control ros-${ROS_DISTRO}-ur-gazebo ros-${ROS_DISTRO}-ur5-moveit-config ros-${ROS_DISTRO}-ur-kinematics ros-${ROS_DISTRO}-timed-roslaunch ros-${ROS_DISTRO}-ira-laser-tools ros-${ROS_DISTRO}-spatio-temporal-voxel-layer
