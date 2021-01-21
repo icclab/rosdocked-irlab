@@ -140,8 +140,13 @@ ENV CATKIN_TOPLEVEL_WS="/home/${USER}/catkin_ws"
 WORKDIR /home/${USER}
 
 # edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
-RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc #; \
+RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 #    echo "export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> ~/.bashrc
+
+# Defeat screen locking and power management
+RUN sudo mv /etc/xdg/autostart/lxqt-xscreensaver-autostart.desktop /etc/xdg/autostart/lxqt-xscreensaver-autostart.desktop_bak && \
+    sudo mv /etc/xdg/autostart/lxqt-powermanagement.desktop /etc/xdg/autostart/lxqt-powermanagement.desktop_bak && \
+    sudo mv /etc/xdg/autostart/upg-notifier-autostart.desktop /etc/xdg/autostart/upg-notifier-autostart.desktop_bak
 
 # Install desktop file for this user
 RUN mkdir -p /home/${USER}/Desktop
