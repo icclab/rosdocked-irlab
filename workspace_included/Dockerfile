@@ -72,6 +72,7 @@ git clone https://github.com/MoriKen254/timed_roslaunch.git && \
 git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git && \
 git clone https://github.com/ROBOTIS-GIT/turtlebot3.git && \
 git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git && \
+git clone https://github.com/SteveMacenski/slam_toolbox.git -b noetic-devel && \
 mkdir summit_xl_sources && cd summit_xl_sources && \
 git clone https://github.com/RobotnikAutomation/rcomponent.git && \
 git clone https://github.com/RobotnikAutomation/robotnik_msgs.git && \
@@ -79,8 +80,7 @@ git clone https://github.com/RobotnikAutomation/robotnik_sensors.git -b kinetic-
 git clone https://github.com/RobotnikAutomation/ros-system-monitor && \
 git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b kinetic-multirobot-devel && \
-git clone https://github.com/RobotnikAutomation/ur_modern_driver.git && \
-git clone https://github.com/SteveMacenski/slam_toolbox.git -b noetic-devel 
+git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
 # configure repos for niryo
 # RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
 # RUN cd ~/catkin_ws/src/irlab_point_cloud_filtering && git checkout -b dev && git pull origin dev
