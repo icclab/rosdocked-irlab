@@ -45,7 +45,7 @@ RUN sudo apt-get update && \
 # create catkin ws and clone projects
 RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" && \
 cd src && \
-git clone https://github.com/icclab/icclab_summit_xl.git -b noetic &&  \
+git clone https://github.com/icclab/icclab_summit_xl.git -b noetic-raplabs &&  \
 #git clone https://github.com/icclab/icclab_grasping_niryo.git && \
 git clone --branch noetic https://github.com/JenniferBuehler/gazebo-pkgs.git && \
 git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
@@ -76,8 +76,11 @@ git clone https://github.com/RobotnikAutomation/robotnik_sensors.git -b kinetic-
 git clone https://github.com/RobotnikAutomation/ros-system-monitor && \
 git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b kinetic-multirobot-devel && \
-git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
-
+git clone https://github.com/RobotnikAutomation/ur_modern_driver.git && \
+git clone https://github.com/SteveMacenski/slam_toolbox.git -b noetic-devel && \
+git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git && \
+git clone https://github.com/ROBOTIS-GIT/turtlebot3.git && \
+git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git 
 # configure repos for niryo
 # RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
 # RUN cd ~/catkin_ws/src/irlab_point_cloud_filtering && git checkout -b dev && git pull origin dev
@@ -86,6 +89,7 @@ git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
 RUN mkdir -p ~/.gazebo
 ADD .gazebo /home/"${user}"/.gazebo/
 RUN sudo chown ros:ros ~/.gazebo/models ; rm -rf /home/ros/catkin_ws/src/robotiq_2finger_grippers/robotiq_modbus_rtu
+RUN cp -r ~/catkin_ws/src/icclab_summit_xl/worlds/models/marker* /home/"${user}"/.gazebo/models
 
 # update dependencies
 RUN sudo apt-get update && cd ~/catkin_ws && \
@@ -96,16 +100,17 @@ RUN sudo apt-get update && \
     sudo apt-get install -y ros-${ROS_DISTRO}-pcl-ros wget
 
 # build workspace
-RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build"
+RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build && source devel/setup.bash"
 
 # patch summit_xl old files and add unmerged PRs
-RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
-    git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro" ; \
-    bash -c "cd ~/catkin_ws/src/summit_xl_sources/robotnik_sensors; wget -O /tmp/11.patch https://patch-diff.githubusercontent.com/raw/RobotnikAutomation/robotnik_sensors/pull/11.patch; git apply /tmp/11.patch"
+#RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
+#    git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro" ; \
+#    bash -c "cd ~/catkin_ws/src/summit_xl_sources/robotnik_sensors; wget -O /tmp/11.patch https://patch-diff.githubusercontent.com/raw/RobotnikAutomation/robotnik_sensors/pull/11.patch; git apply /tmp/11.patch"
 
 # edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
 RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc ; \
-    echo "export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> ~/.bashrc
+    echo "export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> ~/.bashrc \
+echo "export TURTLEBOT3_MODEL=burger"
 
 ## fix for missing deps - there is prob a better way TODO: reeval this
 #RUN sudo apt-get install -y ros-${ROS_DISTRO}-gazebo-ros-pkgs ros-${ROS_DISTRO}-gazebo-ros-control ros-${ROS_DISTRO}-ur-gazebo ros-${ROS_DISTRO}-ur5-moveit-config ros-${ROS_DISTRO}-ur-kinematics ros-${ROS_DISTRO}-timed-roslaunch ros-${ROS_DISTRO}-ira-laser-tools ros-${ROS_DISTRO}-spatio-temporal-voxel-layer
