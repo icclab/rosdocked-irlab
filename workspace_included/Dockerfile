@@ -69,6 +69,9 @@ git clone https://github.com/rst-tu-dortmund/costmap_prohibition_layer.git && \
 git clone https://github.com/SteveMacenski/spatio_temporal_voxel_layer.git -b noetic-devel && \
 git clone https://github.com/iralabdisco/ira_laser_tools.git && \
 git clone https://github.com/MoriKen254/timed_roslaunch.git && \
+git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git && \
+git clone https://github.com/ROBOTIS-GIT/turtlebot3.git && \
+git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git && \
 mkdir summit_xl_sources && cd summit_xl_sources && \
 git clone https://github.com/RobotnikAutomation/rcomponent.git && \
 git clone https://github.com/RobotnikAutomation/robotnik_msgs.git && \
@@ -77,10 +80,7 @@ git clone https://github.com/RobotnikAutomation/ros-system-monitor && \
 git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/ur_modern_driver.git && \
-git clone https://github.com/SteveMacenski/slam_toolbox.git -b noetic-devel && \
-git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git && \
-git clone https://github.com/ROBOTIS-GIT/turtlebot3.git && \
-git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git 
+git clone https://github.com/SteveMacenski/slam_toolbox.git -b noetic-devel 
 # configure repos for niryo
 # RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
 # RUN cd ~/catkin_ws/src/irlab_point_cloud_filtering && git checkout -b dev && git pull origin dev
@@ -97,10 +97,15 @@ rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths s
 
 # install ros-pcl AGAIN. No clue why it doesn't see it
 RUN sudo apt-get update && \
-    sudo apt-get install -y ros-${ROS_DISTRO}-pcl-ros wget
+    sudo apt-get install -y ros-${ROS_DISTRO}-pcl-ros wget vim
 
 # build workspace
 RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build && source devel/setup.bash"
+
+# Add modified TB3 urdf with 359 scans instead of 360 for the Rplidar to make slam-toolbox work in sim
+RUN cd ~/catkin_ws/src/turtlebot3/turtlebot3_description/urdf  && bash -c "wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB/master/tb3_urdf/turtlebot3_waffle.gazebo.xacro?token=AAAAQZRSR2BSQKDXCVP5T5TAEETSW -O turtlebot3_waffle.gazebo.xacro && wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB/master/tb3_urdf/turtlebot3_burger.gazebo.xacro?token=AAAAQZRVOEQG7U2ZX3WWOKDAEETFS -O turtlebot3_burger.gazebo.xacro"
+
+
 
 # patch summit_xl old files and add unmerged PRs
 #RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
@@ -110,7 +115,7 @@ RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && 
 # edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
 RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc ; \
     echo "export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> ~/.bashrc \
-echo "export TURTLEBOT3_MODEL=burger"
+echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc
 
 ## fix for missing deps - there is prob a better way TODO: reeval this
 #RUN sudo apt-get install -y ros-${ROS_DISTRO}-gazebo-ros-pkgs ros-${ROS_DISTRO}-gazebo-ros-control ros-${ROS_DISTRO}-ur-gazebo ros-${ROS_DISTRO}-ur5-moveit-config ros-${ROS_DISTRO}-ur-kinematics ros-${ROS_DISTRO}-timed-roslaunch ros-${ROS_DISTRO}-ira-laser-tools ros-${ROS_DISTRO}-spatio-temporal-voxel-layer
