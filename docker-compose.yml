@@ -1,7 +1,7 @@
 version: '3'
 services:
   ros2:
-    image: robopaas/ros2docked-foxy:latest
+    image: robopaas/rosdocked-foxy:labs
     hostname: rosdocked
     environment:
       - ROS_HOSTNAME=rosdocked
