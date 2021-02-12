@@ -13,7 +13,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # install min requirements
 RUN apt update && apt-get upgrade -y && \
-    apt install -y lsb-release gnupg sudo
+    apt install -y lsb-release gnupg sudo 
 
 # set up ROS
 RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'&& \
@@ -24,9 +24,9 @@ RUN apt update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git apt-utils ros-${ROS_DISTRO}-desktop-full \
     ros-${ROS_DISTRO}-pcl-ros python3-catkin-tools \
     python3-osrf-pycommon \
-    curl wget vim less sudo lsof net-tools git htop \
+    curl wget vim less python lsof net-tools git htop \
     libxrender1 lubuntu-desktop xvfb xterm terminator zenity mesa-utils \
-    x11-xkb-utils xauth
+    x11-xkb-utils xauth 
 
 # install turbovnc, virtualgl, noVNC
 RUN cd /tmp && \
@@ -61,19 +61,6 @@ COPY index.html /opt/noVNC/index.html
 # Expose whatever port NoVNC will serve from. In our case it will be 40001, see ./start_desktop.sh
 EXPOSE 40001
 ENV DISPLAY :1
-
-# Install desktop file for this user
-RUN mkdir -p /root/Desktop
-COPY ./terminator.desktop /root/Desktop
-RUN mkdir -p /root/.config/terminator
-COPY ./terminator_config /root/.config/terminator/config
-# COPY ./self.pem /root/self.pem
-# Precede bash on all new terminator shells with vglrun so that 3d graphics apps will use the GPU
-RUN perl -pi -e 's/^Exec=terminator$/Exec=terminator -e "vglrun bash"/g' /usr/share/applications/terminator.desktop
-
-RUN mkdir -p /root/.vnc
-COPY ./xstartup.turbovnc /root/.vnc/xstartup.turbovnc
-RUN chmod a+x /root/.vnc/xstartup.turbovnc
 
 ARG USER=ros
 
@@ -134,43 +121,52 @@ ADD .gazebo /home/"${USER}"/.gazebo/
 RUN sudo chown ${USER}:${USER} ~/.gazebo/models ; rm -rf /home/ros/catkin_ws/src/robotiq_2finger_grippers/robotiq_modbus_rtu
 RUN cp -r ~/catkin_ws/src/icclab_summit_xl/worlds/models/marker* /home/"${USER}"/.gazebo/models
 
-
 # update dependencies
-RUN sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y python3-rosdep && \
+RUN sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y python3-rosdep \ 
+    ros-${ROS_DISTRO}-pcl-ros build-essential g++ python && \
     cd ~/catkin_ws && sudo rosdep init && \
     rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths src 
 
-# install ros-pcl AGAIN. No clue why it doesn't see it
+# install ros-pcl AGAIN. No clue why it doesn't keep it
 RUN sudo apt-get update && \
-    sudo apt-get install -y ros-${ROS_DISTRO}-pcl-ros build-essential g++
+    sudo apt-get install -y ros-${ROS_DISTRO}-pcl-ros
 
 # build workspace
 RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build"
-
-# Add modified TB3 urdf with 359 scans instead of 360 for the Rplidar to make slam-toolbox work in sim
-RUN cd ~/catkin_ws/src/turtlebot3/turtlebot3_description/urdf  && bash -c "wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_waffle.gazebo.xacro?token=AAAAQZSMLOPQYSH3JB5Q22DAF6ZXK -O turtlebot3_waffle.gazebo.xacro && wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_burger.gazebo.xacro?token=AAAAQZXTBO47LEGEVN4H2T3AF62BA -O turtlebot3_burger.gazebo.xacro"
-
 
 # patch summit_xl old files and add unmerged PRs
 RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
     git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro" #; \
 #    bash -c "cd ~/catkin_ws/src/summit_xl_sources/robotnik_sensors; wget -O /tmp/11.patch https://patch-diff.githubusercontent.com/raw/RobotnikAutomation/robotnik_sensors/pull/11.patch; git apply /tmp/11.patch"
 
-# edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
-RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc && \
-    echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc && \
-    echo "export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> ~/.bashrc
-
-## fix for missing stuff
-RUN sudo apt-get install -y python
-#ros-${ROS_DISTRO}-gazebo-ros-pkgs ros-${ROS_DISTRO}-gazebo-ros-control ros-${ROS_DISTRO}-ur-gazebo ros-${ROS_DISTRO}-ur5-moveit-config ros-${ROS_DISTRO}-ur-kinematics ros-${ROS_DISTRO}-timed-roslaunch ros-${ROS_DISTRO}-ira-laser-tools ros-${ROS_DISTRO}-spatio-temporal-voxel-layer
-
-##fix missing dep - jsonpickle
-#RUN sudo pip install jsonpickle
-
-ENV CATKIN_TOPLEVEL_WS="${workspace}/devel"
+ENV CATKIN_TOPLEVEL_WS="/home/${USER}/catkin_ws"
 # Switch to the workspace
 WORKDIR /home/${USER}
+
+# edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
+RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc 
+#    echo "export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> ~/.bashrc
+
+# Defeat screen locking and power management
+RUN sudo mv /etc/xdg/autostart/lxqt-xscreensaver-autostart.desktop /etc/xdg/autostart/lxqt-xscreensaver-autostart.desktop_bak && \
+    sudo mv /etc/xdg/autostart/lxqt-powermanagement.desktop /etc/xdg/autostart/lxqt-powermanagement.desktop_bak && \
+    sudo mv /etc/xdg/autostart/upg-notifier-autostart.desktop /etc/xdg/autostart/upg-notifier-autostart.desktop_bak
+
+# Install desktop file for this user
+RUN mkdir -p /home/${USER}/Desktop
+COPY ./terminator.desktop /home/${USER}/Desktop/
+RUN sudo chown ${USER}:${USER} /home/${USER}/Desktop/terminator.desktop
+RUN mkdir -p /home/${USER}/.config/terminator
+COPY ./terminator_config /home/${USER}/.config/terminator/config
+COPY ./self.pem /home/${USER}/self.pem
+RUN sudo chown ${USER}:${USER} /home/${USER}/self.pem
+# Precede bash on all new terminator shells with vglrun so that 3d graphics apps will use the GPU
+RUN sudo perl -pi -e 's/^Exec=terminator$/Exec=terminator -e "vglrun bash"/g' /usr/share/applications/terminator.desktop
+
+# setup the X session started by turbovnc
+RUN mkdir -p /home/${USER}/.vnc
+COPY ./xstartup.turbovnc /home/${USER}/.vnc/xstartup.turbovnc
+RUN sudo chown ${USER}:${USER} /home/${USER}/.vnc/xstartup.turbovnc
 
 COPY start_desktop.sh /usr/local/bin/start_desktop.sh
 CMD /usr/local/bin/start_desktop.sh
