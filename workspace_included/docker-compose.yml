@@ -1,7 +1,7 @@
 version: '3'
 services:
   rosdocked:
-    image: robopaas/rosdocked-noetic-workspace-included
+    image: robopaas/rosdocked-noetic-workspace-included:labs
 #   build:
 #      context: .
 #      dockerfile: Dockerfile
