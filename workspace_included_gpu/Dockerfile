@@ -170,3 +170,4 @@ RUN sudo chown ${USER}:${USER} /home/${USER}/.vnc/xstartup.turbovnc
 
 COPY start_desktop.sh /usr/local/bin/start_desktop.sh
 CMD /usr/local/bin/start_desktop.sh
+
