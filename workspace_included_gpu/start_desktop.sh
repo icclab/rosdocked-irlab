@@ -5,7 +5,7 @@ chmod -f 777 /tmp/.X11-unix
 # From: https://superuser.com/questions/806637/xauth-not-creating-xauthority-file (squashes complaints about .Xauthority)
 touch ~/.Xauthority
 xauth generate :0 . trusted
-/opt/TurboVNC/bin/vncserver -SecurityTypes None
+/opt/TurboVNC/bin/vncserver -SecurityTypes otp -otp
 
 
 # Start NoVNC. self.pem is a self-signed cert.
