@@ -46,14 +46,14 @@ RUN sudo apt-get update && \
 RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" && \
 cd src && \
 git clone https://github.com/icclab/icclab_summit_xl.git -b noetic-raplabs &&  \
-#git clone https://github.com/icclab/icclab_grasping_niryo.git && \
+git clone https://github.com/icclab/icclab_grasping_niryo.git -b noetic && \
 git clone --branch noetic https://github.com/JenniferBuehler/gazebo-pkgs.git && \
 git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
 #git clone https://github.com/icclab/icclab_turtlebot.git -b ${ROS_DISTRO} && \
 #If need two cameras for PCL add -b two_pcl_filtering below
 #git clone https://github.com/icclab/irlab_point_cloud_filtering.git && \
 #git clone https://github.com/icclab/laser_filters.git -b indigo-devel && \
-#git clone --branch gazebo-simulator https://github.com/icclab/niryo_one_ros.git && \
+git clone --branch gazebo-simulator-noetic https://github.com/icclab/niryo_one_ros.git && \
 #git clone --branch 2.2.1 https://github.com/intel-ros/realsense.git && \
 #git clone https://github.com/atenpas/gpd.git -b forward && \
 git clone https://github.com/roboticsgroup/roboticsgroup_gazebo_plugins && \
@@ -84,6 +84,8 @@ git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
 # configure repos for niryo
 # RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
 # RUN cd ~/catkin_ws/src/irlab_point_cloud_filtering && git checkout -b dev && git pull origin dev
+
+RUN sudo pip3 install jsonpickle
 
 # add gazebo models to decrease initial gazebo bringup time
 RUN mkdir -p ~/.gazebo
