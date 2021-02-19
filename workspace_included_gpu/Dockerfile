@@ -13,7 +13,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # install min requirements
 RUN apt update && apt-get upgrade -y && \
-    apt install -y lsb-release gnupg sudo 
+    apt install -y lsb-release gnupg sudo python3-pip 
 
 # set up ROS
 RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'&& \

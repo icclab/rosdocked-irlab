@@ -37,7 +37,7 @@ USER "${user}"
 
 # install git and other needed libs including catkin build
 RUN sudo apt-get update && \
-    sudo apt-get install -y git apt-utils \
+    sudo apt-get install -y git apt-utils python3-pip \
     ros-${ROS_DISTRO}-pcl-ros python3-catkin-tools \
     python3-osrf-pycommon && \
     sudo apt-get upgrade -y
