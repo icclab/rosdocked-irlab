@@ -114,7 +114,7 @@ git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
 # configure repos for niryo
 # RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
 # RUN cd ~/catkin_ws/src/irlab_point_cloud_filtering && git checkout -b dev && git pull origin dev
-RUN sudo pip3 install jsonpickle
+RUN sudo pip3 install jsonpickle pyquaternion
 
 # add gazebo models to decrease initial gazebo bringup time
 RUN mkdir -p ~/.gazebo
@@ -130,7 +130,7 @@ RUN sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -
 
 # install ros-pcl AGAIN. No clue why it doesn't keep it
 RUN sudo apt-get update && \
-    sudo apt-get install -y ros-${ROS_DISTRO}-pcl-ros
+    sudo apt-get install -y ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-moveit-python
 
 # build workspace
 RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build"
