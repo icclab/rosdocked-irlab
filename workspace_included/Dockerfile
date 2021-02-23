@@ -56,6 +56,7 @@ git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs
 git clone --branch gazebo-simulator-noetic https://github.com/icclab/niryo_one_ros.git && \
 #git clone --branch 2.2.1 https://github.com/intel-ros/realsense.git && \
 #git clone https://github.com/atenpas/gpd.git -b forward && \
+git clone https://github.com/atenpas/gpd_ros && \
 git clone https://github.com/roboticsgroup/roboticsgroup_gazebo_plugins && \
 git clone https://github.com/scanse/sweep-sdk.git && \
 #git clone https://github.com/utecrobotics/robotiq && \
@@ -99,7 +100,7 @@ rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths s
 
 # install ros-pcl AGAIN. No clue why it doesn't see it
 RUN sudo apt-get update && \
-    sudo apt-get install -y ros-${ROS_DISTRO}-pcl-ros wget vim
+    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros wget vim
 
 # build workspace
 RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build && source devel/setup.bash"
@@ -107,7 +108,10 @@ RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && 
 # Add modified TB3 urdf with 359 scans instead of 360 for the Rplidar to make slam-toolbox work in sim
 RUN cd ~/catkin_ws/src/turtlebot3/turtlebot3_description/urdf  && bash -c "wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_waffle.gazebo.xacro?token=AAAAQZSMLOPQYSH3JB5Q22DAF6ZXK -O turtlebot3_waffle.gazebo.xacro && wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_burger.gazebo.xacro?token=AAAAQZXTBO47LEGEVN4H2T3AF62BA -O turtlebot3_burger.gazebo.xacro"
 
+COPY pick_place_interface.py /opt/ros/noetic/lib/python3/dist-packages/moveit_python
 
+RUN cd /opt && sudo git clone  https://github.com/atenpas/gpd && cd gpd && \
+    sudo mkdir build && cd build && sudo cmake .. && sudo make -j8 && sudo make install 
 
 # patch summit_xl old files and add unmerged PRs
 #RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
