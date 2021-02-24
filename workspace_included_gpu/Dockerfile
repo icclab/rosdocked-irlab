@@ -106,6 +106,7 @@ git clone https://github.com/MoriKen254/timed_roslaunch.git && \
 git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git && \
 git clone https://github.com/ROBOTIS-GIT/turtlebot3.git && \
 git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git && \
+git clone https://github.com/SteveMacenski/slam_toolbox.git -b noetic-devel && \
 mkdir summit_xl_sources && cd summit_xl_sources && \
 git clone https://github.com/RobotnikAutomation/rcomponent.git && \
 git clone https://github.com/RobotnikAutomation/robotnik_msgs.git && \
@@ -134,14 +135,17 @@ RUN sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -
 
 # install ros-pcl AGAIN. No clue why it doesn't keep it
 RUN sudo apt-get update && \
-    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-moveit-python
+    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-moveit-python wget vim 
 
 #should solve the gpd_ros problem not finding opencv2
 #COPY ./issues_solvers/CMakeLists.txt  /home/"${USER}"/catkin_ws/src/gpd_ros
 
 
 # build workspace
-RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build"
+RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build && source devel/setup.bash"
+
+# Add modified TB3 urdf with 359 scans instead of 360 for the Rplidar to make slam-toolbox work in sim
+RUN cd ~/catkin_ws/src/turtlebot3/turtlebot3_description/urdf  && bash -c "wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_waffle.gazebo.xacro?token=AAAAQZSMLOPQYSH3JB5Q22DAF6ZXK -O turtlebot3_waffle.gazebo.xacro && wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_burger.gazebo.xacro?token=AAAAQZXTBO47LEGEVN4H2T3AF62BA -O turtlebot3_burger.gazebo.xacro"
 
 # patch summit_xl old files and add unmerged PRs
 RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
