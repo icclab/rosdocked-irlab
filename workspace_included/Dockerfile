@@ -56,7 +56,7 @@ git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs
 git clone --branch gazebo-simulator-noetic https://github.com/icclab/niryo_one_ros.git && \
 #git clone --branch 2.2.1 https://github.com/intel-ros/realsense.git && \
 #git clone https://github.com/atenpas/gpd.git -b forward && \
-git clone https://github.com/atenpas/gpd_ros && \
+#git clone https://github.com/atenpas/gpd_ros && \
 git clone https://github.com/roboticsgroup/roboticsgroup_gazebo_plugins && \
 git clone https://github.com/scanse/sweep-sdk.git && \
 #git clone https://github.com/utecrobotics/robotiq && \
@@ -86,7 +86,7 @@ git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
 # RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
 # RUN cd ~/catkin_ws/src/irlab_point_cloud_filtering && git checkout -b dev && git pull origin dev
 
-RUN sudo pip3 install jsonpickle
+RUN sudo pip3 install jsonpickle pyquaternion
 
 # add gazebo models to decrease initial gazebo bringup time
 RUN mkdir -p ~/.gazebo
@@ -100,7 +100,10 @@ rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths s
 
 # install ros-pcl AGAIN. No clue why it doesn't see it
 RUN sudo apt-get update && \
-    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros wget vim
+    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-moveit-python wget vim 
+    
+#should solve the gpd_ros problem not finding opencv2
+#COPY ./issues_solvers/CMakeLists.txt  /home/"${USER}"/catkin_ws/src/gpd_ros
 
 # build workspace
 RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build && source devel/setup.bash"
@@ -114,8 +117,8 @@ RUN cd /opt && sudo git clone  https://github.com/atenpas/gpd && cd gpd && \
     sudo mkdir build && cd build && sudo cmake .. && sudo make -j8 && sudo make install 
 
 # patch summit_xl old files and add unmerged PRs
-#RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
-#    git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro" ; \
+RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
+    git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro" #; \
 #    bash -c "cd ~/catkin_ws/src/summit_xl_sources/robotnik_sensors; wget -O /tmp/11.patch https://patch-diff.githubusercontent.com/raw/RobotnikAutomation/robotnik_sensors/pull/11.patch; git apply /tmp/11.patch"
 
 # edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
