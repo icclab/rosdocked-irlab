@@ -136,7 +136,8 @@ RUN sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -
 RUN sudo apt-get update && \
     sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-moveit-python
 
-COPY CMakeLists.txt  ~/catkin_ws/src/gpd_ros/
+#should solve the gpd_ros problem not finding opencv2
+#COPY ./issues_solvers/CMakeLists.txt  /home/"${USER}"/catkin_ws/src/gpd_ros
 
 
 # build workspace
