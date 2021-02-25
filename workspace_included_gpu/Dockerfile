@@ -187,10 +187,4 @@ RUN sudo chown ${USER}:${USER} /home/${USER}/.vnc/xstartup.turbovnc
 COPY start_desktop.sh /usr/local/bin/start_desktop.sh
 CMD /usr/local/bin/start_desktop.sh
 
-RUN cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" && \
-cd src && \
-git clone https://github.com/icclab/irlab_point_cloud_filtering.git -b noetic 
-
-# build workspace
-RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build irlab_point_cloud_filtering && source devel/setup.bash"
 
