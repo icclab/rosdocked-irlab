@@ -75,6 +75,7 @@ USER "${USER}"
 RUN cd /opt && sudo git clone  https://github.com/atenpas/gpd && cd gpd && \
     sudo mkdir build && cd build && sudo cmake .. && sudo make -j8 && sudo make install 
 
+
 # create catkin ws and clone projects
 RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" && \
 cd src && \
@@ -84,7 +85,7 @@ git clone --branch noetic https://github.com/JenniferBuehler/gazebo-pkgs.git && 
 git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
 #git clone https://github.com/icclab/icclab_turtlebot.git -b ${ROS_DISTRO} && \
 #If need two cameras for PCL add -b two_pcl_filtering below
-#git clone https://github.com/icclab/irlab_point_cloud_filtering.git && \
+git clone https://github.com/icclab/irlab_point_cloud_filtering.git -b noetic && \
 #git clone https://github.com/icclab/laser_filters.git -b indigo-devel && \
 git clone --branch gazebo-simulator-noetic https://github.com/icclab/niryo_one_ros.git && \
 #git clone --branch 2.2.1 https://github.com/intel-ros/realsense.git && \
@@ -186,4 +187,10 @@ RUN sudo chown ${USER}:${USER} /home/${USER}/.vnc/xstartup.turbovnc
 COPY start_desktop.sh /usr/local/bin/start_desktop.sh
 CMD /usr/local/bin/start_desktop.sh
 
+RUN cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" && \
+cd src && \
+git clone https://github.com/icclab/irlab_point_cloud_filtering.git -b noetic 
+
+# build workspace
+RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build irlab_point_cloud_filtering && source devel/setup.bash"
 
