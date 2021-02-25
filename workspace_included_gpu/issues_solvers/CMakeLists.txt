@@ -12,6 +12,13 @@ include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
+# OpenCV
+find_package(OpenCV REQUIRED)
+#include_directories(${OpenCV_INCLUDE_DIRS})
+#link_directories(${OpenCV_LIBRARY_DIRS})
+#add_definitions(${OpenCV_DEFINITIONS})
+
+
 ## System dependencies are found with CMake's conventions
 find_library(GPD_LIB NAMES gpd PATHS /usr/local/lib PATH_SUFFIXES lib NO_DEFAULT_PATH)
 if (GPD_LIB)
@@ -46,10 +53,12 @@ generate_messages(DEPENDENCIES geometry_msgs sensor_msgs std_msgs)
 catkin_package(
 INCLUDE_DIRS include
 CATKIN_DEPENDS cmake_modules eigen_conversions geometry_msgs message_runtime roscpp sensor_msgs std_msgs
-DEPENDS PCL
+DEPENDS PCL   
 # CATKIN_DEPENDS cmake_modules eigen_conversions geometry_msgs message_runtime roscpp sensor_msgs std_msgs
 # DEPENDS Eigen OpenCV PCL
 )
+
+
 
 ###########
 ## Build ##
@@ -57,13 +66,16 @@ DEPENDS PCL
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(include ${catkin_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS})
-include_directories(include /usr/include/opencv4 )
+include_directories(include ${catkin_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
+#include_directories(include /usr/include/opencv4 )
 
 ## Declare a C++ library
 add_library(${PROJECT_NAME}_grasp_messages src/${PROJECT_NAME}/grasp_messages.cpp)
-add_dependencies(${PROJECT_NAME}_grasp_messages ${catkin_EXPORTED_TARGETS})
+#add_dependencies(${PROJECT_NAME}_grasp_messages ${catkin_EXPORTED_TARGETS})
 add_library(${PROJECT_NAME}_grasp_plotter src/${PROJECT_NAME}/grasp_plotter.cpp)
+## Add cmake target dependencies of the library (message generation needs to be built before libraries)
+add_dependencies(${PROJECT_NAME}_grasp_messages ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 
 ## Declare a C++ executable
 add_executable(${PROJECT_NAME}_detect_grasps src/gpd_ros/grasp_detection_node.cpp)

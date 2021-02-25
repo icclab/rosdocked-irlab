@@ -89,7 +89,7 @@ git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs
 git clone --branch gazebo-simulator-noetic https://github.com/icclab/niryo_one_ros.git && \
 #git clone --branch 2.2.1 https://github.com/intel-ros/realsense.git && \
 #git clone https://github.com/atenpas/gpd.git -b forward && \
-#git clone https://github.com/atenpas/gpd_ros && \
+git clone https://github.com/atenpas/gpd_ros && \
 git clone https://github.com/roboticsgroup/roboticsgroup_gazebo_plugins && \
 git clone https://github.com/scanse/sweep-sdk.git && \
 #git clone https://github.com/utecrobotics/robotiq && \
@@ -116,6 +116,9 @@ git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b kinetic-
 git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
 
+#should solve the gpd_ros problem not finding opencv2
+COPY /issues_solvers/CMakeLists.txt  /home/"${USER}"/catkin_ws/src/gpd_ros
+
 # configure repos for niryo
 # RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
 # RUN cd ~/catkin_ws/src/irlab_point_cloud_filtering && git checkout -b dev && git pull origin dev
@@ -134,28 +137,24 @@ RUN sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -
     rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths src 
 
 # install ros-pcl AGAIN. No clue why it doesn't keep it
-RUN sudo apt-get update && \
-    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-moveit-python wget vim 
-
-#should solve the gpd_ros problem not finding opencv2
-#COPY ./issues_solvers/CMakeLists.txt  /home/"${USER}"/catkin_ws/src/gpd_ros
+RUN sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-moveit-python wget vim 
 
 
 # build workspace
 RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build && source devel/setup.bash"
 
 # Add modified TB3 urdf with 359 scans instead of 360 for the Rplidar to make slam-toolbox work in sim
-RUN cd ~/catkin_ws/src/turtlebot3/turtlebot3_description/urdf  && bash -c "wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_waffle.gazebo.xacro?token=AAAAQZSMLOPQYSH3JB5Q22DAF6ZXK -O turtlebot3_waffle.gazebo.xacro && wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_burger.gazebo.xacro?token=AAAAQZXTBO47LEGEVN4H2T3AF62BA -O turtlebot3_burger.gazebo.xacro"
+RUN cd ~/catkin_ws/src/turtlebot3/turtlebot3_description/urdf  && bash -c "wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_waffle.gazebo.xacro?token=AAAAQZVGTZ6UTVDZY7IQBADAICXJY -O turtlebot3_waffle.gazebo.xacro && wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_burger.gazebo.xacro?token=AAAAQZQUP6DRMKY55COBE7TAICXOM -O turtlebot3_burger.gazebo.xacro"
 
 # patch summit_xl old files and add unmerged PRs
 RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
-    git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro" #; \
+    git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro" 
+#; \
 #    bash -c "cd ~/catkin_ws/src/summit_xl_sources/robotnik_sensors; wget -O /tmp/11.patch https://patch-diff.githubusercontent.com/raw/RobotnikAutomation/robotnik_sensors/pull/11.patch; git apply /tmp/11.patch"
 
 
-COPY pick_place_interface.py /opt/ros/noetic/lib/python3/dist-packages/moveit_python
+COPY /issues_solvers/pick_place_interface.py /opt/ros/noetic/lib/python3/dist-packages/moveit_python
 
-ENV CATKIN_TOPLEVEL_WS="/home/${USER}/catkin_ws"
 # Switch to the workspace
 WORKDIR /home/${USER}
 
@@ -186,4 +185,5 @@ RUN sudo chown ${USER}:${USER} /home/${USER}/.vnc/xstartup.turbovnc
 
 COPY start_desktop.sh /usr/local/bin/start_desktop.sh
 CMD /usr/local/bin/start_desktop.sh
+
 
