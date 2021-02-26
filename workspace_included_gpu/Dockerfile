@@ -72,7 +72,7 @@ chmod 0440 "/etc/sudoers.d/${USER}"
 # Switch to user
 USER "${USER}"
 
-RUN cd /opt && sudo git clone  https://github.com/atenpas/gpd && cd gpd && \
+RUN cd /opt && sudo git clone  https://github.com/icclab/gpd && cd gpd && \
     sudo mkdir build && cd build && sudo cmake .. && sudo make -j8 && sudo make install 
 
 
@@ -90,7 +90,7 @@ git clone https://github.com/icclab/irlab_point_cloud_filtering.git -b noetic &&
 git clone --branch gazebo-simulator-noetic https://github.com/icclab/niryo_one_ros.git && \
 #git clone --branch 2.2.1 https://github.com/intel-ros/realsense.git && \
 #git clone https://github.com/atenpas/gpd.git -b forward && \
-git clone https://github.com/atenpas/gpd_ros && \
+git clone https://github.com/icclab/gpd_ros && \
 git clone https://github.com/roboticsgroup/roboticsgroup_gazebo_plugins && \
 git clone https://github.com/scanse/sweep-sdk.git && \
 #git clone https://github.com/utecrobotics/robotiq && \
