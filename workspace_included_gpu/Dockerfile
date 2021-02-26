@@ -69,11 +69,155 @@ RUN useradd -m -s /bin/bash -G video,plugdev ${USER} && \
 echo "${USER} ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/${USER}" && \
 chmod 0440 "/etc/sudoers.d/${USER}"
 
-# Switch to user
-USER "${USER}"
 
-RUN cd /opt && sudo git clone  https://github.com/icclab/gpd && cd gpd && \
-    sudo mkdir build && cd build && sudo cmake .. && sudo make -j8 && sudo make install 
+USER root
+RUN apt-get install -y \
+  software-properties-common \
+  ca-certificates \
+  wget
+RUN wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
+RUN apt-add-repository "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main"
+RUN add-apt-repository "deb http://security.ubuntu.com/ubuntu xenial-security main"
+RUN apt-get update
+RUN apt-get install -y \
+    build-essential \
+    cmake \
+    cmake-curses-gui \
+    g++ \
+    python-dev \
+    autotools-dev \
+    libicu-dev \
+    libbz2-dev \
+    libboost-all-dev
+
+RUN apt-get install -y  \
+    mc \
+    lynx \
+    libqhull* \
+    pkg-config \
+    libxmu-dev \
+    libxi-dev \
+    --no-install-recommends --fix-missing
+
+RUN apt-get install -y  \
+    mesa-common-dev \
+    vim  \
+    git  \
+    unzip  \
+    mercurial \
+    freeglut3-dev \
+    libflann-dev \
+    --no-install-recommends --fix-missing
+
+RUN apt-get install -y \
+    libboost-all-dev \
+    libeigen3-dev \
+    python \
+    libusb-1.0-0-dev \
+    libudev-dev \
+    doxygen \
+    graphviz \
+    libgtest-dev \
+    libpcap-dev
+
+RUN apt-get install -y \
+    libgtk2.0-dev \
+    libavcodec-dev \
+    libavformat-dev \
+    libjpeg.dev \
+    libtiff4.dev \
+    libswscale-dev \
+    libjasper-dev
+
+# Install new cmake
+RUN cd /opt \
+    && wget https://github.com/Kitware/CMake/releases/download/v3.17.2/cmake-3.17.2-Linux-x86_64.tar.gz \
+    && tar zxvf cmake-3.17.2-Linux-x86_64.tar.gz \
+    && mv cmake-3.17.2-Linux-x86_64 /opt/cmake-3.17.2 \
+    && ln -sf /opt/cmake-3.17.2/bin/*  /usr/bin/
+
+RUN apt-get autoremove
+
+# Install Eigen
+RUN cd /opt \
+    && git clone https://github.com/eigenteam/eigen-git-mirror eigen \
+    && cd eigen \
+    && git checkout tags/3.2.0 \
+    && mkdir build \
+    && cd build \
+    && cmake .. \
+    && make -j 8 \
+    && make install
+
+# Install VTK
+RUN apt-get install -y \
+    libvtk7-*
+
+# Install PCL
+RUN cd /opt \
+    && wget https://github.com/PointCloudLibrary/pcl/archive/pcl-1.9.0.zip \
+    && unzip pcl-1.9.0.zip \
+    && cd pcl-pcl-1.9.0 \
+    && mkdir build \
+    && cd build \
+    && cmake -D CMAKE_BUILD_TYPE=None -D BUILD_GPU=ON -D BUILD_apps=ON -D BUILD_examples=ON .. \
+    && make -j 8 \
+    && make install
+
+# Install Opencv
+RUN cd /opt \
+    && wget https://github.com/opencv/opencv/archive/3.4.3.zip \
+    && unzip 3.4.3.zip \
+    && cd opencv-3.4.3 \
+    && mkdir build \
+    && cd build \
+    && cmake -D WITH_OPENMP=ON -D ENABLE_PRECOMPILED_HEADERS=OFF ..\
+    && make -j 8 \
+    && make install
+
+# Install CAFFE dependencies
+RUN apt-get install -y \
+    libprotobuf-dev \
+    libleveldb-dev \
+    libsnappy-dev \
+    libopencv-dev \
+    libhdf5-serial-dev \
+    protobuf-compiler \
+    libboost-all-dev \
+    libatlas-base-dev \
+    liblmdb-dev \
+    libgoogle-glog-dev
+
+RUN apt-get install -y libturbojpeg \
+    libturbojpeg0-dev
+    # && ln -s /usr/lib/x86_64-linux-gnu/libturbojpeg.so.0.1.0 /usr/lib/x86_64-linux-gnu/libturbojpeg.so
+
+# Install CAFFE
+RUN cd /opt \
+    && git clone https://github.com/fbottarel/caffe.git
+RUN cd /opt/caffe \
+    && mkdir build \
+    && cd build \
+    && cmake -D BUILD_python=OFF \
+        -D BUILD_python_layer=OFF \
+        -D BLAS=Atlas \
+        -D CUDA_rt_LIBRARY=/usr/local/cuda/lib64/libcudart.so \
+        -D CMAKE_INSTALL_PREFIX=/usr/local \
+        ../ \
+    && make -j 8 \
+    && make install
+
+USER ros
+# Install gpd
+RUN cd /opt \
+    && sudo git clone https://github.com/icclab/gpd gpd \
+    && cd gpd \
+    && sudo mkdir build \
+    && cd build \
+    && sudo cmake ..  \
+    && sudo make -j8 \
+    && sudo make install
+USER "${USER}"
 
 
 # create catkin ws and clone projects
@@ -117,12 +261,11 @@ git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b kinetic-
 git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
 
-#should solve the gpd_ros problem not finding opencv2
+#solves the gpd_ros problem not finding opencv2
 COPY /issues_solvers/CMakeLists.txt  /home/"${USER}"/catkin_ws/src/gpd_ros
 
 # configure repos for niryo
 # RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
-# RUN cd ~/catkin_ws/src/irlab_point_cloud_filtering && git checkout -b dev && git pull origin dev
 RUN sudo pip3 install jsonpickle pyquaternion
 
 # add gazebo models to decrease initial gazebo bringup time
@@ -186,5 +329,4 @@ RUN sudo chown ${USER}:${USER} /home/${USER}/.vnc/xstartup.turbovnc
 
 COPY start_desktop.sh /usr/local/bin/start_desktop.sh
 CMD /usr/local/bin/start_desktop.sh
-
 
