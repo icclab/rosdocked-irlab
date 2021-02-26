@@ -91,7 +91,7 @@ git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
 # RUN cd ~/catkin_ws/src/irlab_point_cloud_filtering && git checkout -b dev && git pull origin dev
 
 #should solve the gpd_ros problem not finding opencv2
-COPY /issues_solvers/CMakeLists.txt  /home/"${USER}"/catkin_ws/src/gpd_ros
+COPY /issues_solvers/CMakeLists.txt  /home/"${user}"/catkin_ws/src/gpd_ros
 
 RUN sudo pip3 install jsonpickle pyquaternion
 
@@ -120,12 +120,10 @@ RUN cd ~/catkin_ws/src/turtlebot3/turtlebot3_description/urdf  && bash -c "wget 
 
 COPY /issues_solvers/pick_place_interface.py /opt/ros/noetic/lib/python3/dist-packages/moveit_python
 
-RUN cd /opt && sudo git clone  https://github.com/atenpas/gpd && cd gpd && \
-    sudo mkdir build && cd build && sudo cmake .. && sudo make -j8 && sudo make install 
 
 # patch summit_xl old files and add unmerged PRs
 RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
-    git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro" #; \
+    git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro"
 #    bash -c "cd ~/catkin_ws/src/summit_xl_sources/robotnik_sensors; wget -O /tmp/11.patch https://patch-diff.githubusercontent.com/raw/RobotnikAutomation/robotnik_sensors/pull/11.patch; git apply /tmp/11.patch"
 
 # edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
