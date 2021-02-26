@@ -42,6 +42,10 @@ RUN sudo apt-get update && \
     python3-osrf-pycommon && \
     sudo apt-get upgrade -y
 
+
+RUN cd /opt && sudo git clone  https://github.com/icclab/gpd && cd gpd && \
+    sudo mkdir build && cd build && sudo cmake .. && sudo make -j8 && sudo make install 
+    
 # create catkin ws and clone projects
 RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" && \
 cd src && \
@@ -51,12 +55,12 @@ git clone --branch noetic https://github.com/JenniferBuehler/gazebo-pkgs.git && 
 git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
 #git clone https://github.com/icclab/icclab_turtlebot.git -b ${ROS_DISTRO} && \
 #If need two cameras for PCL add -b two_pcl_filtering below
-#git clone https://github.com/icclab/irlab_point_cloud_filtering.git && \
+git clone https://github.com/icclab/irlab_point_cloud_filtering.git -b noetic && \
 #git clone https://github.com/icclab/laser_filters.git -b indigo-devel && \
 git clone --branch gazebo-simulator-noetic https://github.com/icclab/niryo_one_ros.git && \
 #git clone --branch 2.2.1 https://github.com/intel-ros/realsense.git && \
 #git clone https://github.com/atenpas/gpd.git -b forward && \
-#git clone https://github.com/atenpas/gpd_ros && \
+git clone https://github.com/icclab/gpd_ros && \
 git clone https://github.com/roboticsgroup/roboticsgroup_gazebo_plugins && \
 git clone https://github.com/scanse/sweep-sdk.git && \
 #git clone https://github.com/utecrobotics/robotiq && \
@@ -86,6 +90,9 @@ git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
 # RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
 # RUN cd ~/catkin_ws/src/irlab_point_cloud_filtering && git checkout -b dev && git pull origin dev
 
+#should solve the gpd_ros problem not finding opencv2
+COPY /issues_solvers/CMakeLists.txt  /home/"${USER}"/catkin_ws/src/gpd_ros
+
 RUN sudo pip3 install jsonpickle pyquaternion
 
 # add gazebo models to decrease initial gazebo bringup time
@@ -109,9 +116,9 @@ RUN sudo apt-get update && \
 RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build && source devel/setup.bash"
 
 # Add modified TB3 urdf with 359 scans instead of 360 for the Rplidar to make slam-toolbox work in sim
-RUN cd ~/catkin_ws/src/turtlebot3/turtlebot3_description/urdf  && bash -c "wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_waffle.gazebo.xacro?token=AAAAQZSMLOPQYSH3JB5Q22DAF6ZXK -O turtlebot3_waffle.gazebo.xacro && wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_burger.gazebo.xacro?token=AAAAQZXTBO47LEGEVN4H2T3AF62BA -O turtlebot3_burger.gazebo.xacro"
+RUN cd ~/catkin_ws/src/turtlebot3/turtlebot3_description/urdf  && bash -c "wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_waffle.gazebo.xacro?token=AAAAQZVGTZ6UTVDZY7IQBADAICXJY -O turtlebot3_waffle.gazebo.xacro && wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_burger.gazebo.xacro?token=AAAAQZQUP6DRMKY55COBE7TAICXOM -O turtlebot3_burger.gazebo.xacro"
 
-COPY pick_place_interface.py /opt/ros/noetic/lib/python3/dist-packages/moveit_python
+COPY /issues_solvers/pick_place_interface.py /opt/ros/noetic/lib/python3/dist-packages/moveit_python
 
 RUN cd /opt && sudo git clone  https://github.com/atenpas/gpd && cd gpd && \
     sudo mkdir build && cd build && sudo cmake .. && sudo make -j8 && sudo make install 
