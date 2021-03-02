@@ -268,6 +268,7 @@ COPY /issues_solvers/CMakeLists.txt  /home/"${USER}"/catkin_ws/src/gpd_ros
 # RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
 RUN sudo pip3 install jsonpickle pyquaternion
 
+
 # add gazebo models to decrease initial gazebo bringup time
 RUN mkdir -p ~/.gazebo
 ADD .gazebo /home/"${USER}"/.gazebo/

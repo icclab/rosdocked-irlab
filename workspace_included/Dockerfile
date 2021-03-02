@@ -89,6 +89,7 @@ git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
 # configure repos for niryo
 # RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
 # RUN cd ~/catkin_ws/src/irlab_point_cloud_filtering && git checkout -b dev && git pull origin dev
+RUN sudo pip3 install jsonpickle
 
 #should solve the gpd_ros problem not finding opencv2
 COPY /issues_solvers/CMakeLists.txt  /home/"${user}"/catkin_ws/src/gpd_ros
