@@ -223,7 +223,7 @@ USER "${USER}"
 # create catkin ws and clone projects
 RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" && \
 cd src && \
-git clone https://github.com/icclab/icclab_summit_xl.git -b noetic-raplabs &&  \
+git clone https://github.com/icclab/icclab_summit_xl.git -b noetic &&  \
 git clone https://github.com/icclab/icclab_grasping_niryo.git -b noetic && \
 git clone --branch noetic https://github.com/JenniferBuehler/gazebo-pkgs.git && \
 git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
@@ -272,7 +272,7 @@ RUN sudo pip3 install jsonpickle pyquaternion
 RUN mkdir -p ~/.gazebo
 ADD .gazebo /home/"${USER}"/.gazebo/
 RUN sudo chown ${USER}:${USER} ~/.gazebo/models ; rm -rf /home/ros/catkin_ws/src/robotiq_2finger_grippers/robotiq_modbus_rtu
-RUN cp -r ~/catkin_ws/src/icclab_summit_xl/worlds/models/marker* /home/"${USER}"/.gazebo/models
+#RUN cp -r ~/catkin_ws/src/icclab_summit_xl/worlds/models/marker* /home/"${USER}"/.gazebo/models
 
 # update dependencies
 RUN sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y python3-rosdep \ 
