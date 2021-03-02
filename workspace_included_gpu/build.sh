@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export IMAGE_NAME=robopaas/rosdocked-noetic-workspace-included-gpu:latest
+export IMAGE_NAME=robopaas/rosdocked-noetic-workspace-included-gpu:labs
 
 # Get this script's path
 pushd `dirname $0` > /dev/null

@@ -37,11 +37,15 @@ USER "${user}"
 
 # install git and other needed libs including catkin build
 RUN sudo apt-get update && \
-    sudo apt-get install -y git apt-utils \
+    sudo apt-get install -y git apt-utils python3-pip \
     ros-${ROS_DISTRO}-pcl-ros python3-catkin-tools \
     python3-osrf-pycommon && \
     sudo apt-get upgrade -y
 
+
+RUN cd /opt && sudo git clone  https://github.com/icclab/gpd && cd gpd && \
+    sudo mkdir build && cd build && sudo cmake .. && sudo make -j8 && sudo make install 
+    
 # create catkin ws and clone projects
 RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" && \
 cd src && \
@@ -51,11 +55,12 @@ git clone --branch noetic https://github.com/JenniferBuehler/gazebo-pkgs.git && 
 git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
 #git clone https://github.com/icclab/icclab_turtlebot.git -b ${ROS_DISTRO} && \
 #If need two cameras for PCL add -b two_pcl_filtering below
-#git clone https://github.com/icclab/irlab_point_cloud_filtering.git && \
+git clone https://github.com/icclab/irlab_point_cloud_filtering.git -b noetic && \
 #git clone https://github.com/icclab/laser_filters.git -b indigo-devel && \
 git clone --branch gazebo-simulator-noetic https://github.com/icclab/niryo_one_ros.git && \
 #git clone --branch 2.2.1 https://github.com/intel-ros/realsense.git && \
 #git clone https://github.com/atenpas/gpd.git -b forward && \
+git clone https://github.com/icclab/gpd_ros && \
 git clone https://github.com/roboticsgroup/roboticsgroup_gazebo_plugins && \
 git clone https://github.com/scanse/sweep-sdk.git && \
 #git clone https://github.com/utecrobotics/robotiq && \
@@ -69,6 +74,10 @@ git clone https://github.com/rst-tu-dortmund/costmap_prohibition_layer.git && \
 git clone https://github.com/SteveMacenski/spatio_temporal_voxel_layer.git -b noetic-devel && \
 git clone https://github.com/iralabdisco/ira_laser_tools.git && \
 git clone https://github.com/MoriKen254/timed_roslaunch.git && \
+git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git && \
+git clone https://github.com/ROBOTIS-GIT/turtlebot3.git && \
+git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git && \
+git clone https://github.com/SteveMacenski/slam_toolbox.git -b noetic-devel && \
 mkdir summit_xl_sources && cd summit_xl_sources && \
 git clone https://github.com/RobotnikAutomation/rcomponent.git && \
 git clone https://github.com/RobotnikAutomation/robotnik_msgs.git && \
@@ -77,16 +86,21 @@ git clone https://github.com/RobotnikAutomation/ros-system-monitor && \
 git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
-
 # configure repos for niryo
 # RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
 # RUN cd ~/catkin_ws/src/irlab_point_cloud_filtering && git checkout -b dev && git pull origin dev
 RUN sudo pip3 install jsonpickle
 
+#should solve the gpd_ros problem not finding opencv2
+COPY /issues_solvers/CMakeLists.txt  /home/"${user}"/catkin_ws/src/gpd_ros
+
+RUN sudo pip3 install jsonpickle pyquaternion
+
 # add gazebo models to decrease initial gazebo bringup time
 RUN mkdir -p ~/.gazebo
 ADD .gazebo /home/"${user}"/.gazebo/
 RUN sudo chown ros:ros ~/.gazebo/models ; rm -rf /home/ros/catkin_ws/src/robotiq_2finger_grippers/robotiq_modbus_rtu
+#RUN cp -r ~/catkin_ws/src/icclab_summit_xl/worlds/models/marker* /home/"${user}"/.gazebo/models
 
 # update dependencies
 RUN sudo apt-get update && cd ~/catkin_ws && \
@@ -94,19 +108,29 @@ rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths s
 
 # install ros-pcl AGAIN. No clue why it doesn't see it
 RUN sudo apt-get update && \
-    sudo apt-get install -y ros-${ROS_DISTRO}-pcl-ros wget
+    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-moveit-python wget vim 
+    
+#should solve the gpd_ros problem not finding opencv2
+#COPY ./issues_solvers/CMakeLists.txt  /home/"${USER}"/catkin_ws/src/gpd_ros
 
 # build workspace
-RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build"
+RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build && source devel/setup.bash"
+
+# Add modified TB3 urdf with 359 scans instead of 360 for the Rplidar to make slam-toolbox work in sim
+RUN cd ~/catkin_ws/src/turtlebot3/turtlebot3_description/urdf  && bash -c "wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_waffle.gazebo.xacro?token=AAAAQZVGTZ6UTVDZY7IQBADAICXJY -O turtlebot3_waffle.gazebo.xacro && wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_burger.gazebo.xacro?token=AAAAQZQUP6DRMKY55COBE7TAICXOM -O turtlebot3_burger.gazebo.xacro"
+
+COPY /issues_solvers/pick_place_interface.py /opt/ros/noetic/lib/python3/dist-packages/moveit_python
+
 
 # patch summit_xl old files and add unmerged PRs
 RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
-    git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro" ; \
-    bash -c "cd ~/catkin_ws/src/summit_xl_sources/robotnik_sensors; wget -O /tmp/11.patch https://patch-diff.githubusercontent.com/raw/RobotnikAutomation/robotnik_sensors/pull/11.patch; git apply /tmp/11.patch"
+    git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro"
+#    bash -c "cd ~/catkin_ws/src/summit_xl_sources/robotnik_sensors; wget -O /tmp/11.patch https://patch-diff.githubusercontent.com/raw/RobotnikAutomation/robotnik_sensors/pull/11.patch; git apply /tmp/11.patch"
 
 # edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
 RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc ; \
-    echo "export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> ~/.bashrc
+    echo "export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> ~/.bashrc \
+echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc
 
 ## fix for missing deps - there is prob a better way TODO: reeval this
 #RUN sudo apt-get install -y ros-${ROS_DISTRO}-gazebo-ros-pkgs ros-${ROS_DISTRO}-gazebo-ros-control ros-${ROS_DISTRO}-ur-gazebo ros-${ROS_DISTRO}-ur5-moveit-config ros-${ROS_DISTRO}-ur-kinematics ros-${ROS_DISTRO}-timed-roslaunch ros-${ROS_DISTRO}-ira-laser-tools ros-${ROS_DISTRO}-spatio-temporal-voxel-layer
