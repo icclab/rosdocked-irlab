@@ -38,7 +38,7 @@ USER "${user}"
 # create catkin ws and clone projects
 RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/kinetic/setup.bash" && \
 cd src && \
-git clone https://github.com/icclab/icclab_summit_xl.git -b kinetic-raplabs &&  \
+git clone https://github.com/icclab/icclab_summit_xl.git &&  \
 git clone https://github.com/icclab/icclab_grasping_niryo.git && \
 git clone --branch 1.0.2 https://github.com/JenniferBuehler/gazebo-pkgs.git && \
 git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
