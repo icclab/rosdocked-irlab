@@ -83,8 +83,8 @@ git clone https://github.com/RobotnikAutomation/rcomponent.git && \
 git clone https://github.com/RobotnikAutomation/robotnik_msgs.git && \
 git clone https://github.com/RobotnikAutomation/robotnik_sensors.git -b kinetic-devel && \
 git clone https://github.com/RobotnikAutomation/ros-system-monitor && \
-git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b kinetic-multirobot-devel && \
+git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
 # configure repos for niryo
 # RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
@@ -110,17 +110,14 @@ rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths s
 RUN sudo apt-get update && \
     sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-moveit-python wget vim 
     
-#should solve the gpd_ros problem not finding opencv2
-#COPY ./issues_solvers/CMakeLists.txt  /home/"${USER}"/catkin_ws/src/gpd_ros
 
 # build workspace
 RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build && source devel/setup.bash"
 
-# Add modified TB3 urdf with 359 scans instead of 360 for the Rplidar to make slam-toolbox work in sim
-RUN cd ~/catkin_ws/src/turtlebot3/turtlebot3_description/urdf  && bash -c "wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_waffle.gazebo.xacro?token=AAAAQZVGTZ6UTVDZY7IQBADAICXJY -O turtlebot3_waffle.gazebo.xacro && wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_burger.gazebo.xacro?token=AAAAQZQUP6DRMKY55COBE7TAICXOM -O turtlebot3_burger.gazebo.xacro"
-
 COPY /issues_solvers/pick_place_interface.py /opt/ros/noetic/lib/python3/dist-packages/moveit_python
-
+# Add modified TB3 urdf with 359 scans instead of 360 for the Rplidar to make slam-toolbox work in sim
+COPY /issues_solvers/turtlebot3_burger.gazebo.xacro ~/catkin_ws/src/turtlebot3/turtlebot3_description/urdf
+COPY /issues_solvers/turtlebot3_waffle.gazebo.xacro ~/catkin_ws/src/turtlebot3/turtlebot3_description/urdf
 
 # patch summit_xl old files and add unmerged PRs
 RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
