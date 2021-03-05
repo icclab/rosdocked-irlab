@@ -306,9 +306,14 @@ COPY /issues_solvers/pick_place_interface.py /opt/ros/noetic/lib/python3/dist-pa
 # Switch to the workspace
 WORKDIR /home/${USER}
 
+
+# patch summit_xl old files and add unmerged PRs
+RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
+    git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro"
+
 # edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
-RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc 
-#    echo "export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> ~/.bashrc
+RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc ; \
+    echo "export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> ~/.bashrc \
 
 # Defeat screen locking and power management
 RUN sudo mv /etc/xdg/autostart/lxqt-xscreensaver-autostart.desktop /etc/xdg/autostart/lxqt-xscreensaver-autostart.desktop_bak && \
