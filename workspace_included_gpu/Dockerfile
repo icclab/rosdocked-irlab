@@ -290,8 +290,8 @@ RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && 
 
 # Add modified TB3 urdf with 359 scans instead of 360 for the Rplidar to make slam-toolbox work in sim
 #RUN cd ~/catkin_ws/src/turtlebot3/turtlebot3_description/urdf  && bash -c "wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_waffle.gazebo.xacro?token=AAAAQZVGTZ6UTVDZY7IQBADAICXJY -O turtlebot3_waffle.gazebo.xacro && wget https://github.zhaw.ch/raw/RAP-EN/RAP_MAP_LAB_res/master/tb3_urdf/turtlebot3_burger.gazebo.xacro?token=AAAAQZQUP6DRMKY55COBE7TAICXOM -O turtlebot3_burger.gazebo.xacro"
-COPY /issues_solvers/turtlebot3_burger.gazebo.xacro ~/catkin_ws/src/turtlebot3/turtlebot3_description/urdf 
-COPY /issues_solvers/turtlebot3_waffle.gazebo.xacro ~/catkin_ws/src/turtlebot3/turtlebot3_description/urdf
+COPY /issues_solvers/turtlebot3_burger.gazebo.xacro /home/"${USER}"/catkin_ws/src/turtlebot3/turtlebot3_description/urdf 
+COPY /issues_solvers/turtlebot3_waffle.gazebo.xacro /home/"${USER}"/catkin_ws/src/turtlebot3/turtlebot3_description/urdf
 
 
 # patch summit_xl old files and add unmerged PRs

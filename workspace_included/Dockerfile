@@ -116,8 +116,8 @@ RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && 
 
 COPY /issues_solvers/pick_place_interface.py /opt/ros/noetic/lib/python3/dist-packages/moveit_python
 # Add modified TB3 urdf with 359 scans instead of 360 for the Rplidar to make slam-toolbox work in sim
-COPY /issues_solvers/turtlebot3_burger.gazebo.xacro ~/catkin_ws/src/turtlebot3/turtlebot3_description/urdf
-COPY /issues_solvers/turtlebot3_waffle.gazebo.xacro ~/catkin_ws/src/turtlebot3/turtlebot3_description/urdf
+COPY /issues_solvers/turtlebot3_burger.gazebo.xacroi  /home/"${user}"/catkin_ws/src/turtlebot3/turtlebot3_description/urdf
+COPY /issues_solvers/turtlebot3_waffle.gazebo.xacro   /home/"${user}"/catkin_ws/src/turtlebot3/turtlebot3_description/urdf
 
 # patch summit_xl old files and add unmerged PRs
 RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
