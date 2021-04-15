@@ -86,6 +86,16 @@ git clone https://github.com/RobotnikAutomation/ros-system-monitor && \
 git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
+
+
+#solve orbecc astra bug in xacro
+RUN sed -i 's/<sensor_orbbec_astra_gazebo/<xacro:sensor_orbbec_astra_gazebo/g' /home/ros/catkin_ws/src/summit_xl_sources/robotnik_sensors/urdf/orbbec_astra.urdf.xacro
+
+RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+#RUN echo "export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2:libdlfaker.so:libvglfaker.so" >> ~/.bashrc
+
+
+
 # configure repos for niryo
 # RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
 # RUN cd ~/catkin_ws/src/irlab_point_cloud_filtering && git checkout -b dev && git pull origin dev
@@ -116,7 +126,7 @@ RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && 
 
 COPY /issues_solvers/pick_place_interface.py /opt/ros/noetic/lib/python3/dist-packages/moveit_python
 # Add modified TB3 urdf with 359 scans instead of 360 for the Rplidar to make slam-toolbox work in sim
-COPY /issues_solvers/turtlebot3_burger.gazebo.xacroi  /home/"${user}"/catkin_ws/src/turtlebot3/turtlebot3_description/urdf
+COPY /issues_solvers/turtlebot3_burger.gazebo.xacro  /home/"${user}"/catkin_ws/src/turtlebot3/turtlebot3_description/urdf
 COPY /issues_solvers/turtlebot3_waffle.gazebo.xacro   /home/"${user}"/catkin_ws/src/turtlebot3/turtlebot3_description/urdf
 
 # patch summit_xl old files and add unmerged PRs

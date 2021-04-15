@@ -261,6 +261,12 @@ git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b kinetic-
 git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
 
+#solve orbecc astra bug in xacro
+RUN sed -i 's/<sensor_orbbec_astra_gazebo/<xacro:sensor_orbbec_astra_gazebo/g' /home/ros/catkin_ws/src/summit_xl_sources/robotnik_sensors/urdf/orbbec_astra.urdf.xacro
+
+RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+RUN echo "export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2:libdlfaker.so:libvglfaker.so" >> ~/.bashrc
+
 #solves the gpd_ros problem not finding opencv2
 COPY /issues_solvers/CMakeLists.txt  /home/"${USER}"/catkin_ws/src/gpd_ros
 
@@ -311,7 +317,6 @@ WORKDIR /home/${USER}
 RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
     git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro"
 
-RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc 
 
 # Defeat screen locking and power management
 RUN sudo mv /etc/xdg/autostart/lxqt-xscreensaver-autostart.desktop /etc/xdg/autostart/lxqt-xscreensaver-autostart.desktop_bak && \
@@ -336,4 +341,5 @@ RUN sudo chown ${USER}:${USER} /home/${USER}/.vnc/xstartup.turbovnc
 
 COPY start_desktop.sh /usr/local/bin/start_desktop.sh
 CMD /usr/local/bin/start_desktop.sh
+
 
