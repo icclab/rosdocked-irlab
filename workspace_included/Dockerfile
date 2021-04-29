@@ -78,6 +78,7 @@ git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git && \
 git clone https://github.com/ROBOTIS-GIT/turtlebot3.git && \
 git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git && \
 git clone https://github.com/SteveMacenski/slam_toolbox.git -b noetic-devel && \
+git clone https://github.com/machinekoder/ar_track_alvar.git -b noetic-devel && \
 mkdir summit_xl_sources && cd summit_xl_sources && \
 git clone https://github.com/RobotnikAutomation/rcomponent.git && \
 git clone https://github.com/RobotnikAutomation/robotnik_msgs.git && \
@@ -86,6 +87,10 @@ git clone https://github.com/RobotnikAutomation/ros-system-monitor && \
 git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
+
+#patch for ar_track_alvar on noetic
+COPY /issues_solvers/ar_track_alvar.patch /home/ros/catkin_ws/src/ar_track_alvar/ar_track_alvar/nodes
+RUN cd ~/catkin_ws/src/ar_track_alvar/ar_track_alvar/nodes && patch < ar_track_alvar.patch
 
 
 #solve orbecc astra bug in xacro
