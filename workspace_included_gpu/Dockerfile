@@ -127,11 +127,11 @@ RUN apt-get install -y --no-install-recommends python ros-foxy-rviz2 ros-foxy-rv
 
 
 # add user to video group
-#RUN adduser ${user} video
-#RUN adduser ${user} plugdev
+RUN adduser ${USER} video
+RUN adduser ${USER} plugdev
 
 # Switch to user
-USER "${user}"
+USER "${USER}"
 
 
 # Switch to the workspace
