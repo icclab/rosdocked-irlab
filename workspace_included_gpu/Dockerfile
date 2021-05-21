@@ -113,11 +113,6 @@ chmod 0440 "/etc/sudoers.d/${USER}"
 
 RUN echo "export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2:libdlfaker.so:libvglfaker.so" >> ~/.bashrc
 
-# Defeat screen locking and power management
-#RUN sudo mv /etc/xdg/autostart/lxqt-xscreensaver-autostart.desktop /etc/xdg/autostart/lxqt-xscreensaver-autostart.desktop_bak && \
-#    sudo mv /etc/xdg/autostart/lxqt-powermanagement.desktop /etc/xdg/autostart/lxqt-powermanagement.desktop_bak && \
-#    sudo mv /etc/xdg/autostart/upg-notifier-autostart.desktop /etc/xdg/autostart/upg-notifier-autostart.desktop_bak
-
 # install git and other needed libs including catkin build
 RUN apt update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git apt-utils curl wget vim less  lsof net-tools git htop \
@@ -130,17 +125,16 @@ RUN sudo mv /etc/xdg/autostart/lxqt-xscreensaver-autostart.desktop /etc/xdg/auto
     sudo mv /etc/xdg/autostart/upg-notifier-autostart.desktop /etc/xdg/autostart/upg-notifier-autostart.desktop_bak
 
 
-# add user to video group
-RUN adduser ${USER} video
-RUN adduser ${USER} plugdev
-
 # Switch to user
 USER "${USER}"
 
 
 # Switch to the workspace
 WORKDIR /home/${USER}
+RUN echo 'source ${ROS_ROOT}/setup.bash' >> .bashrc
 
+
+RUN mkdir -p ~/ros2_ws/src && cd ~/ros2_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash"
 
 # Install desktop file for this user
 RUN mkdir -p /home/${USER}/Desktop
@@ -160,6 +154,5 @@ RUN sudo chown ${USER}:${USER} /home/${USER}/.vnc/xstartup.turbovnc
 
 COPY start_desktop.sh /usr/local/bin/start_desktop.sh
 CMD /usr/local/bin/start_desktop.sh
-
 
 

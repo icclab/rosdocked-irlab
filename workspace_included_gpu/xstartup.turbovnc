@@ -1,3 +1,4 @@
 #!/bin/sh
 xsetroot -solid grey
+exec openbox-session &
 startlxqt &
