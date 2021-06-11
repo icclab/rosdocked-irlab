@@ -263,10 +263,8 @@ git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b kin
 git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
 
 #patch for ar_track_alvar on noetic
-COPY /issues_solvers/ar_track_alvar.patch /home/ros/catkin_ws/src/ar_track_alvar/ar_track_alvar/nodes
-RUN cd ~/catkin_ws/src/ar_track_alvar/ar_track_alvar/nodes && patch < ar_track_alvar.patch
-
-
+COPY /issues_solvers/ar_track_alvar* /home/ros/catkin_ws/src/ar_track_alvar/ar_track_alvar/nodes/
+RUN cd ~/catkin_ws/src/ar_track_alvar/ar_track_alvar/nodes && patch < ar_track_alvar_FindBundlesNoKinect.patch && patch < ar_track_alvar_IndNoKinect.patch  && patch < ar_track_alvar_FindBundles.patch && patch < ar_track_alvar_TrainerBundle.patch && patch < ar_track_alvar_IndMarkers.patch
 
 #solve orbecc astra bug in xacro
 RUN sed -i 's/<sensor_orbbec_astra_gazebo/<xacro:sensor_orbbec_astra_gazebo/g' /home/ros/catkin_ws/src/summit_xl_sources/robotnik_sensors/urdf/orbbec_astra.urdf.xacro
