@@ -272,7 +272,6 @@ RUN cd ~/catkin_ws/src/ar_track_alvar/ar_track_alvar/nodes && patch < ar_track_a
 RUN sed -i 's/<sensor_orbbec_astra_gazebo/<xacro:sensor_orbbec_astra_gazebo/g' /home/ros/catkin_ws/src/summit_xl_sources/robotnik_sensors/urdf/orbbec_astra.urdf.xacro
 
 RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
-RUN echo "export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2:libdlfaker.so:libvglfaker.so" >> ~/.bashrc
 
 #solves the gpd_ros problem not finding opencv2
 COPY /issues_solvers/CMakeLists.txt  /home/"${USER}"/catkin_ws/src/gpd_ros
