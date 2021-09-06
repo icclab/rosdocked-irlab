@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-export IMAGE_NAME=robopaas/rosdocked-noetic-workspace-included-gpu:labs
+export IMAGE_NAME=robopaas/rosdocked-noetic-workspace-included-gpu:k8s
 
 # Get this script's path
 pushd `dirname $0` > /dev/null
 SCRIPTPATH=`pwd`
 popd > /dev/null
 
+
 # Build the docker image
-docker build  \
+docker build \
   --build-arg user=$USER\
   --build-arg uid=$UID\
   --build-arg home=/home/ros \
