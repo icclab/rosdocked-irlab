@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export IMAGE_NAME=robopaas/rosdocked-noetic-workspace-included-gpu:k8s
+export IMAGE_NAME=seanrmurphy/simple-ros-container
 
 # Get this script's path
 pushd `dirname $0` > /dev/null
@@ -9,8 +9,8 @@ popd > /dev/null
 
 # Build the docker image
 docker build \
-  --build-arg user=$USER\
-  --build-arg uid=$UID\
+  --build-arg user=ros\
+  --build-arg uid=1001\
   --build-arg home=/home/ros \
   --build-arg workspace=/home/ros \
   --build-arg shell=$SHELL\
