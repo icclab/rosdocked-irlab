@@ -1,0 +1,75 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: robopaas
+  labels:
+    app: robopaas
+spec:
+  selector:
+    matchLabels:
+      run: robopaas
+  template:
+    metadata:
+      labels:
+        run: robopaas
+    spec:
+      containers:
+      - name: robopaas
+        #image: robopaas/rosdocked-noetic-workspace-included-gpu:k8s 
+        image: seanrmurphy/simple-ros-container
+        # imagePullPolicy: IfNotPresent
+        env:
+        - name: TZ
+          value: UTC
+        - name: SIZEW
+          value: "1920"
+        - name: SIZEH
+          value: "1080"
+        - name: SHARED
+          value: "TRUE"
+        - name: PASSWD
+          value: mypasswd
+        - name: VIDEO_PORT
+          value: DFP
+        securityContext:
+          privileged: false
+          capabilities:
+            add: ["SYS_ADMIN"]
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: robopaas
+spec:
+  type: NodePort
+  ports:
+  - port: 5901
+    protocol: TCP
+    targetPort: 5901
+  selector:
+    run: robopaas
+
+    #---
+    #apiVersion: networking.k8s.io/v1
+    #kind: Ingress
+    #metadata:
+    #  name: x11-ingress
+    #spec:
+    #  rules:
+    #  - host: x11-mate.k8s.init-lab.ch
+    #    http:
+    #      paths:
+    #      - backend:
+    #          service:
+    #            name: x11-mate-service
+    #            port:
+    #              number: 8080
+    #        path: /
+    #        pathType: ImplementationSpecific
+    #
