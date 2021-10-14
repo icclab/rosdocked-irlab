@@ -85,12 +85,12 @@ git clone https://github.com/RobotnikAutomation/robotnik_msgs.git && \
 git clone https://github.com/RobotnikAutomation/robotnik_sensors.git -b kinetic-devel && \
 git clone https://github.com/RobotnikAutomation/ros-system-monitor && \
 git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b kinetic-multirobot-devel && \
-git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b kinetic-multirobot-devel && \
+git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b melodic-master && \
 git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
 
 #patch for ar_track_alvar on noetic
-COPY /issues_solvers/ar_track_alvar.patch /home/ros/catkin_ws/src/ar_track_alvar/ar_track_alvar/nodes
-RUN cd ~/catkin_ws/src/ar_track_alvar/ar_track_alvar/nodes && patch < ar_track_alvar.patch
+# COPY /issues_solvers/ar_track_alvar.patch /home/ros/catkin_ws/src/ar_track_alvar/ar_track_alvar/nodes
+# RUN cd ~/catkin_ws/src/ar_track_alvar/ar_track_alvar/nodes && patch < ar_track_alvar.patch
 
 
 #solve orbecc astra bug in xacro
