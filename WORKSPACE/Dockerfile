@@ -36,8 +36,7 @@ USER "${user}"
 RUN sudo apt-get update && \
     sudo apt-get install -y python3-pip \
     ros-${ROS_DISTRO}-pcl-ros python3-catkin-tools \
-    python3-osrf-pycommon && \
-    sudo apt-get upgrade -y
+    python3-osrf-pycommon
 
 # configure repos for niryo
 # RUN sudo pip3 install jsonpickle
