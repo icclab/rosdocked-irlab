@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-# Check args
-if [ "$#" -ne 1 ]; then
-  echo "usage: ./run.sh IMAGE_NAME"
-  return 1
-fi
+export IMAGE_NAME=robopaas/rosdocked-noetic-cpu:latest
+
+# Run the container with shared X11
+#   --device=/dev/duo1:/dev/duo1\
+# remove device mapping if docker complains
 
 # Get this script's path
 pushd `dirname $0` > /dev/null
@@ -13,13 +13,20 @@ popd > /dev/null
 
 set -e
 
-# Run the container with shared X11
-docker run\
-  -h localhost\
-  --net=host\
-  -e SHELL\
-  -e DISPLAY\
-  -e DOCKER=1\
-  -v "$HOME:$HOME:rw"\
-  -v "/tmp/.X11-unix:/tmp/.X11-unix:rw"\
-  -it $1 $SHELL
+  docker run\
+  -h `hostname` \
+  --privileged \
+  --net=host \
+  --device=/dev/dri \
+  --device=/dev/video2 \
+  --device=/dev/video3 \
+  --device=/dev/video4 \
+  --device=/dev/video5 \
+  --device=/dev/video6 \
+  --device=/dev/video7 \
+  -e SHELL \
+  -e DISPLAY \
+  -e DOCKER=1 \
+  -v "/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+  -v $PWD:/home/ros/catkin_ws/src/rap_challenge \
+  -it $IMAGE_NAME $SHELL
