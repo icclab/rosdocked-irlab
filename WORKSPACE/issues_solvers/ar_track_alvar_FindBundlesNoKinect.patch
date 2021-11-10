@@ -1,0 +1,35 @@
+--- FindMarkerBundlesNoKinect.cpp	2021-04-29 12:16:07.000000000 +0000
++++ FindMarkerBundlesNoKinect_new.cpp	2021-04-30 08:23:18.283905790 +0000
+@@ -124,10 +124,12 @@
+   px = p.translation[0] / 100.0;
+   py = p.translation[1] / 100.0;
+   pz = p.translation[2] / 100.0;
+-  qx = p.quaternion[1];
+-  qy = p.quaternion[2];
+-  qz = p.quaternion[3];
+-  qw = p.quaternion[0];
++  cv::Mat quat =cv::Mat(4, 1, CV_64F);
++  p.GetQuaternion(quat);
++  qx = quat.at<double>(1,0); //p.quaternion[1]; #leaving these comments for the record of what was not working properly in machinekoder's version
++  qy = quat.at<double>(2,0); //p.quaternion[2];
++  qz = quat.at<double>(3,0); //p.quaternion[3];
++  qw = quat.at<double>(0,0); //p.quaternion[0];
+ 
+   // Get the marker pose in the camera frame
+   tf::Quaternion rotation(qx, qy, qz, qw);
+@@ -303,11 +305,10 @@
+       // Publish the marker messages
+       arMarkerPub_.publish(arPoseMarkers_);
+     }
+-    catch (cv_bridge::Exception& e)
+-    {
+-      ROS_ERROR("Could not convert from '%s' to 'rgb8'.",
+-                image_msg->encoding.c_str());
+-    }
++  catch (const std::exception& e)
++   {
++    ROS_ERROR("Error in ar_track_alvar callback");
++   }
+   }
+ }
+ 
