@@ -273,8 +273,9 @@ COPY ./terminator_config /home/${USER}/.config/terminator/config
 COPY ./self.pem /home/${USER}/self.pem
 RUN sudo chown ${USER}:${USER} /home/${USER}/self.pem
 
-# Precede bash on all new terminator shells with vglrun so that 3d graphics apps will use the GPU
-RUN sudo perl -pi -e 's/^Exec=terminator$/Exec=terminator -e "vglrun bash"/g' /usr/share/applications/terminator.desktop
+# ADD LD_PRELOAD env variable to bash (equivalent to running vglrun before command)
+# See here: https://wiki.archlinux.org/title/VirtualGL#Running_applications
+RUN echo "export LD_PRELOAD=libdlfaker.so:libvglfaker.so" >> ~/.bashrc
 
 # setup the X session started by turbovnc
 RUN mkdir -p /home/${USER}/.vnc

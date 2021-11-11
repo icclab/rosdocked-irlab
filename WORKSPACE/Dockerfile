@@ -87,17 +87,11 @@ COPY /issues_solvers/pick_place_interface.py /opt/ros/noetic/lib/python3/dist-pa
 COPY /issues_solvers/turtlebot3_burger.gazebo.xacro  /home/"${user}"/catkin_ws/src/turtlebot3/turtlebot3_description/urdf
 COPY /issues_solvers/turtlebot3_waffle.gazebo.xacro   /home/"${user}"/catkin_ws/src/turtlebot3/turtlebot3_description/urdf
 
-# edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
-RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc ; \
-    echo "export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> ~/.bashrc \
-echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc
-
 
 # edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
 RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc ; \
-    echo "export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2" >> ~/.bashrc \
+    echo 'export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2:$LD_PRELOAD' >> ~/.bashrc \
 echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc
-
 
 
 #solve orbecc astra bug in xacro
