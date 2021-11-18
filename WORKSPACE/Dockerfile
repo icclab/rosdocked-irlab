@@ -10,13 +10,12 @@
 ARG BASE_IMAGE
 FROM $BASE_IMAGE 
 
-
 # Arguments
 ENV ROS_DISTRO=noetic
 
 USER root
 
-ENV user=ros
+ARG USER
 ARG uid
 ARG home
 ARG workspace
@@ -26,11 +25,11 @@ RUN echo "TEST $uid home $home"
 
 # Change folders owner
 RUN cd /home/ && \
-    chown -R ros:ros * && \
+    chown -R $USER:$USER * && \
     cd ..
 
 # Switch to user
-USER "${user}"
+USER "${USER}"
 
 # install git and other needed libs including catkin build
 RUN sudo apt-get update && \
@@ -95,7 +94,7 @@ echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc
 
 
 #solve orbecc astra bug in xacro
-RUN sed -i 's/<sensor_orbbec_astra_gazebo/<xacro:sensor_orbbec_astra_gazebo/g' /home/ros/catkin_ws/src/summit_xl_sources/robotnik_sensors/urdf/orbbec_astra.urdf.xacro
+RUN sed -i 's/<sensor_orbbec_astra_gazebo/<xacro:sensor_orbbec_astra_gazebo/g' /home/$USER/catkin_ws/src/summit_xl_sources/robotnik_sensors/urdf/orbbec_astra.urdf.xacro
 
 RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
@@ -103,14 +102,14 @@ RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 # RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
 
 #should solve the gpd_ros problem not finding opencv2
-COPY /issues_solvers/CMakeLists.txt  /home/"${user}"/catkin_ws/src/gpd_ros
+COPY /issues_solvers/CMakeLists.txt  /home/"${USER}"/catkin_ws/src/gpd_ros
 
 RUN sudo pip3 install jsonpickle pyquaternion
 
 # add gazebo models to decrease initial gazebo bringup time
 RUN mkdir -p ~/.gazebo
-ADD .gazebo /home/"${user}"/.gazebo/
-RUN sudo chown ros:ros ~/.gazebo/models ; rm -rf /home/ros/catkin_ws/src/robotiq_2finger_grippers/robotiq_modbus_rtu
+ADD .gazebo /home/"${USER}"/.gazebo/
+RUN sudo chown $USER:$USER ~/.gazebo/models ; rm -rf /home/$USER/catkin_ws/src/robotiq_2finger_grippers/robotiq_modbus_rtu
 #RUN cp -r ~/catkin_ws/src/icclab_summit_xl/worlds/models/marker* /home/"${user}"/.gazebo/models
 
 # update dependencies
