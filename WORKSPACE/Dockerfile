@@ -56,7 +56,7 @@ git clone --branch gazebo-simulator-noetic https://github.com/icclab/niryo_one_r
 git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git && \
 git clone https://github.com/SteveMacenski/slam_toolbox.git -b noetic-devel && \
 git clone https://github.com/machinekoder/ar_track_alvar.git -b noetic-devel && \
-git clone https://github.com/intel-ros/realsense.git && \
+git clone -b 3.2.3 https://github.com/intel-ros/realsense.git && \
 git clone https://github.com/icclab/gpd_ros && \
 git clone https://github.com/roboticsgroup/roboticsgroup_gazebo_plugins && \
 git clone https://github.com/scanse/sweep-sdk.git && \

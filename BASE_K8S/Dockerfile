@@ -34,9 +34,86 @@ RUN apt update && \
     curl wget vim less lsof net-tools git htop xterm terminator
 
 ################################################################################
-RUN apt install -y --no-install-recommends make cmake gcc
 
-USER "${USER}"
+# Install Eigen
+RUN cd /opt \
+    && git clone https://github.com/eigenteam/eigen-git-mirror eigen \
+    && cd eigen \
+    && git checkout tags/3.2.0 \
+    && mkdir build \
+    && cd build \
+    && cmake .. \
+    && make -j 8 \
+    && make install
+
+# Install VTK
+RUN apt-get install -y \
+    libvtk7-*
+
+# Install PCL
+RUN cd /opt \
+    && wget https://github.com/PointCloudLibrary/pcl/archive/pcl-1.9.0.zip \
+    && unzip pcl-1.9.0.zip \
+    && cd pcl-pcl-1.9.0 \
+    && mkdir build \
+    && cd build \
+    && cmake -D CMAKE_BUILD_TYPE=None -D BUILD_GPU=ON -D BUILD_apps=ON -D BUILD_examples=ON .. \
+    && make -j 8 \
+    && make install
+
+# Install Opencv
+RUN cd /opt \
+    && wget https://github.com/opencv/opencv/archive/3.4.3.zip \
+    && unzip 3.4.3.zip \
+    && cd opencv-3.4.3 \
+    && mkdir build \
+    && cd build \
+    && cmake -D WITH_OPENMP=ON -D ENABLE_PRECOMPILED_HEADERS=OFF ..\
+    && make -j 8 \
+    && make install
+
+# Install CAFFE dependencies
+RUN apt-get install -y \
+    libprotobuf-dev \
+    libleveldb-dev \
+    libsnappy-dev \
+    libopencv-dev \
+    libhdf5-serial-dev \
+    protobuf-compiler \
+    libboost-all-dev \
+    libatlas-base-dev \
+    liblmdb-dev \
+    libgoogle-glog-dev
+
+RUN apt-get install -y libturbojpeg \
+    libturbojpeg0-dev
+    # && ln -s /usr/lib/x86_64-linux-gnu/libturbojpeg.so.0.1.0 /usr/lib/x86_64-linux-gnu/libturbojpeg.so
+
+# Install CAFFE
+RUN cd /opt \
+    && git clone https://github.com/fbottarel/caffe.git
+RUN cd /opt/caffe \
+    && mkdir build \
+    && cd build \
+    && cmake -D BUILD_python=OFF \
+        -D BUILD_python_layer=OFF \
+        -D BLAS=Atlas \
+        -D CUDA_rt_LIBRARY=/usr/local/cuda/lib64/libcudart.so \
+        -D CMAKE_INSTALL_PREFIX=/usr/local \
+        ../ \
+    && make -j 8 \
+    && make install
+
+# Install gpd
+USER $USER
+RUN cd /opt && rm -rf gpd \
+    && sudo git clone https://github.com/icclab/gpd gpd \
+    && cd gpd \
+    && sudo mkdir build \
+    && cd build \
+    && sudo cmake ..  \
+    && sudo make -j8 \
+    && sudo make install
 
 ################################################################################
 
