@@ -1,13 +1,20 @@
-# Rosdocked
+# Rosdocked-irlab
+A docker container with some of the robotic simulations from the cloud robotics initiative @ ICCLab
 
 ## TL;DR
 
-Run our ROS kinetic environment including the workspace and projects
+Run our ROS noetic environment including the workspace and projects
 
-	cd workspace_included
-	./run-with-dev.sh
+	cd WORKSPACE
+	docker-compose -f docker-compose-cpu.yml up
 
-A container (robopaas/rosdocked-kinetic-workspace-included) will be pulled and started, it will have access to your X server.
+A container (robopaas/rosdocked-noetic-cpu:latest) will be pulled and started. 
+Another container running noVNC will be started and you'll be able to access it and see the GUI through a browser at: http://localhost
+
+In order to access the container and start our components, in another console, you'll have to find the ros container and enter it, e.g.:
+	
+	docker ps
+	docker exec -it workspace_ros_1 bash
 
 You can try our projects within it, e.g., to run the robot navigation project:
 
@@ -16,28 +23,9 @@ You can try our projects within it, e.g., to run the robot navigation project:
 Or to run the grasping project:
 
 	roslaunch icclab_summit_xl irlab_sim_summit_xls_grasping.launch
-
-For the grasping project you can test the python script to grasp the given object in the environment:
-
-	cd catkin_ws/src/icclab_summit_xl/scripts
-	python pick_and_place_summit_simulation.py
 	
-Our default setup uses a Schunk gripper. You can simulate also a Robotiq gripper by setting a parameter:
+In the browser you will see Gazebo and Rviz and you'll be able to control the robot from there.
 
-	roslaunch icclab_summit_xl irlab_sim_summit_xls_grasping.launch robotiq_gripper:=true
-	cd catkin_ws/src/icclab_summit_xl/scripts
-	python pick_and_place_summit_simulation_robotiq.py 
-
-
-**NOTE** 
-
-If GUI-based apps don't work on your linux you'll have to allow the container to connect to your x-server:
-
-https://www.thegeekstuff.com/2010/06/xhost-cannot-open-display/
-
-(unsafe)  before starting the container, on the host run:
-
-	xhost +
 
 ## Longer story (Only if you need to rebuild / edit code)
 
