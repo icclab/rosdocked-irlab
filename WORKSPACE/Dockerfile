@@ -43,7 +43,7 @@ RUN sudo apt-get update && \
 # create catkin ws and clone projects
 RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" && \
 cd src && \
-git clone https://github.com/icclab/icclab_summit_xl.git -b noetic &&  \
+git clone https://github.com/icclab/icclab_summit_xl.git -b noetic && \
 git clone https://github.com/icclab/icclab_grasping_niryo.git -b noetic && \
 git clone --branch noetic https://github.com/JenniferBuehler/gazebo-pkgs.git && \
 git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
@@ -88,15 +88,11 @@ COPY /issues_solvers/turtlebot3_waffle.gazebo.xacro   /home/"${user}"/catkin_ws/
 
 
 # edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
-RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc ; \
-    echo 'export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2:$LD_PRELOAD' >> ~/.bashrc \
-echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc
-
+RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc && \
+    echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc
 
 #solve orbecc astra bug in xacro
 RUN sed -i 's/<sensor_orbbec_astra_gazebo/<xacro:sensor_orbbec_astra_gazebo/g' /home/$USER/catkin_ws/src/summit_xl_sources/robotnik_sensors/urdf/orbbec_astra.urdf.xacro
-
-RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
 # configure repos for niryo
 # RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
