@@ -43,13 +43,13 @@ RUN sudo apt-get update && \
 # create catkin ws and clone projects
 RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" && \
 cd src && \
-git clone https://github.com/icclab/icclab_summit_xl.git -b noetic &&  \
+git clone https://github.com/icclab/icclab_summit_xl.git -b noetic && \
 git clone https://github.com/icclab/icclab_grasping_niryo.git -b noetic && \
 git clone --branch noetic https://github.com/JenniferBuehler/gazebo-pkgs.git && \
 git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
 #git clone https://github.com/icclab/icclab_turtlebot.git -b ${ROS_DISTRO} && \
 #If need two cameras for PCL add -b two_pcl_filtering below
-#git clone https://github.com/icclab/irlab_point_cloud_filtering.git -b noetic && \
+git clone https://github.com/icclab/irlab_point_cloud_filtering.git -b noetic && \
 #git clone https://github.com/icclab/laser_filters.git -b indigo-devel && \
 git clone --branch gazebo-simulator-noetic https://github.com/icclab/niryo_one_ros.git && \
 #git clone --branch 2.2.1 https://gitS-GIT/turtlebot3.git && \
@@ -57,7 +57,7 @@ git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git && \
 git clone https://github.com/SteveMacenski/slam_toolbox.git -b noetic-devel && \
 git clone https://github.com/machinekoder/ar_track_alvar.git -b noetic-devel && \
 git clone -b 3.2.3 https://github.com/intel-ros/realsense.git && \
-#git clone https://github.com/icclab/gpd_ros && \
+git clone https://github.com/icclab/gpd_ros && \
 git clone https://github.com/roboticsgroup/roboticsgroup_gazebo_plugins && \
 git clone https://github.com/scanse/sweep-sdk.git && \
 git clone https://github.com/Danfoa/robotiq_2finger_grippers.git && \
@@ -88,15 +88,11 @@ COPY /issues_solvers/turtlebot3_waffle.gazebo.xacro   /home/"${user}"/catkin_ws/
 
 
 # edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
-RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc ; \
-    echo 'export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2:$LD_PRELOAD' >> ~/.bashrc \
-echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc
-
+RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc && \
+    echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc
 
 #solve orbecc astra bug in xacro
 RUN sed -i 's/<sensor_orbbec_astra_gazebo/<xacro:sensor_orbbec_astra_gazebo/g' /home/$USER/catkin_ws/src/summit_xl_sources/robotnik_sensors/urdf/orbbec_astra.urdf.xacro
-
-RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
 # configure repos for niryo
 # RUN cd ~/catkin_ws/src/niryo_one_bringup && git checkout -b gazebo-simulator && git pull origin gazebo-simulator
