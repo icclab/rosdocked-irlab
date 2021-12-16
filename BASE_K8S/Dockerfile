@@ -179,7 +179,16 @@ RUN apt update && \
     python3-osrf-pycommon \
     curl wget vim less lsof net-tools git htop xterm terminator
 
-
+# Install gpd
+USER $USER
+RUN cd /opt && rm -rf gpd \
+    && sudo git clone https://github.com/icclab/gpd gpd \
+    && cd gpd \
+    && sudo mkdir build \
+    && cd build \
+    && sudo cmake ..  \
+    && sudo make -j8 \
+    && sudo make install
 
 ################################################################################
 USER ${USER}
