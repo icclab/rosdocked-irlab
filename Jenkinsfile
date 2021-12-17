@@ -8,9 +8,9 @@ pipeline {
           sh "pwd"
           sh "cd ./BASE_CPU/ && pwd && ./build.sh"
           echo 'Building BASE_GPU image...'
-          sh "./BASE_GPU/build.sh"
+          sh "cd ./BASE_GPU/ && pwd && ./build.sh"
           echo 'Building BASE_K8S image...'
-          sh "./BASE_K8S/build.sh"
+          sh "cd ./BASE_K8S/ && pwd && ./build.sh"
       }
       post{
         failure {
