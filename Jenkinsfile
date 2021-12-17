@@ -6,9 +6,7 @@ pipeline {
           sh "chmod +x -R ${env.WORKSPACE}"
           echo 'Building BASE_CPU image...'
           sh "pwd"
-          sh "cd ./BASE_CPU/"
-          sh "pwd"
-          sh "./build.sh"
+          sh "cd ./BASE_CPU/ && pwd && ./build.sh"
           echo 'Building BASE_GPU image...'
           sh "./BASE_GPU/build.sh"
           echo 'Building BASE_K8S image...'
