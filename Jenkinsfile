@@ -4,7 +4,7 @@ pipeline {
     stage('Build') {
       steps {
           echo 'Building...'
-          sh './BASE_CPU/build.sh'
+          sh 'sudo ./BASE_CPU/build.sh'
       }
       post{
         failure {
