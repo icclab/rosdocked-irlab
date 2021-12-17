@@ -4,7 +4,8 @@ pipeline {
     stage('Build') {
       steps {
           echo 'Building...'
-          sh 'sudo ./BASE_CPU/build.sh'
+          sh "chmod +x -R ${env.WORKSPACE}"
+          sh "./BASE_CPU/build.sh"
       }
       post{
         failure {
