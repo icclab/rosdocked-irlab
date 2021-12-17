@@ -7,6 +7,7 @@ pipeline {
           echo 'Building BASE_CPU image...'
           sh "pwd"
           sh "cd BASE_CPU"
+          sh "pwd"
           sh "./build.sh"
           echo 'Building BASE_GPU image...'
           sh "./BASE_GPU/build.sh"
