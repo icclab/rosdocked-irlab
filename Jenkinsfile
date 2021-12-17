@@ -8,7 +8,6 @@ pipeline {
       post{
         failure {
           echo "Build failed"
-          
         }
       }
     }
