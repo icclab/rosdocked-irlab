@@ -3,9 +3,13 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-          echo 'Building...'
           sh "chmod +x -R ${env.WORKSPACE}"
+          echo 'Building BASE_CPU image...'
           sh "./BASE_CPU/build.sh"
+          echo 'Building BASE_GPU image...'
+          sh "./BASE_GPU/build.sh"
+          echo 'Building BASE_K8S image...'
+          sh "./BASE_K8S/build.sh"
       }
       post{
         failure {
