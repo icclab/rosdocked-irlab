@@ -5,7 +5,7 @@ pipeline {
       steps {
           echo 'Building...'
           sh "chmod +x -R ${env.WORKSPACE}"
-          sh "./BASE_CPU/build.sh"
+          sh "sudo ./BASE_CPU/build.sh"
       }
       post{
         failure {
