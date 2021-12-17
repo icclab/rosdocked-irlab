@@ -5,7 +5,7 @@ pipeline {
       steps {
           sh "chmod +x -R ${env.WORKSPACE}"
           echo 'Building BASE_CPU image...'
-          echo "The present working directory is `pwd`"
+          sh "pwd"
           sh "cd BASE_CPU"
           sh "./build.sh"
           echo 'Building BASE_GPU image...'
