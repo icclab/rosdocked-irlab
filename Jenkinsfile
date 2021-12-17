@@ -5,7 +5,7 @@ pipeline {
       steps {
           echo 'Building...'
           sh "chmod +x -R ${env.WORKSPACE}"
-          sh "usermod -a -G docker jenkins"
+          sh "sudo usermod -a -G docker jenkins"
           sh "./BASE_CPU/build.sh"
       }
       post{
