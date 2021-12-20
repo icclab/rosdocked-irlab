@@ -34,7 +34,7 @@ pipeline {
       }
       post{
         failure {
-          echo "Test failed"
+          echo "Test failed" 
         }
       }
     }
