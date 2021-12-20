@@ -27,6 +27,7 @@ pipeline {
         failure {
           echo "Test failed"
         }
+      }
     }
   
     stage('Deploy') {
