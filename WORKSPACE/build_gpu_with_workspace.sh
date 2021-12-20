@@ -13,6 +13,7 @@ export IMAGE_NAME=robopaas/rosdocked-noetic-gpu:latest
 # Build the docker image
 docker build \
   --build-arg BASE_IMAGE=robopaas/rosdocked-noetic-base-gpu:latest \
+  --build-arg USER=ros \
   --build-arg home=/home/ros \
   --build-arg workspace=/home/ros \
   --build-arg shell=$SHELL\
