@@ -21,8 +21,12 @@ pipeline {
     stage('Test') {
       steps {
           echo 'Testing...'
-          sh "cd ./test/ && ./nav_test_bash.sh"
+          sh "cd test/ && pwd && ./nav_test_bash.sh"
       }
+      post{
+        failure {
+          echo "Test failed"
+        }
     }
   
     stage('Deploy') {
