@@ -5,12 +5,11 @@ pipeline {
       steps {
           sh "chmod +x -R ${env.WORKSPACE}"
           echo 'Building BASE_CPU image...'
-          sh "pwd"
-          sh "cd ./BASE_CPU/ && pwd && ./build.sh"
+          sh "cd ./BASE_CPU/  && ./build.sh"
           echo 'Building BASE_GPU image...'
-          sh "cd ./BASE_GPU/ && pwd && ./build.sh"
+          sh "cd ./BASE_GPU/  && ./build.sh"
           echo 'Building BASE_K8S image...'
-          sh "cd ./BASE_K8S/ && pwd && ./build.sh"
+          sh "cd ./BASE_K8S/  && ./build.sh"
       }
       post{
         failure {
@@ -22,6 +21,7 @@ pipeline {
     stage('Test') {
       steps {
           echo 'Testing...'
+          sh "cd ./test/ && ./nav_test_bash.sh"
       }
     }
   
