@@ -1,5 +1,11 @@
 pipeline {
   agent any
+  
+  environment {
+    DOCKERHUB_CREDENTIALS=credentials('dockerhub-robopaas')
+  }
+  
+  
   stages {
     stage('Build') {
       steps {
@@ -38,19 +44,37 @@ pipeline {
         }
       }
     }
-  
-    stage('Deploy') {
-      steps {
-          echo 'Deploying...'
-          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          docker push robopaas/rosdocked-noetic-cpu:latest
-      }
-    post{
+    
+     stage('Login') {
+			steps {
+				sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+			}
+      post {
         failure {
-          echo "Deploy failed" 
+          echo "Login failed" 
         }
-    }
-  }
+		}
+       
+		stage('Push') {
+
+			steps {
+				sh 'docker push robopaas/rosdocked-noetic-cpu:latest'
+        sh 'docker push robopaas/rosdocked-noetic-gpu:latest'
+        sh 'docker push robopaas/rosdocked-noetic-k8s:latest'
+			}
+      post {
+        failure {
+          echo "Image push failed" 
+        }
+		}
+	}
+
+	post {
+    always {
+			sh 'docker logout'
+		}
+	}
+
 }
 
 
