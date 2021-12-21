@@ -4,8 +4,7 @@ pipeline {
   environment {
     DOCKERHUB_CREDENTIALS=credentials('dockerhub-robopaas')
   }
-  
-  
+   
   stages {
     stage('Build') {
       steps {
@@ -54,7 +53,7 @@ pipeline {
           echo "Login failed" 
         }
 		}
-       
+     }
 		stage('Push') {
 
 			steps {
@@ -74,7 +73,7 @@ pipeline {
 			sh 'docker logout'
 		}
 	}
-
+  }
 }
 
 
