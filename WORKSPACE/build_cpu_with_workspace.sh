@@ -14,7 +14,5 @@ export IMAGE_NAME=robopaas/rosdocked-noetic-cpu:latest
 docker build \
   --build-arg BASE_IMAGE=robopaas/rosdocked-noetic-base-cpu:latest \
   --build-arg USER=ros \
-  --build-arg home=/home/ros \
-  --build-arg workspace=/home/ros \
   --build-arg shell=$SHELL\
   -t $IMAGE_NAME .
