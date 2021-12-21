@@ -57,6 +57,9 @@ pipeline {
 	
 	stage('Push') {
 			steps {
+				sh 'docker push robopaas/rosdocked-noetic-base-cpu:latest'
+				sh 'docker push robopaas/rosdocked-noetic-base-gpu:latest'
+				sh 'docker push robopaas/rosdocked-noetic-base-k8s:latest'
 				sh 'docker push robopaas/rosdocked-noetic-cpu:latest'
         			sh 'docker push robopaas/rosdocked-noetic-gpu:latest'
         			sh 'docker push robopaas/rosdocked-noetic-k8s:latest'
