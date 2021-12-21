@@ -42,7 +42,13 @@ pipeline {
     stage('Deploy') {
       steps {
           echo 'Deploying...'
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          docker push robopaas/rosdocked-noetic-cpu:latest
       }
+    post{
+        failure {
+          echo "Deploy failed" 
+        }
     }
   }
 }
