@@ -68,9 +68,6 @@ pipeline {
       				  failure {
        					   echo "Image push failed" 
      					   }
-				 always {
-					sh 'docker logout'
-					}
 				}
 			}
  	 }
