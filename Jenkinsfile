@@ -3,7 +3,7 @@ pipeline {
   
   environment {
     DOCKERHUB_CREDENTIALS=credentials('dockerhub-robopaas')
-  }
+  	}
    
   stages {
     stage('Build') {
@@ -22,13 +22,13 @@ pipeline {
           sh "cd ./WORKSPACE/  && ./build_gpu_with_workspace.sh"
           echo 'Building BASE_K8S_with_workspace image...'
           sh "cd ./WORKSPACE/  && ./build_k8s_with_workspace.sh"
-      }
+	  }
       post{
         failure {
           echo "Build failed"
-        }
-      }
-    }
+       		}
+      	   }
+    	}
 
     stage('Test') {
       steps {
@@ -40,9 +40,9 @@ pipeline {
       post{
         failure {
           echo "Test failed" 
-        }
-      }
-    }
+       		}
+      	  }
+   	}
     
      stage('Login') {
 			steps {
@@ -51,29 +51,26 @@ pipeline {
       post {
         failure {
           echo "Login failed" 
-        }
-		}
-     }
-		stage('Push') {
-
+        	}
+	  }
+       }
+	
+	stage('Push') {
 			steps {
 				sh 'docker push robopaas/rosdocked-noetic-cpu:latest'
-        sh 'docker push robopaas/rosdocked-noetic-gpu:latest'
-        sh 'docker push robopaas/rosdocked-noetic-k8s:latest'
+        			sh 'docker push robopaas/rosdocked-noetic-gpu:latest'
+        			sh 'docker push robopaas/rosdocked-noetic-k8s:latest'
+				}
+     			 post {
+      				  failure {
+       					   echo "Image push failed" 
+     					   }
+				 always {
+					sh 'docker logout'
+					}
+				}
 			}
-      post {
-        failure {
-          echo "Image push failed" 
-        }
-		}
-	}
-
-	post {
-    always {
-			sh 'docker logout'
-		}
-	}
-  }
+ 	 }
 }
 
 
