@@ -35,10 +35,16 @@ pipeline {
 stage('Build test cpu') {
 	steps {
 		script { 
-			docker.image('robopaas/rosdocked-noetic-cpu:latest').inside{
+			docker {
+				image 'robopaas/rosdocked-noetic-cpu:latest'
+				args '-v /var/jenkins_home/workspace/test:/opt/ros/noetic -w /opt/ros/noetic'
+				reuseNode true
+			}
+			steps {
 				sh "ls"
 				sh "/home/ros/catkin_ws/src/icclab_summit_xl/.ci/nav_test_bash.sh"
 				sh "pwd"
+			}
 		}
 	}
 }
