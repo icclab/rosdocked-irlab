@@ -32,7 +32,7 @@ pipeline {
    
 	stage('Test CPU image') {
 		steps {
-			node('test') {
+			node() {
 				withDockerContainer('robopaas/rosdocked-noetic-cpu:latest'){
 				sh 'ls'
 				} 
