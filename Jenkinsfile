@@ -41,7 +41,6 @@ stage('Build test cpu') {
 	steps{
 
 		echo image.id
-		sh "docker inspect -f '{{ .Id }}' ${image.id}"
 		sh 'ls'
 
 	}
