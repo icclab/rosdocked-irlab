@@ -31,17 +31,17 @@ pipeline {
     	}
    
 	stage('Test CPU image') {
-		  agent { 
-		  	docker { image  'robopaas/rosdocked-noetic-cpu:latest' }
-		      } 
-		  steps {
-			echo 'Build workspace...'
+		docker.image('robopaas/rosdocked-noetic-cpu:latest').inside {
+		      echo 'Build workspace...'
+			sh 'cd /home/ros/catkin_ws'
+			sh 'pwd'
+			sh 'catkin build'
 			
 			echo 'Testing navigation stack...'
 			sh '/home/ros/catkin_ws/src/icclab_summit_xl/.ci/nav_test_bash.sh' 
 			echo 'Testing grasping stack...'
 			sh '/home/ros/catkin_ws/src/icclab_summit_xl/launch/irlab_sim_summit_xls_grasping.launch'
-		  }
+		} 
 	post{
         failure {
           echo "Test CPU image failed" 
