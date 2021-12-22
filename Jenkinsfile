@@ -37,7 +37,8 @@ pipeline {
 		  steps {
 			echo 'Build workspace...'
 			  dir('/home/ros/catkin_ws/') {
-            			sh '/home/ros/catkin_ws/catkin build' 
+				sh 'pwd'
+            			sh 'catkin build' 
 			  }
 			echo 'Testing navigation stack...'
 			sh '/home/ros/catkin_ws/src/icclab_summit_xl/.ci/nav_test_bash.sh' 
