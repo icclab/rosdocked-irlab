@@ -7,7 +7,7 @@ pipeline {
    
   stages {
 	  
- stage('Test') {
+ stage('Test1') {
       steps {
 
 	  echo 'Testing grasping stack...'
