@@ -11,8 +11,7 @@ pipeline {
       steps {
 
 	  echo 'Testing grasping stack...'
-          sh "docker run robopaas/rosdocked-noetic-cpu:latest /home/ros/catkin_ws/src/icclab_summit_xl/.ci/grasping.sh"
-	  sh "docker run robopaas/rosdocked-noetic-cpu:latest --name testing"
+	  sh "docker run --name testing robopaas/rosdocked-noetic-cpu:latest"
 	  sh "docker exec -i testing sh -c 'cd /home/ros/catkin_ws/roslaunch irlab_sim_summit_xls_grasping.launch' "
 	  sh "docker run robopaas/rosdocked-noetic-gpu:latest /home/ros/catkin_ws/src/icclab_summit_xl/.ci/grasping.sh"
 	  sh "docker run robopaas/rosdocked-noetic-k8s:latest /home/ros/catkin_ws/src/icclab_summit_xl/.ci/grasping.sh"
