@@ -36,7 +36,7 @@ pipeline {
 		      } 
 		  steps {
 			echo 'Build workspace...'
-			  dir('catkin_ws') {
+			  dir('/home/ros/catkin_ws') {
 				sh 'pwd'
             			sh 'catkin build' 
 			  }
