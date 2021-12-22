@@ -48,7 +48,6 @@ stage('Build test cpu') {
 		}
 	}
 }
-}
     
   stage('Test') {
       steps {
