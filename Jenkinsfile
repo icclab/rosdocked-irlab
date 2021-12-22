@@ -34,7 +34,7 @@ pipeline {
 	  
 stage('Build test cpu') {
 	steps{
-	steps {
+	script {
 		def image = docker.image('robopaas/rosdocked-noetic-cpu:latest')
 		echo image.id
 		sh "docker inspect -f '{{ .Id }}' ${image.id}"
