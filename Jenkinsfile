@@ -22,6 +22,7 @@ pipeline {
           sh "cd ./WORKSPACE/  && ./build_gpu_with_workspace.sh"
           echo 'Building BASE_K8S_with_workspace image...'
           sh "cd ./WORKSPACE/  && ./build_k8s_with_workspace.sh"
+	  sh "docker image ls"
 	  }
       post{
         failure {
