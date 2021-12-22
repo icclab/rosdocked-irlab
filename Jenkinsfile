@@ -36,16 +36,16 @@ pipeline {
   stage('Test') {
       steps {
           echo 'Testing navigation stack...'
-	  sh "docker image ls"    
+	  sh "docker image ls"  
+	  sh "docker run robopaas/rosdocked-noetic-cpu:latest --name test_container"
+	  sh 'docker ps'
+	  sh 'docker exec test_container "caktin build; roslaunch /home/ros/catkin_ws/src/icclab_summit_xl/launch/irlab_sim_summit_xls_grasping.launch" '
 	    
           sh "docker run robopaas/rosdocked-noetic-cpu:latest /home/ros/catkin_ws/src/icclab_summit_xl/.ci/nav_test_bash.sh"
           sh "docker run robopaas/rosdocked-noetic-gpu:latest /home/ros/catkin_ws/src/icclab_summit_xl/.ci/nav_test_bash.sh"
           sh "docker run robopaas/rosdocked-noetic-k8s:latest /home/ros/catkin_ws/src/icclab_summit_xl/.ci/nav_test_bash.sh"
 	 
 	  echo 'Testing grasping stack...'
-	  sh "docker run robopaas/rosdocked-noetic-cpu:latest --name test_container"
-	  sh 'docker ps'
-	  sh 'docker exec test_container "caktin build; roslaunch /home/ros/catkin_ws/src/icclab_summit_xl/launch/irlab_sim_summit_xls_grasping.launch" '
           sh "docker run robopaas/rosdocked-noetic-cpu:latest roslaunch /home/ros/catkin_ws/src/icclab_summit_xl/launch/irlab_sim_summit_xls_grasping.launch"
           sh "docker run robopaas/rosdocked-noetic-gpu:latest roslaunch /home/ros/catkin_ws/src/icclab_summit_xl/launch/irlab_sim_summit_xls_grasping.launch"
           sh "docker run robopaas/rosdocked-noetic-k8s:latest roslaunch /home/ros/catkin_ws/src/icclab_summit_xl/launch/irlab_sim_summit_xls_grasping.launch"	      
