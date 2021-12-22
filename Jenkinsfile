@@ -37,7 +37,7 @@ pipeline {
       steps {
           echo 'Testing navigation stack...'
 	  sh "docker image ls"  
-	  sh "docker run robopaas/rosdocked-noetic-cpu:latest --name test_container"
+	  sh "docker run --name test_container robopaas/rosdocked-noetic-cpu:latest "
 	  sh 'docker ps'
 	  sh 'docker exec test_container "caktin build; roslaunch /home/ros/catkin_ws/src/icclab_summit_xl/launch/irlab_sim_summit_xls_grasping.launch" '
 	    
