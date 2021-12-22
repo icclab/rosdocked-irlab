@@ -33,9 +33,10 @@ pipeline {
 	stage('Test CPU image') {
 		steps {
 			script{
-				docker.image('robopaas/rosdocked-noetic-cpu:latest').inside(' -u ros') {
+				docker.image('robopaas/rosdocked-noetic-cpu:latest').inside() {
 		     		echo 'Build workspace...'
-				sh 'pwd'
+				sh 'ls'
+				sh "$PWD"
 				sh 'cd /home/ros/catkin_ws'
 				sh 'pwd'
 				sh 'catkin build'
