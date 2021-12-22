@@ -35,7 +35,8 @@ pipeline {
 stage('Build test cpu') {
 	steps {
 		script {
-			docker.image('robopaas/rosdocked-noetic-cpu:latest').inside('-v /home/ros/catkin_ws:/home/ros/caktin_w'){
+			docker.image('robopaas/rosdocked-noetic-cpu:latest').inside('-w /home/ros/catkin_ws'){
+			sh 'catkin build'
 			sh 'roslaunch /home/ros/catkin_ws/src/icclab_summit_xl/launch/irlab_sim_summit_xls_grasping.launch'
 			}
 			}
