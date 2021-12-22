@@ -32,6 +32,7 @@ pipeline {
 
     stage('Test') {
       steps {
+	  checkout scm
           echo 'Testing navigation stack...'
           sh "docker run robopaas/rosdocked-noetic-cpu:latest /home/ros/catkin_ws/src/icclab_summit_xl/.ci/nav_test_bash.sh"
           sh "docker run robopaas/rosdocked-noetic-gpu:latest /home/ros/catkin_ws/src/icclab_summit_xl/.ci/nav_test_bash.sh"
