@@ -33,7 +33,7 @@ pipeline {
 	stage('Test CPU image') {
 		steps {
 			script{
-				docker.image('robopaas/rosdocked-noetic-cpu:latest').inside() {
+				docker.image('robopaas/rosdocked-noetic-cpu:latest').withRun() {
 		     		echo 'Build workspace...'
 				sh 'ls'
 				sh "$PWD"
