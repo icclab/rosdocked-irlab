@@ -1,7 +1,4 @@
 pipeline {
-  def vueImage
-  def dockerTagName
-	
   agent any
   
   environment {
@@ -37,12 +34,10 @@ pipeline {
 	  
 stage('Build test cpu') {
     vueImage = docker.build("robopaas/rosdocked-noetic-cpu:latest")
-  }
-  vueImage.inside('-u 0') {
-    stage('Testing') {
+    vueImage.inside('-u 0') {
       sh 'ls'
     }
-  }
+}
    
     
   stage('Test') {
