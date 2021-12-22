@@ -33,11 +33,13 @@ pipeline {
     	}
 	  
 stage('Build test cpu') {
+	steps{
 	script {
 		def vueImage = docker.build("robopaas/rosdocked-noetic-cpu:latest")
     		vueImage.inside('-u 0') {
       			sh 'ls'
     					}
+	}
 	}
 }
    
