@@ -33,16 +33,14 @@ pipeline {
     	}
 	  
 stage('Build test cpu') {
-	agent {
-		docker {
-			image 'robopaas/rosdocked-noetic-cpu:latest'
+	agent {label 'docker'}
+	steps {
+		script { 
+			docker.image('robopaas/rosdocked-noetic-cpu:latest').inside{
+				sh 'ls'
 		}
 	}
-	steps{
-
-		echo image.id
-		sh 'ls'
-
+	
 	}
 }
    
