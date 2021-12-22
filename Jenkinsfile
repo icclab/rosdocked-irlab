@@ -35,7 +35,9 @@ pipeline {
 stage('Build test cpu') {
 	steps {
 		script {
-			docker.image('robopaas/rosdocked-noetic-cpu:latest').inside('sh ls'){}
+			docker.image('robopaas/rosdocked-noetic-cpu:latest').inside('-v /home/ros/catkin_ws:/home/ros/caktin_w'){
+			sh 'ls'
+			}
 			}
 		}
 	}
