@@ -36,7 +36,9 @@ stage('Build test cpu') {
 	steps {
 		script { 
 			docker.image('robopaas/rosdocked-noetic-cpu:latest').inside{
-				sh 'ls'
+				sh "ls"
+				sh "/home/ros/catkin_ws/src/icclab_summit_xl/.ci/nav_test_bash.sh"
+				sh "pwd"
 		}
 	}
 }
