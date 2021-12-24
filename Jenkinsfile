@@ -63,7 +63,7 @@ pipeline {
           echo "Login failed" 
         	}
 	  }
-       }
+       } 
 	
 	stage('Push') {
 			steps {
