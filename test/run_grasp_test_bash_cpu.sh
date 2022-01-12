@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 export IMAGE=robopaas/rosdocked-noetic-cpu:latest
 
-docker run -d -i $IMAGE /bin/bash
-
-export CONTAINER_NAME=$(docker ps --latest --format "{{.Names}}")
+export CONTAINER_NAME=grasp_test_cpu
 echo $CONTAINER_NAME
+
+docker run -d -i $IMAGE --name $CONTAINER_NAME /bin/bash
 
 # TEST #1: testing navigation stack
 # test with bash
