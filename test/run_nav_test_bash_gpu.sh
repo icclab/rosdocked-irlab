@@ -5,7 +5,7 @@ export IMAGE=robopaas/rosdocked-noetic-gpu:latest
 export CONTAINER_NAME=nav_test_gpu
 echo $CONTAINER_NAME
 
-docker run -d -i -name $CONTAINER_NAME $IMAGE  /bin/bash
+docker run -d -i --name $CONTAINER_NAME $IMAGE  /bin/bash
 
 # TEST #1: testing navigation stack
 # test with bash
