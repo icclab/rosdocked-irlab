@@ -4,12 +4,8 @@ export BASE_IMAGE=robopaas/rosdocked-noetic-cpu:latest
 
 docker run\
   -h `hostname`\
- # --privileged\
- # --net=host\
   -e SHELL\
- # -e DISPLAY=:0\
   -e DOCKER=1\
- # -v "/tmp/.X11-unix:/tmp/.X11-unix:rw"\
   -it -d $IMAGE_NAME $SHELL
 
 export CONTAINER_NAME=$(docker ps --latest --format "{{.Names}}")
