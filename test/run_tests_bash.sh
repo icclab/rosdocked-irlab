@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 export IMAGE=robopaas/rosdocked-noetic-cpu:latest
 
-docker run -i $IMAGE /bin/bash
+docker run -d $IMAGE 
 
 export CONTAINER_NAME=$(docker ps --latest --format "{{.Names}}")
 echo $CONTAINER_NAME
