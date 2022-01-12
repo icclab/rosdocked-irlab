@@ -6,7 +6,41 @@ pipeline {
   	}
    
   stages {
-	  
+    stage('Run Builds') {
+	parallel {
+		stage('Build on CPU') {
+	    		agent {
+		    		label "cpu"
+	    		}
+			steps {
+				sh "chmod +x -R ${env.WORKSPACE}"
+				echo 'Building BASE_CPU image...'
+				sh "cd ./BASE_CPU/  && ./build.sh"
+			}
+			post {        
+				failure {
+          				echo "Build CPU failed"
+       				}
+      	   		}
+		}
+		stage('Build on GPU') {
+	    		agent {
+		    		label "gpu"
+	    		}
+			steps {
+				sh "chmod +x -R ${env.WORKSPACE}"
+				echo 'Building BASE_GPU image...'
+				sh "cd ./BASE_GPU/  && ./build.sh"
+			}
+			post {        
+				failure {
+          				echo "Build GPU failed"
+       				}
+      	   		}
+		}
+	}
+    }
+				
 
   
     stage('Build') {
