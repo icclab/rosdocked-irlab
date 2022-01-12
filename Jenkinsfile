@@ -53,7 +53,49 @@ pipeline {
 	}
     }	
 
-
+  stage('Run Tests') {
+	 parallel {
+		stage('Testing on CPU') {
+			steps {
+				echo 'Testing grasping stack... '
+	 			sh "cd ./test/ && ./run_grasp_test_bash_cpu.sh"
+				echo 'Testing navigation stack... '
+	 			sh "cd ./test/ && ./run_nav_test_bash_cpu.sh"
+			}
+			post {        
+				failure {
+          				echo "Testing on CPU failed"
+       				}
+      	   		}
+		} 
+		stage('Testing on GPU') {
+			steps {
+				echo 'Testing grasping stack... '
+	 			sh "cd ./test/ && ./run_grasp_test_bash_gpu.sh"
+				echo 'Testing navigation stack... '
+	 			sh "cd ./test/ && ./run_nav_test_bash_gpu.sh"
+			}
+			post {        
+				failure {
+          				echo "Testing on GPU failed"
+       				}
+      	   		}
+		}
+		stage('Testing on K8S') {
+			steps {
+				echo 'Testing grasping stack... '
+	 			sh "cd ./test/ && ./run_grasp_test_bash_k8s.sh"
+				echo 'Testing navigation stack... '
+	 			sh "cd ./test/ && ./run_nav_test_bash_k8s.sh"
+			}
+			post {        
+				failure {
+          				echo "Testing on K8s failed"
+       				}
+      	   		}
+		} 
+	 }
+  }
     
      stage('Login') {
 			steps {
