@@ -38,6 +38,7 @@ pipeline {
       steps {
 	      
           echo 'Testing navigation stack...'	
+	  sh "docker run robopaas/rosdocked-noetic-cpu:latest /home/ros/catkin_ws/src/icclab_summit_xl/.ci/nav_test_bash.sh"
 	  sh "cd ./test/ && ./run_nav_test_bash_cpu.sh"
 	  sh "cd ./test/ && ./run_nav_test_bash_gpu.sh"
 	  sh "cd ./test/ && ./run_nav_test_bash_k8s.sh"
