@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-export BASE_IMAGE=robopaas/rosdocked-noetic-cpu:latest
+export IMAGE=robopaas/rosdocked-noetic-cpu:latest
 
-docker run robopaas/rosdocked-noetic-cpu:latest 
+docker run -i $IMAGE 
 
 export CONTAINER_NAME=$(docker ps --latest --format "{{.Names}}")
 echo $CONTAINER_NAME
@@ -60,3 +60,4 @@ fi
 echo "Finished testing scripts"
 echo "Killing docker container $CONTAINER_NAME..."
 docker kill $CONTAINER_NAME
+docker rm $CONTAINER_NAME
