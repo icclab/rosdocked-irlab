@@ -4,7 +4,7 @@ export IMAGE=robopaas/rosdocked-noetic-cpu:latest
 export CONTAINER_NAME=nav_test_cpu
 echo $CONTAINER_NAME
 
-docker run -d -i $IMAGE --name $CONTAINER_NAME /bin/bash
+docker run -d -i -name $CONTAINER_NAME $IMAGE  /bin/bash
 
 # TEST #1: testing navigation stack
 # test with bash
