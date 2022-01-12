@@ -2,11 +2,7 @@
 export BASE_IMAGE=robopaas/rosdocked-noetic-cpu:latest
 
 
-docker run\
-  -h `hostname`\
-  -e SHELL\
-  -e DOCKER=1\
-  -it -d $IMAGE_NAME $SHELL
+docker run -it -d $IMAGE_NAME $SHELL
 
 export CONTAINER_NAME=$(docker ps --latest --format "{{.Names}}")
 echo $CONTAINER_NAME
