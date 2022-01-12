@@ -6,54 +6,96 @@ pipeline {
   	}
    
   stages {
-	  
-  
-    stage('Build') {
-      steps {
-          sh "chmod +x -R ${env.WORKSPACE}"
-          echo 'Building BASE_CPU image...'
-          sh "cd ./BASE_CPU/  && ./build.sh"
-          echo 'Building BASE_GPU image...'
-          sh "cd ./BASE_GPU/  && ./build.sh"
-          echo 'Building BASE_K8S image...'
-          sh "cd ./BASE_K8S/  && ./build.sh"
-        
-          echo 'Building BASE_CPU_with_workspace image...'
-          sh "cd ./WORKSPACE/  && ./build_cpu_with_workspace.sh"
-          echo 'Building BASE_GPU_with_workspace image...'
-          sh "cd ./WORKSPACE/  && ./build_gpu_with_workspace.sh"
-          echo 'Building BASE_K8S_with_workspace image...'
-          sh "cd ./WORKSPACE/  && ./build_k8s_with_workspace.sh"
-	  }
-      post{
-        failure {
-          echo "Build failed"
-       		}
-      	   }
-    	}
+    stage('Run Builds') {
+	parallel {
+		stage('Build on CPU') {
+			steps {
+				sh "chmod +x -R ${env.WORKSPACE}"
+				echo 'Building BASE_CPU image...'
+				sh "cd ./BASE_CPU/  && ./build.sh"
+				echo 'Building BASE_CPU_with_workspace image...'
+         			sh "cd ./WORKSPACE/  && ./build_cpu_with_workspace.sh"
+			}
+			post {        
+				failure {
+          				echo "Build CPU failed"
+       				}
+      	   		}
+		}
+		stage('Build on GPU') {
+			steps {
+				sh "chmod +x -R ${env.WORKSPACE}"
+				echo 'Building BASE_GPU image...'
+				sh "cd ./BASE_GPU/  && ./build.sh"
+				echo 'Building BASE_GPU_with_workspace image...'
+         			sh "cd ./WORKSPACE/  && ./build_gpu_with_workspace.sh"
+			}
+			post {        
+				failure {
+          				echo "Build GPU failed"
+       				}
+      	   		}
+		}
+		stage('Build on K8s') {
+			steps {
+				sh "chmod +x -R ${env.WORKSPACE}"
+				echo 'Building BASE_K8S image...'
+				sh "cd ./BASE_K8S/  && ./build.sh"
+				echo 'Building BASE_K8S_with_workspace image...'
+         			sh "cd ./WORKSPACE/  && ./build_k8s_with_workspace.sh"
+			}
+			post {        
+				failure {
+          				echo "Build K8S failed"
+       				}
+      	   		}
+		}
+	}
+    }	
 
-    
-  stage('Test') {
-      steps {
-          echo 'Testing navigation stack...'
-	  echo 'Testing grasping stack...'
-          sh "docker run robopaas/rosdocked-noetic-cpu:latest /home/ros/catkin_ws/src/icclab_summit_xl/.ci/grasping.sh"
-	     	    
-          sh "docker run robopaas/rosdocked-noetic-cpu:latest /home/ros/catkin_ws/src/icclab_summit_xl/.ci/nav_test_bash.sh"
-          sh "docker run robopaas/rosdocked-noetic-gpu:latest /home/ros/catkin_ws/src/icclab_summit_xl/.ci/nav_test_bash.sh"
-          sh "docker run robopaas/rosdocked-noetic-k8s:latest /home/ros/catkin_ws/src/icclab_summit_xl/.ci/nav_test_bash.sh"
-	 
-	  echo 'Testing grasping stack...'
-          sh "docker run robopaas/rosdocked-noetic-cpu:latest roslaunch /home/ros/catkin_ws/src/icclab_summit_xl/launch/irlab_sim_summit_xls_grasping.launch"
-          sh "docker run robopaas/rosdocked-noetic-gpu:latest roslaunch /home/ros/catkin_ws/src/icclab_summit_xl/launch/irlab_sim_summit_xls_grasping.launch"
-          sh "docker run robopaas/rosdocked-noetic-k8s:latest roslaunch /home/ros/catkin_ws/src/icclab_summit_xl/launch/irlab_sim_summit_xls_grasping.launch"	      
-      }
-      post{
-        failure {
-          echo "Test failed" 
-       		}
-      	  }
-   	}
+  stage('Run Tests') {
+	 parallel {
+		stage('Testing on CPU') {
+			steps {
+				echo 'Testing grasping stack... '
+	 			sh "cd ./test/ && ./run_grasp_test_bash_cpu.sh"
+				echo 'Testing navigation stack... '
+	 			sh "cd ./test/ && ./run_nav_test_bash_cpu.sh"
+			}
+			post {        
+				failure {
+          				echo "Testing on CPU failed"
+       				}
+      	   		}
+		} 
+		stage('Testing on GPU') {
+			steps {
+				echo 'Testing grasping stack... '
+	 			sh "cd ./test/ && ./run_grasp_test_bash_gpu.sh"
+				echo 'Testing navigation stack... '
+	 			sh "cd ./test/ && ./run_nav_test_bash_gpu.sh"
+			}
+			post {        
+				failure {
+          				echo "Testing on GPU failed"
+       				}
+      	   		}
+		}
+		stage('Testing on K8S') {
+			steps {
+				echo 'Testing grasping stack... '
+	 			sh "cd ./test/ && ./run_grasp_test_bash_k8s.sh"
+				echo 'Testing navigation stack... '
+	 			sh "cd ./test/ && ./run_nav_test_bash_k8s.sh"
+			}
+			post {        
+				failure {
+          				echo "Testing on K8s failed"
+       				}
+      	   		}
+		} 
+	 }
+  }
     
      stage('Login') {
 			steps {
@@ -64,7 +106,7 @@ pipeline {
           echo "Login failed" 
         	}
 	  }
-       }
+       }  
 	
 	stage('Push') {
 			steps {
@@ -82,13 +124,13 @@ pipeline {
 				}
 			}
  	 }
-	
+	 
 	post {
 		always {
 			sh 'docker logout'
 		}
 	}
 
-}
+} 
 
 

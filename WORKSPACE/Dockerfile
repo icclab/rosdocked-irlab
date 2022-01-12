@@ -28,6 +28,12 @@ RUN cd /home/ && \
     chown -R $USER:$USER * && \
     cd ..
 
+# add rosbridge and patch autobahn (bug here: https://github.com/RobotWebTools/rosbridge_suite/issues/529)
+# install rosbridge server
+RUN apt-get update && apt-get install -yq ros-${ROS_DISTRO}-rosbridge-server \
+    ros-${ROS_DISTRO}-tf2-msgs build-essential python3-pip && \
+    pip3 install --upgrade autobahn
+
 # Switch to user
 USER "${USER}"
 
@@ -123,3 +129,4 @@ RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && 
 # patch summit_xl old files and add unmerged PRs
 RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
     git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro"
+
