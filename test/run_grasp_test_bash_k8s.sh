@@ -8,7 +8,7 @@ docker run -d -i --name $CONTAINER_NAME $IMAGE  /bin/bash
 
 # TEST #1: testing navigation stack
 # test with bash
-echo "Testing navigation stack..."
+echo "Testing grasping stack..."
 docker exec -i $CONTAINER_NAME ./catkin_ws/src/icclab_summit_xl/.ci/grasp_test_bash.sh
 if [[ "$?" == "0" ]] ; then
   echo "Grasping test failed. Check output."
