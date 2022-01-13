@@ -1,9 +1,0 @@
-language: generic
-
-services:
-- docker
-
-install:
-- ./BASE_CPU/build.sh
-- ./WORKSPACE/build_cpu_with_workspace.sh 
-

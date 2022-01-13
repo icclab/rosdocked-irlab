@@ -1,4 +1,0 @@
-#!/bin/sh
-xsetroot -solid grey
-startlxqt &
-
