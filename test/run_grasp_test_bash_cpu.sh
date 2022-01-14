@@ -4,7 +4,9 @@ export IMAGE=robopaas/rosdocked-noetic-cpu:latest
 export CONTAINER_NAME=grasp_test_cpu
 echo $CONTAINER_NAME
 
-docker run -d -i --name $CONTAINER_NAME $IMAGE  /bin/bash
+docker rm -f $CONTAINER_NAME || true
+
+docker run -d -i --rm --name $CONTAINER_NAME $IMAGE  /bin/bash
 
 # TEST #1: testing navigation stack
 # test with bash
