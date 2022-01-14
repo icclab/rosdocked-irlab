@@ -12,7 +12,6 @@ export IMAGE_NAME=robopaas/rosdocked-noetic-cpu:latest
 
 # Build the docker image
 docker build \
-  --no-cache \
   --build-arg BASE_IMAGE=robopaas/rosdocked-noetic-base-cpu:latest \
   --build-arg USER=ros \
   --build-arg home=/home/ros \
