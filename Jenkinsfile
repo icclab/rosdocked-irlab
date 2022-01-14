@@ -107,7 +107,7 @@ pipeline {
         	}
 	  }
        }  
-	
+	 
 	stage('Push') {
 			steps {
 				sh 'docker push robopaas/rosdocked-noetic-base-cpu:latest'
@@ -131,6 +131,6 @@ pipeline {
 		}
 	}
 
-} 
+}  
 
 
