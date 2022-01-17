@@ -85,8 +85,8 @@ pipeline {
 			steps {
 				echo 'Testing grasping stack... '
 	 			sh "cd ./test/ && ./run_grasp_test_bash_k8s.sh"
-				echo 'Testing navigation stack... '
-	 			sh "cd ./test/ && ./run_nav_test_bash_k8s.sh"
+				//echo 'Testing navigation stack... '
+	 			//sh "cd ./test/ && ./run_nav_test_bash_k8s.sh"
 			}
 			post {        
 				failure {
