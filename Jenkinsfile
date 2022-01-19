@@ -8,7 +8,7 @@ pipeline {
   stages {
     stage('Run Builds') {
 	parallel {
-		stage('Build on CPU') {
+		stage('Build on  CPU') {
 			steps {
 				sh "chmod +x -R ${env.WORKSPACE}"
 				echo 'Building BASE_CPU image...'
