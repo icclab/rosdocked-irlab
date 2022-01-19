@@ -8,7 +8,7 @@ pipeline {
   stages {
     stage('Run Builds') {
 	parallel {
-		stage('Build on CPU') {
+		stage('Build on  CPU') {
 			steps {
 				sh "chmod +x -R ${env.WORKSPACE}"
 				echo 'Building BASE_CPU image...'
@@ -59,8 +59,8 @@ pipeline {
 			steps {
 				echo 'Testing grasping stack... '
 	 			sh "cd ./test/ && ./run_grasp_test_bash_cpu.sh"
-				echo 'Testing navigation stack... '
-	 			sh "cd ./test/ && ./run_nav_test_bash_cpu.sh"
+				//echo 'Testing navigation stack... '
+	 			//sh "cd ./test/ && ./run_nav_test_bash_cpu.sh"
 			}
 			post {        
 				failure {
@@ -72,8 +72,8 @@ pipeline {
 			steps {
 				echo 'Testing grasping stack... '
 	 			sh "cd ./test/ && ./run_grasp_test_bash_gpu.sh"
-				echo 'Testing navigation stack... '
-	 			sh "cd ./test/ && ./run_nav_test_bash_gpu.sh"
+				//echo 'Testing navigation stack... '
+	 			//sh "cd ./test/ && ./run_nav_test_bash_gpu.sh"
 			}
 			post {        
 				failure {
@@ -85,8 +85,8 @@ pipeline {
 			steps {
 				echo 'Testing grasping stack... '
 	 			sh "cd ./test/ && ./run_grasp_test_bash_k8s.sh"
-				echo 'Testing navigation stack... '
-	 			sh "cd ./test/ && ./run_nav_test_bash_k8s.sh"
+				//echo 'Testing navigation stack... '
+	 			//sh "cd ./test/ && ./run_nav_test_bash_k8s.sh"
 			}
 			post {        
 				failure {
