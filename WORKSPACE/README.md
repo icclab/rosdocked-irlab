@@ -35,4 +35,4 @@ You may also want to start a container without novnc, but connecting to a *local
 
     ./run_cpu.sh
 
-Note that the xhost needs to be correctly set in order to make it work correctly. (xhost+ would do the trick)
+Note that the xhost needs to be correctly set in order to make it work correctly. (xhost +local:root would do the trick)
