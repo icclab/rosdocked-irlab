@@ -41,6 +41,9 @@ ENV ENABLE_BASIC_AUTH true
 
 ################################################################################
 
+# Update apt sources using mirror
+RUN sed -i -e 's/archive.ubuntu.com/mirror.cloudlab.zhaw.ch/g' /etc/apt/sources.list
+
 # Install locales to prevent errors
 RUN apt-get clean && \
     apt-get update && apt-get install --no-install-recommends -y locales && \

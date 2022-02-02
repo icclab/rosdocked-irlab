@@ -28,9 +28,10 @@ RUN cd /home/ && \
     chown -R $USER:$USER * && \
     cd ..
 
-# add rosbridge and patch autobahn (bug here: https://github.com/RobotWebTools/rosbridge_suite/issues/529)
-# install rosbridge server
-RUN apt-get update && apt-get install -yq ros-${ROS_DISTRO}-rosbridge-server \
+# patch autobahn (bug here: https://github.com/RobotWebTools/rosbridge_suite/issues/529)
+# we will install our own rosbridge server
+RUN apt-get update && apt-get install -yq \ 
+# ros-${ROS_DISTRO}-rosbridge-server \
     ros-${ROS_DISTRO}-tf2-msgs build-essential python3-pip && \
     pip3 install --upgrade autobahn
 
@@ -51,6 +52,7 @@ RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros
 cd src && \
 git clone https://github.com/icclab/icclab_summit_xl.git -b noetic && \
 git clone https://github.com/icclab/icclab_grasping_niryo.git -b noetic && \
+git clone https://github.com/icclab/rosbridge_suite.git -b ros1 && \
 git clone --branch noetic https://github.com/JenniferBuehler/gazebo-pkgs.git && \
 git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
 #git clone https://github.com/icclab/icclab_turtlebot.git -b ${ROS_DISTRO} && \
@@ -130,3 +132,5 @@ RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && 
 RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
     git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro"
 
+# add demo script
+COPY demo.sh  /home/"${USER}"/

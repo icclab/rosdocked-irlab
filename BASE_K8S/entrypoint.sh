@@ -14,6 +14,8 @@ sudo /etc/init.d/dbus start
 if ! command -v nvidia-xconfig &> /dev/null; then
   export DRIVER_VERSION=$(head -n1 </proc/driver/nvidia/version | awk '{print $8}')
   cd /tmp
+  # remove any remnants which could be there from before...
+  rm -fr /tmp/NVIDIA-Linux-x86_64-470.82.01 /tmp/NVIDIA-Linux-x86_64-470.82.01.run
   if [ ! -f "/tmp/NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" ]; then
     curl -fsL -O "https://us.download.nvidia.com/XFree86/Linux-x86_64/$DRIVER_VERSION/NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" || curl -fsL -O "https://us.download.nvidia.com/tesla/$DRIVER_VERSION/NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" || { echo "Failed NVIDIA GPU driver download. Exiting."; exit 1; }
   fi
