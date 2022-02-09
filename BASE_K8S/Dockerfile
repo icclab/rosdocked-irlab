@@ -224,6 +224,10 @@ COPY entrypoint.sh /etc/entrypoint.sh
 RUN chmod 755 /etc/entrypoint.sh
 COPY supervisord.conf /etc/supervisord.conf
 RUN chmod 755 /etc/supervisord.conf
+COPY install_nvidia_drivers.sh /opt/install_nvidia_drivers.sh
+RUN chmod 755 /opt/install_nvidia_drivers.sh
+RUN /opt/install_nvidia_drivers.sh
+
 
 EXPOSE 8080
 CMD ["/usr/bin/supervisord"]
