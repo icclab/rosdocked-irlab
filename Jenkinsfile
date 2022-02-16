@@ -110,12 +110,18 @@ pipeline {
 	 
 	stage('Push') {
 			steps {
-				sh 'docker push robopaas/rosdocked-noetic-base-cpu:latest'
-				sh 'docker push robopaas/rosdocked-noetic-base-gpu:latest'
-				sh 'docker push robopaas/rosdocked-noetic-base-k8s:latest'
-				sh 'docker push robopaas/rosdocked-noetic-cpu:latest'
-        			sh 'docker push robopaas/rosdocked-noetic-gpu:latest'
-        			sh 'docker push robopaas/rosdocked-noetic-k8s:latest'
+				sh 'docker image tag robopaas/rosdocked-noetic-base-cpu robopaas/rosdocked-noetic-base-cpu:jenkins'
+				sh 'docker image tag robopaas/rosdocked-noetic-base-gpu robopaas/rosdocked-noetic-base-gpu:jenkins'
+				sh 'docker image tag robopaas/rosdocked-noetic-base-k8s robopaas/rosdocked-noetic-base-k8s:jenkins'
+				sh 'docker image tag robopaas/rosdocked-noetic-cpu robopaas/rosdocked-noetic-cpu:jenkins'
+				sh 'docker image tag robopaas/rosdocked-noetic-gpu robopaas/rosdocked-noetic-gpu:jenkins'
+				sh 'docker image tag robopaas/rosdocked-noetic-k8s robopaas/rosdocked-noetic-k8s:jenkins'
+				sh 'docker push robopaas/rosdocked-noetic-base-cpu:jenkins'
+				sh 'docker push robopaas/rosdocked-noetic-base-gpu:jenkins'
+				sh 'docker push robopaas/rosdocked-noetic-base-k8s:jenkins'
+				sh 'docker push robopaas/rosdocked-noetic-cpu:jenkins'
+        			sh 'docker push robopaas/rosdocked-noetic-gpu:jenkins'
+        			sh 'docker push robopaas/rosdocked-noetic-k8s:jenkins'
 				}
      			 post {
       				  failure {
