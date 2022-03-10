@@ -122,7 +122,7 @@ rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths s
 
 # install ros-pcl AGAIN. No clue why it doesn't see it
 RUN sudo apt-get update && \
-    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-moveit-python wget vim
+    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-moveit-python wget vim ros-${ROS_DISTRO}-turtlebot3-bringup 
 
 
 # build workspace
