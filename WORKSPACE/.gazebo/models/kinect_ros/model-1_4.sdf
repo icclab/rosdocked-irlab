@@ -49,7 +49,7 @@
           <depthImageCameraInfoTopicName>/camera/depth/camera_info</depthImageCameraInfoTopicName>
           <pointCloudTopicName>/camera/depth/points</pointCloudTopicName>
           <!--frameName>camera_link</frameName-->
-          <frameName>camera_optical_frame</frameName>
+          <frameName>camera_color_optical_frame</frameName>
           <pointCloudCutoff>0.1</pointCloudCutoff>
           <pointCloudCutoffMax>2.0</pointCloudCutoffMax>
           <distortionK1>0</distortionK1>
