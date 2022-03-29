@@ -42,7 +42,7 @@ USER "${USER}"
 RUN sudo apt-get update && \
     sudo apt-get install -y python3-pip \
     ros-${ROS_DISTRO}-pcl-ros python3-catkin-tools \
-    python3-osrf-pycommon
+    python3-osrf-pycommon ros-noetic-dynamixel-sdk ros-noetic-turtlebot3-msgs ros-noetic-turtlebot3
 
 # configure repos for niryo
 # RUN sudo pip3 install jsonpickle
@@ -61,7 +61,7 @@ git clone https://github.com/icclab/irlab_point_cloud_filtering.git -b noetic &&
 #git clone https://github.com/icclab/laser_filters.git -b indigo-devel && \
 git clone --branch gazebo-simulator-noetic https://github.com/icclab/niryo_one_ros.git && \
 #git clone --branch 2.2.1 https://gitS-GIT/turtlebot3.git && \
-git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git && \
+#git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git && \
 git clone https://github.com/SteveMacenski/slam_toolbox.git -b noetic-devel && \
 git clone https://github.com/machinekoder/ar_track_alvar.git -b noetic-devel && \
 git clone -b 3.2.3 https://github.com/intel-ros/realsense.git && \
@@ -78,7 +78,7 @@ git clone https://github.com/rst-tu-dortmund/costmap_prohibition_layer.git && \
 git clone https://github.com/SteveMacenski/spatio_temporal_voxel_layer.git -b noetic-devel && \
 git clone https://github.com/iralabdisco/ira_laser_tools.git && \
 git clone https://github.com/MoriKen254/timed_roslaunch.git && \
-git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git && \
+#git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git && \
 mkdir summit_xl_sources && cd summit_xl_sources && \
 git clone https://github.com/RobotnikAutomation/rcomponent.git && \
 git clone https://github.com/RobotnikAutomation/robotnik_msgs.git && \
