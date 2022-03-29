@@ -91,9 +91,8 @@ git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
 
 COPY /issues_solvers/pick_place_interface.py /opt/ros/noetic/lib/python3/dist-packages/moveit_python
 # Add modified TB3 urdf with 359 scans instead of 360 for the Rplidar to make slam-toolbox work in sim
-COPY /issues_solvers/turtlebot3_burger.gazebo.xacro  /home/"${user}"/catkin_ws/src/turtlebot3/turtlebot3_description/urdf
-COPY /issues_solvers/turtlebot3_waffle.gazebo.xacro   /home/"${user}"/catkin_ws/src/turtlebot3/turtlebot3_description/urdf
-
+COPY /issues_solvers/turtlebot3_burger.gazebo.xacro  /opt/ros/noetic/share/turtlebot3_description/urdf
+COPY /issues_solvers/turtlebot3_waffle.gazebo.xacro   /opt/ros/noetic/share/turtlebot3_description/urdf
 
 # edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
 RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc && \
