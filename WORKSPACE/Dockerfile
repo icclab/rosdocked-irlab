@@ -42,7 +42,7 @@ USER "${USER}"
 RUN sudo apt-get update && \
     sudo apt-get install -y python3-pip \
     ros-${ROS_DISTRO}-pcl-ros python3-catkin-tools \
-    python3-osrf-pycommon ros-noetic-dynamixel-sdk ros-noetic-turtlebot3-msgs ros-noetic-turtlebot3
+    python3-osrf-pycommon ros-noetic-dynamixel-sdk ros-noetic-turtlebot3-msgs ros-noetic-turtlebot3 ros-noetic-turtlebot3-simulations
 
 # configure repos for niryo
 # RUN sudo pip3 install jsonpickle
