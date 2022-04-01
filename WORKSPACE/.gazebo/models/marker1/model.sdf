@@ -7,11 +7,11 @@
         <mass>0.002</mass>
         <inertia> 
           <ixx>0.0001</ixx>
-	  <ixy>0.0</ixy>
-	  <ixz>0.0</ixz>    
-          <iyy>0.0003</iyy>  
-          <iyz>0.0</iyz>  
-          <izz>0.0001</izz> 
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0003</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.0001</izz>
         </inertia>
       </inertial>
       <collision name="collision">
@@ -34,13 +34,13 @@
         </geometry>
       </visual>
     </link>
-    <link name="marker">      
+    <link name="marker">
       <visual name="visual">
         <geometry>
           <mesh>
             <uri>model://marker1/meshes/Marker1.dae</uri>
             <!-- marker dimension after scaling will be 0.045 m (4.5 cm)-->
-            <scale>0.09 0.09 0.09</scale>            
+            <scale>0.09 0.09 0.09</scale>
           </mesh>
         </geometry>
         <pose>0.002 0 -0.0225 0 0 0</pose>
