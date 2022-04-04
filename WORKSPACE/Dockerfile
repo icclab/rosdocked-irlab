@@ -58,6 +58,8 @@ git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs
 #git clone https://github.com/icclab/icclab_turtlebot.git -b ${ROS_DISTRO} && \
 #If need two cameras for PCL add -b two_pcl_filtering below
 git clone https://github.com/icclab/irlab_point_cloud_filtering.git -b noetic && \
+# Required for plugin librealsense_gazebo_plugin.so
+git clone https://github.com/pal-robotics/realsense_gazebo_plugin && \
 #git clone https://github.com/icclab/laser_filters.git -b indigo-devel && \
 git clone --branch gazebo-simulator-noetic https://github.com/icclab/niryo_one_ros.git && \
 #git clone --branch 2.2.1 https://gitS-GIT/turtlebot3.git && \
