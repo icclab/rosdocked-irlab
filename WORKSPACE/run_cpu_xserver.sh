@@ -1,4 +1,4 @@
-i#!/usr/bin/env bash
+#!/usr/bin/env bash
 
 IMAGE=robopaas/rosdocked-noetic-cpu:latest
 # Get this script's path
