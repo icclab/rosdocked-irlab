@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+i#!/usr/bin/env bash
 
 IMAGE=robopaas/rosdocked-noetic-cpu:latest
 # Get this script's path
@@ -12,7 +12,7 @@ set -e
 docker run\
   -h localhost\
   --net=host\
-  --device=/dev/dri \
+  --privileged \
   -e SHELL\
   -e DISPLAY\
   -e DOCKER=1\
