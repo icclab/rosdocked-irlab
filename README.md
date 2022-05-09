@@ -46,7 +46,7 @@ In WORKSPACE you'll also find scripts for running the images either as docker co
 
 ### NOTE on Building GPU/K8S images:
 
-Our GPU/K8S use nvidia GPUs, to build you need a nvidia GPU + configure the docker daemon to be run as default (i.e., also when calling nvidia-docker build). You should edit your /etc/docker/daemon.json to look like this:
+Our GPU/K8S use nvidia GPUs, to build you need a nvidia GPU + configure the nvidia docker runtime to be run as default (i.e., also when calling nvidia-docker build). You should edit your /etc/docker/daemon.json to look like this:
 
 	{
 	    "default-runtime": "nvidia",	
