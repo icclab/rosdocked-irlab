@@ -15,13 +15,13 @@ ENV ROS_DISTRO=foxy
 
 USER root
 
-ARG USER
+ARG USER=ros
 ARG uid
 ARG home
 ARG workspace
 ARG shell
 
-# RUN echo "TEST $uid home $home"
+RUN echo "TEST $uid home $home"
 
 # Change folders owner
 RUN cd /home/ && \
@@ -31,9 +31,16 @@ RUN cd /home/ && \
 # Install projects
 RUN apt install -y ros-${ROS_DISTRO}-gazebo-ros-pkgs \
     ros-${ROS_DISTRO}-ros-core \
-    ros-${ROS_DISTRO}-geometry2
+    ros-${ROS_DISTRO}-geometry2 \
+    ros-${ROS_DISTRO}-dynamixel-sdk \
+    ros-${ROS_DISTRO}-turtlebot3-msgs \
+    ros-${ROS_DISTRO}-turtlebot3
 
-# add gazebo models to decrease initial gazebo bringup time
-RUN mkdir -p ~/.gazebo
-ADD .gazebo /home/"${USER}"/.gazebo/
-RUN sudo chown $USER:$USER ~/.gazebo/models ; rm -rf /home/$USER/catkin_ws/src/robotiq_2finger_grippers/robotiq_modbus_rtu
+
+# # add gazebo models to decrease initial gazebo bringup time
+# RUN mkdir -p ~/.gazebo
+# ADD .gazebo /home/"${USER}"/.gazebo/
+# RUN sudo chown $USER:$USER ~/.gazebo/models ; rm -rf /home/$USER/_ws/src/robotiq_2finger_grippers/robotiq_modbus_rtu
+
+# Switch to user
+USER "${USER}"
