@@ -15,7 +15,7 @@ ENV ROS_DISTRO=foxy
 
 USER root
 
-ARG USER=ros
+ARG USER
 ARG uid
 ARG home
 ARG workspace
@@ -44,3 +44,6 @@ RUN apt install -y ros-${ROS_DISTRO}-gazebo-ros-pkgs \
 
 # Switch to user
 USER "${USER}"
+
+# Set TurtleBot3 Model Name
+RUN echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc
