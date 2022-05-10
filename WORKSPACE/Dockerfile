@@ -30,6 +30,8 @@ RUN cd /home/ && \
 
 # patch autobahn (bug here: https://github.com/RobotWebTools/rosbridge_suite/issues/529)
 # we will install our own rosbridge server
+RUN rm /etc/apt/sources.list.d/cuda.list
+RUN rm /etc/apt/sources.list.d/nvidia-ml.list
 RUN apt-get update && apt-get install -yq \ 
 # ros-${ROS_DISTRO}-rosbridge-server \
     ros-${ROS_DISTRO}-tf2-msgs build-essential python3-pip && \
