@@ -14,7 +14,7 @@ FROM nvcr.io/nvidia/cudagl:11.4.2-runtime-ubuntu${UBUNTU_RELEASE}
 ################################################################################
 
 # Arguments
-ENV ROS_DISTRO=foxy
+ENV ROS_DISTRO=humble
 ENV DEBIAN_FRONTEND=noninteractive
 ENV USER=ros
 
