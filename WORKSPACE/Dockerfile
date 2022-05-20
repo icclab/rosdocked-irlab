@@ -34,6 +34,7 @@ RUN apt install -y ros-${ROS_DISTRO}-gazebo-ros-pkgs \
     ros-${ROS_DISTRO}-geometry2 \
     ros-${ROS_DISTRO}-dynamixel-sdk \
     ros-${ROS_DISTRO}-turtlebot3-msgs \
+    ros-${ROS_DISTRO}-turtlebot3-simulations \
     ros-${ROS_DISTRO}-turtlebot3
 
 
