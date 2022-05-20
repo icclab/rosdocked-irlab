@@ -6,6 +6,7 @@
 ################################################################################
 
 # Base image
+# https://hub.docker.com/r/nvidia/cudagl
 #FROM ghcr.io/ehfd/nvidia-glx-desktop:latest
 ARG UBUNTU_RELEASE=20.04
 FROM nvcr.io/nvidia/cudagl:11.4.2-runtime-ubuntu${UBUNTU_RELEASE}
@@ -130,9 +131,10 @@ RUN dpkg --add-architecture i386 && \
 #     apt-get update && apt-get install google-chrome-stable
 
 # Install Mircosoft Edge
+# https://itsfoss.com/microsoft-edge-linux/
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg && \
     install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/ && \
-    sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge-dev.list' && \
+    sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-stable-dev.list' && \
     rm microsoft.gpg && \
     apt update && apt install microsoft-edge-stable
 
