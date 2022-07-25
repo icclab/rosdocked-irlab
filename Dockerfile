@@ -1,10 +1,11 @@
-FROM osrf/ros:foxy-desktop
+FROM osrf/ros:humble-desktop
 
 ENV user=ros
 ENV workspace=/home/ros
+ENV ROS_DISTRO=humble
 
 RUN apt -y update &&  apt -y upgrade && \ 
-apt-get install -y wget unzip ros-foxy-rviz2 ros-foxy-rqt-image-view libconsole-bridge-dev ros-foxy-gazebo-ros-pkgs ros-foxy-ros-core ros-foxy-geometry2  && \
+apt-get install -y wget unzip ros-${ROS_DISTRO}-rviz2 ros-${ROS_DISTRO}-rqt-image-view libconsole-bridge-dev ros-${ROS_DISTRO}-gazebo-ros-pkgs ros-${ROS_DISTRO}-ros-core ros-${ROS_DISTRO}-geometry2  && \
 rm -rf /var/lib/apt/lists/*
 
 # add ros user to container and make sudoer
@@ -22,6 +23,6 @@ USER "${user}"
 WORKDIR ${workspace}
 
 # edit bashrc
-RUN echo "source /opt/ros/foxy/setup.bash" >> ~/.bashrc
+RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc
 
 CMD ["sleep", "90d"]
