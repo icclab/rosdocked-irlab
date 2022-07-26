@@ -33,6 +33,6 @@ You can use that command multiple times to get multiple consoles.
 
 You may also want to start a container without novnc, but connecting to a *local running Xserver instance*. For this you can use the following command:
 
-    ./run_cpu.sh
+    ./run_cpu_xserver.sh
 
-Note that the xhost needs to be correctly set in order to make it work correctly. (xhost+ would do the trick)
+Note that the xhost needs to be correctly set in order to make it work correctly. (xhost +local:root would do the trick)

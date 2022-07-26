@@ -11,8 +11,8 @@ pipeline {
 		stage('Build on  CPU') {
 			steps {
 				sh "chmod +x -R ${env.WORKSPACE}"
-				echo 'Building BASE_CPU image...'
-				sh "cd ./BASE_CPU/  && ./build.sh"
+				//echo 'Building BASE_CPU image...'
+				//sh "cd ./BASE_CPU/  && ./build.sh"
 				echo 'Building BASE_CPU_with_workspace image...'
          			sh "cd ./WORKSPACE/  && ./build_cpu_with_workspace.sh"
 			}
@@ -25,8 +25,8 @@ pipeline {
 		stage('Build on GPU') {
 			steps {
 				sh "chmod +x -R ${env.WORKSPACE}"
-				echo 'Building BASE_GPU image...'
-				sh "cd ./BASE_GPU/  && ./build.sh"
+				//echo 'Building BASE_GPU image...'
+				//sh "cd ./BASE_GPU/  && ./build.sh"
 				echo 'Building BASE_GPU_with_workspace image...'
          			sh "cd ./WORKSPACE/  && ./build_gpu_with_workspace.sh"
 			}
@@ -39,8 +39,8 @@ pipeline {
 		stage('Build on K8s') {
 			steps {
 				sh "chmod +x -R ${env.WORKSPACE}"
-				echo 'Building BASE_K8S image...'
-				sh "cd ./BASE_K8S/  && ./build.sh"
+				//echo 'Building BASE_K8S image...'
+				//sh "cd ./BASE_K8S/  && ./build.sh"
 				echo 'Building BASE_K8S_with_workspace image...'
          			sh "cd ./WORKSPACE/  && ./build_k8s_with_workspace.sh"
 			}
@@ -110,12 +110,18 @@ pipeline {
 	 
 	stage('Push') {
 			steps {
-				sh 'docker push robopaas/rosdocked-noetic-base-cpu:latest'
-				sh 'docker push robopaas/rosdocked-noetic-base-gpu:latest'
-				sh 'docker push robopaas/rosdocked-noetic-base-k8s:latest'
-				sh 'docker push robopaas/rosdocked-noetic-cpu:latest'
-        			sh 'docker push robopaas/rosdocked-noetic-gpu:latest'
-        			sh 'docker push robopaas/rosdocked-noetic-k8s:latest'
+				//sh 'docker image tag robopaas/rosdocked-noetic-base-cpu robopaas/rosdocked-noetic-base-cpu:jenkins'
+				//sh 'docker image tag robopaas/rosdocked-noetic-base-gpu robopaas/rosdocked-noetic-base-gpu:jenkins'
+				//sh 'docker image tag robopaas/rosdocked-noetic-base-k8s robopaas/rosdocked-noetic-base-k8s:jenkins'
+				sh 'docker image tag robopaas/rosdocked-noetic-cpu robopaas/rosdocked-noetic-cpu:jenkins'
+				sh 'docker image tag robopaas/rosdocked-noetic-gpu robopaas/rosdocked-noetic-gpu:jenkins'
+				sh 'docker image tag robopaas/rosdocked-noetic-k8s robopaas/rosdocked-noetic-k8s:jenkins'
+				//sh 'docker push robopaas/rosdocked-noetic-base-cpu:jenkins'
+				//sh 'docker push robopaas/rosdocked-noetic-base-gpu:jenkins'
+				//sh 'docker push robopaas/rosdocked-noetic-base-k8s:jenkins'
+				sh 'docker push robopaas/rosdocked-noetic-cpu:jenkins'
+        			sh 'docker push robopaas/rosdocked-noetic-gpu:jenkins'
+        			sh 'docker push robopaas/rosdocked-noetic-k8s:jenkins'
 				}
      			 post {
       				  failure {

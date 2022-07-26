@@ -16,6 +16,7 @@ popd > /dev/null
 
 # Build the docker image
 docker build \
+  --no-cache \
   --build-arg uid=$UID\
   --build-arg home=/home/ros \
   --build-arg workspace=/home/ros \

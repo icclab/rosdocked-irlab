@@ -43,3 +43,17 @@ Base images are built running build.sh from each of the base image folders:
 
 You can use scripts in the WORKSPACE directory to add our catkin workspace to any of the base images.
 In WORKSPACE you'll also find scripts for running the images either as docker compositions or standalone.
+
+### NOTE on Building GPU/K8S images:
+
+Our GPU/K8S use nvidia GPUs, to build you need a nvidia GPU + configure the nvidia docker runtime to be run as default (i.e., also when calling nvidia-docker build). You should edit your /etc/docker/daemon.json to look like this:
+
+	{
+	    "default-runtime": "nvidia",	
+	    "runtimes": {
+		"nvidia": {
+		    "path": "nvidia-container-runtime",
+		    "runtimeArgs": []
+		}
+	    }
+	}

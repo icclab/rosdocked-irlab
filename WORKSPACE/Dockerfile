@@ -28,9 +28,12 @@ RUN cd /home/ && \
     chown -R $USER:$USER * && \
     cd ..
 
-# add rosbridge and patch autobahn (bug here: https://github.com/RobotWebTools/rosbridge_suite/issues/529)
-# install rosbridge server
-RUN apt-get update && apt-get install -yq ros-${ROS_DISTRO}-rosbridge-server \
+# patch autobahn (bug here: https://github.com/RobotWebTools/rosbridge_suite/issues/529)
+# we will install our own rosbridge server
+RUN rm /etc/apt/sources.list.d/cuda.list
+RUN rm /etc/apt/sources.list.d/nvidia-ml.list
+RUN apt-get update && apt-get install -yq \ 
+# ros-${ROS_DISTRO}-rosbridge-server \
     ros-${ROS_DISTRO}-tf2-msgs build-essential python3-pip && \
     pip3 install --upgrade autobahn
 
@@ -41,7 +44,9 @@ USER "${USER}"
 RUN sudo apt-get update && \
     sudo apt-get install -y python3-pip \
     ros-${ROS_DISTRO}-pcl-ros python3-catkin-tools \
-    python3-osrf-pycommon
+    python3-osrf-pycommon ros-noetic-dynamixel-sdk \ 
+    ros-noetic-turtlebot3-msgs ros-noetic-turtlebot3 \ 
+    ros-noetic-turtlebot3-simulations ros-noetic-dwa-local-planner
 
 # configure repos for niryo
 # RUN sudo pip3 install jsonpickle
@@ -51,15 +56,18 @@ RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros
 cd src && \
 git clone https://github.com/icclab/icclab_summit_xl.git -b noetic && \
 git clone https://github.com/icclab/icclab_grasping_niryo.git -b noetic && \
+git clone https://github.com/icclab/rosbridge_suite.git -b ros1 && \
 git clone --branch noetic https://github.com/JenniferBuehler/gazebo-pkgs.git && \
 git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
 #git clone https://github.com/icclab/icclab_turtlebot.git -b ${ROS_DISTRO} && \
 #If need two cameras for PCL add -b two_pcl_filtering below
 git clone https://github.com/icclab/irlab_point_cloud_filtering.git -b noetic && \
+# Required for plugin librealsense_gazebo_plugin.so
+git clone https://github.com/pal-robotics/realsense_gazebo_plugin && \
 #git clone https://github.com/icclab/laser_filters.git -b indigo-devel && \
 git clone --branch gazebo-simulator-noetic https://github.com/icclab/niryo_one_ros.git && \
 #git clone --branch 2.2.1 https://gitS-GIT/turtlebot3.git && \
-git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git && \
+#git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git && \
 git clone https://github.com/SteveMacenski/slam_toolbox.git -b noetic-devel && \
 git clone https://github.com/machinekoder/ar_track_alvar.git -b noetic-devel && \
 git clone -b 3.2.3 https://github.com/intel-ros/realsense.git && \
@@ -76,7 +84,7 @@ git clone https://github.com/rst-tu-dortmund/costmap_prohibition_layer.git && \
 git clone https://github.com/SteveMacenski/spatio_temporal_voxel_layer.git -b noetic-devel && \
 git clone https://github.com/iralabdisco/ira_laser_tools.git && \
 git clone https://github.com/MoriKen254/timed_roslaunch.git && \
-git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git && \
+#git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git && \
 mkdir summit_xl_sources && cd summit_xl_sources && \
 git clone https://github.com/RobotnikAutomation/rcomponent.git && \
 git clone https://github.com/RobotnikAutomation/robotnik_msgs.git && \
@@ -89,9 +97,8 @@ git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
 
 COPY /issues_solvers/pick_place_interface.py /opt/ros/noetic/lib/python3/dist-packages/moveit_python
 # Add modified TB3 urdf with 359 scans instead of 360 for the Rplidar to make slam-toolbox work in sim
-COPY /issues_solvers/turtlebot3_burger.gazebo.xacro  /home/"${user}"/catkin_ws/src/turtlebot3/turtlebot3_description/urdf
-COPY /issues_solvers/turtlebot3_waffle.gazebo.xacro   /home/"${user}"/catkin_ws/src/turtlebot3/turtlebot3_description/urdf
-
+COPY /issues_solvers/turtlebot3_burger.gazebo.xacro  /opt/ros/noetic/share/turtlebot3_description/urdf
+COPY /issues_solvers/turtlebot3_waffle.gazebo.xacro   /opt/ros/noetic/share/turtlebot3_description/urdf
 
 # edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
 RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc && \
@@ -120,7 +127,7 @@ rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths s
 
 # install ros-pcl AGAIN. No clue why it doesn't see it
 RUN sudo apt-get update && \
-    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-moveit-python wget vim
+    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-moveit-python wget vim ros-${ROS_DISTRO}-turtlebot3-bringup 
 
 
 # build workspace
@@ -130,3 +137,5 @@ RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && 
 RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
     git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro"
 
+# add demo script
+COPY demo.sh  /home/"${USER}"/

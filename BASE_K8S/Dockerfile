@@ -41,6 +41,9 @@ ENV ENABLE_BASIC_AUTH true
 
 ################################################################################
 
+# Update apt sources using mirror
+RUN sed -i -e 's/archive.ubuntu.com/mirror.cloudlab.zhaw.ch/g' /etc/apt/sources.list
+
 # Install locales to prevent errors
 RUN apt-get clean && \
     apt-get update && apt-get install --no-install-recommends -y locales && \
@@ -169,12 +172,13 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 #    apt install -y lsb-release gnupg sudo python3-pip 
 
 # set up ROS
-RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'&& \
-    apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+RUN bash -c 'apt install curl gnupg2 lsb-release && \
+echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list && \
+curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -'
 
 # install git and other needed libs including catkin build
 RUN apt update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git apt-utils ros-${ROS_DISTRO}-desktop-full \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git apt-utils ros-${ROS_DISTRO}-desktop \
     ros-${ROS_DISTRO}-pcl-ros python3-catkin-tools \
     python3-osrf-pycommon \
     curl wget vim less lsof net-tools git htop xterm terminator
@@ -207,12 +211,12 @@ RUN sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -
     rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths src 
 
 # install ros-pcl AGAIN. No clue why it doesn't keep it
-RUN sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-moveit-python wget vim 
+RUN sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-moveit wget vim 
 
 ################################################################################
 
 # build workspace
-RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build && source devel/setup.bash"
+#RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build && source devel/setup.bash"
 
 ################################################################################
 
@@ -221,6 +225,10 @@ COPY entrypoint.sh /etc/entrypoint.sh
 RUN chmod 755 /etc/entrypoint.sh
 COPY supervisord.conf /etc/supervisord.conf
 RUN chmod 755 /etc/supervisord.conf
+COPY install_nvidia_drivers.sh /opt/install_nvidia_drivers.sh
+RUN chmod 755 /opt/install_nvidia_drivers.sh
+RUN /opt/install_nvidia_drivers.sh
+
 
 EXPOSE 8080
 CMD ["/usr/bin/supervisord"]

@@ -12,7 +12,7 @@ set -e
 docker run\
   -h localhost\
   --net=host\
-  --device=/dev/dri \
+  --privileged \
   -e SHELL\
   -e DISPLAY\
   -e DOCKER=1\
