@@ -44,6 +44,11 @@ ENV ENABLE_BASIC_AUTH true
 # Update apt sources using mirror
 RUN sed -i -e 's/archive.ubuntu.com/mirror.cloudlab.zhaw.ch/g' /etc/apt/sources.list
 
+# Add custom packages below this comment
+RUN rm /etc/apt/sources.list.d/cuda.list
+RUN apt-key del 7fa2af80
+RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub
+
 # Install locales to prevent errors
 RUN apt-get clean && \
     apt-get update && apt-get install --no-install-recommends -y locales && \
@@ -149,8 +154,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     mv /opt/noVNC-${NOVNC_VERSION} /opt/noVNC && \
     ln -s /opt/noVNC/vnc.html /opt/noVNC/index.html && \
     git clone https://github.com/novnc/websockify /opt/noVNC/utils/websockify
-
-# Add custom packages below this comment
 
 # Create user with password ${PASSWD}
 RUN apt-get update && apt-get install --no-install-recommends -y \
