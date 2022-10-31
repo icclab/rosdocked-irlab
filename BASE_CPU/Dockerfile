@@ -32,7 +32,7 @@ USER "${USER}"
 
 # install git
 RUN sudo apt-get update && \
-    sudo apt-get install -y apt-utils git
+    sudo apt-get install -y wget apt-utils git
 
 ################################################################################
 
