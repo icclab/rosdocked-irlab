@@ -113,7 +113,9 @@ RUN sed -i 's/<sensor_orbbec_astra_gazebo/<xacro:sensor_orbbec_astra_gazebo/g' /
 #should solve the gpd_ros problem not finding opencv2
 COPY /issues_solvers/CMakeLists.txt  /home/"${USER}"/catkin_ws/src/gpd_ros
 
-RUN sudo pip3 install pyOpenSSL --upgrade
+#RUN sudo pip3 install pyOpenSSL --upgrade
+RUN wget https://files.pythonhosted.org/packages/00/3f/ea5cfb789dddb327e6d2cf9377c36d9d8607af85530af0e7001165587ae7/pyOpenSSL-22.1.0-py3-none-any.whl
+RUN sudo python3 -m easy_install pyOpenSSL-22.1.0-py3-none-any.whl
 RUN sudo pip3 install jsonpickle pyquaternion
 
 # add gazebo models to decrease initial gazebo bringup time
