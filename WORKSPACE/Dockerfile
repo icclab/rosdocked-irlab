@@ -6,7 +6,7 @@
 ################################################################################
 
 # Default value
-# ARG BASE_IMAGE=robopaas/rosdocked-noetic-baseeee-cpu:latest
+# ARG BASE_IMAGE=robopaas/rosdocked-noetic-base-cpu:latest
 ARG BASE_IMAGE
 FROM $BASE_IMAGE 
 
@@ -44,9 +44,10 @@ USER "${USER}"
 RUN sudo apt-get update && \
     sudo apt-get install -y python3-pip \
     ros-${ROS_DISTRO}-pcl-ros python3-catkin-tools \
-    python3-osrf-pycommon ros-noetic-dynamixel-sdk \ 
-    ros-noetic-turtlebot3-msgs ros-noetic-turtlebot3 \ 
-    ros-noetic-turtlebot3-simulations ros-noetic-dwa-local-planner
+    python3-osrf-pycommon ros-${ROS_DISTRO}-dynamixel-sdk \ 
+    ros-${ROS_DISTRO}-turtlebot3-msgs ros-${ROS_DISTRO}-turtlebot3 \ 
+    ros-${ROS_DISTRO}-turtlebot3-simulations ros-${ROS_DISTRO}-dwa-local-planner \
+    ros-${ROS_DISTRO}-image-transport-plugins
 
 # configure repos for niryo
 # RUN sudo pip3 install jsonpickle
