@@ -94,7 +94,8 @@ git clone https://github.com/RobotnikAutomation/robotnik_sensors.git -b kinetic-
 git clone https://github.com/RobotnikAutomation/ros-system-monitor && \
 git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b melodic-master && \
-git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
+# git clone https://github.com/RobotnikAutomation/ur_modern_driver.git # deprecated in favor of UniversalRobots/Universal_Robots_ROS_Driver.git
+git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git
 
 
 COPY /issues_solvers/pick_place_interface.py /opt/ros/noetic/lib/python3/dist-packages/moveit_python

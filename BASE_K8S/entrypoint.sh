@@ -81,7 +81,7 @@ sudo x11vnc -display "${DISPLAY}" -passwd "${BASIC_AUTH_PASSWORD:-$PASSWD}" -sha
 /opt/noVNC/utils/novnc_proxy --vnc localhost:5900 --listen 8080 --heartbeat 10 &
 
 # Add custom processes below this section or within `supervisord.conf`
-mate-session &
+xfce4-session &
 
 echo "Session Running. Press [Return] to exit."
 read

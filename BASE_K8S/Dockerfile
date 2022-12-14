@@ -8,7 +8,8 @@
 # Base image
 #FROM ghcr.io/ehfd/nvidia-glx-desktop:latest
 ARG UBUNTU_RELEASE=20.04
-FROM nvcr.io/nvidia/cudagl:11.0.3-runtime-ubuntu${UBUNTU_RELEASE}
+#FROM nvcr.io/nvidia/cudagl:11.0.3-runtime-ubuntu${UBUNTU_RELEASE}
+FROM robopaas/cudagl:11.8.0-devel-ubuntu${UBUNTU_RELEASE}
 
 ################################################################################
 
@@ -42,7 +43,7 @@ ENV ENABLE_BASIC_AUTH true
 ################################################################################
 
 # Update apt sources using mirror
-RUN sed -i -e 's/archive.ubuntu.com/mirror.cloudlab.zhaw.ch/g' /etc/apt/sources.list
+# RUN sed -i -e 's/archive.ubuntu.com/mirror.cloudlab.zhaw.ch/g' /etc/apt/sources.list
 
 # Add custom packages below this comment
 RUN rm /etc/apt/sources.list.d/cuda.list
@@ -113,8 +114,7 @@ RUN dpkg --add-architecture i386 && \
         xkb-data \
         libxrandr-dev \
         xorg-dev && \
-    apt-get install -y ubuntu-mate-desktop && \
-    if [ "${UBUNTU_RELEASE}" = "18.04" ]; then apt-get install --no-install-recommends -y vulkan-utils; else apt-get install --no-install-recommends -y vulkan-tools; fi && \
+    apt-get install -y  xfce4 vulkan-tools && \
     # Remove Bluetooth packages that throw errors
     apt-get autoremove --purge -y \
         blueman \
@@ -161,7 +161,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     rm -rf /var/lib/apt/lists/* && \
     groupadd -g 1000 ${USER} && \
     useradd -ms /bin/bash ${USER} -u 1000 -g 1000 && \
-    usermod -a -G adm,audio,cdrom,dialout,dip,fax,floppy,input,lp,lpadmin,netdev,plugdev,scanner,ssh,sudo,tape,tty,video,voice ${USER} && \
+    usermod -a -G adm,audio,cdrom,dialout,dip,fax,floppy,input,lp,lpadmin,netdev,plugdev,scanner,sudo,tape,tty,video,voice ${USER} && \
     echo "${USER} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     chown ${USER}:${USER} /home/${USER} && \
     echo "${USER}:${PASSWD}" | chpasswd && \
