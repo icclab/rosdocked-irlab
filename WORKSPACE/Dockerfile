@@ -80,7 +80,7 @@ git clone https://github.com/Danfoa/robotiq_2finger_grippers.git && \
 git clone https://github.com/tu-darmstadt-ros-pkg/hector_gazebo.git -b kinetic-devel && \
 git clone https://github.com/tu-darmstadt-ros-pkg/hector_models.git -b kinetic-devel && \
 git clone -b noetic-devel https://github.com/ros-planning/moveit_visual_tools.git && \
-git clone https://github.com/ros-industrial/universal_robot.git && \
+git clone -b 1.2.7 https://github.com/ros-industrial/universal_robot.git && \
 git clone https://github.com/ros-perception/depthimage_to_laserscan.git && \
 git clone https://github.com/rst-tu-dortmund/costmap_prohibition_layer.git && \
 git clone https://github.com/SteveMacenski/spatio_temporal_voxel_layer.git -b noetic-devel && \
@@ -94,8 +94,8 @@ git clone https://github.com/RobotnikAutomation/robotnik_sensors.git -b kinetic-
 git clone https://github.com/RobotnikAutomation/ros-system-monitor && \
 git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b kinetic-multirobot-devel && \
 git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b melodic-master && \
-# git clone https://github.com/RobotnikAutomation/ur_modern_driver.git # deprecated in favor of UniversalRobots/Universal_Robots_ROS_Driver.git
-git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git
+git clone https://github.com/RobotnikAutomation/ur_modern_driver.git # deprecated in favor of UniversalRobots/Universal_Robots_ROS_Driver.git 
+# git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git
 
 
 COPY /issues_solvers/pick_place_interface.py /opt/ros/noetic/lib/python3/dist-packages/moveit_python
