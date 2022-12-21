@@ -8,7 +8,7 @@
 # Date:         2021-11-08
 ################################################################################
 
-export IMAGE_NAME=robopaas/rosdocked-noetic-k8s:latest
+export IMAGE_NAME=robopaas/rosdocked-noetic-k8s:11.8.0-devel-ubuntu20.04
 
 # Build the docker image
 docker build \
