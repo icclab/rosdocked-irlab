@@ -7,7 +7,7 @@
 # Date:         2021-11-08
 ################################################################################
 export ROS_DISTRO=noetic
-export IMAGE_NAME=robopaas/rosdocked-${ROS_DISTRO}-base-k8s:latest
+export IMAGE_NAME=robopaas/rosdocked-${ROS_DISTRO}-base-k8s:11.8.0-devel-ubuntu20.04
 
 # Get this script's path
 pushd `dirname $0` > /dev/null
