@@ -112,9 +112,8 @@ RUN dpkg --add-architecture i386 && \
         xfonts-base \
         xkb-data \
         libxrandr-dev \
-        xorg-dev && \
-    apt-get install -y ubuntu-mate-desktop && \
-    if [ "${UBUNTU_RELEASE}" = "18.04" ]; then apt-get install --no-install-recommends -y vulkan-utils; else apt-get install --no-install-recommends -y vulkan-tools; fi && \
+        xorg-dev \
+        iproute2 && \
     # Remove Bluetooth packages that throw errors
     apt-get autoremove --purge -y \
         blueman \
