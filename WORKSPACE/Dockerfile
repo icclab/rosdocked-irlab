@@ -28,26 +28,17 @@ RUN cd /home/ && \
     chown -R $USER:$USER * && \
     cd ..
 
-# patch autobahn (bug here: https://github.com/RobotWebTools/rosbridge_suite/issues/529)
-# we will install our own rosbridge server
-# RUN rm /etc/apt/sources.list.d/cuda.list
-# RUN rm /etc/apt/sources.list.d/nvidia-ml.list
-RUN apt-get update && apt-get install -yq \ 
-# ros-${ROS_DISTRO}-rosbridge-server \
-    ros-${ROS_DISTRO}-tf2-msgs build-essential python3-pip && \
-    pip3 install --upgrade autobahn
-
 # Switch to user
 USER "${USER}"
 
 # install git and other needed libs including catkin build
 RUN sudo apt-get update && \
-    sudo apt-get install -y python3-pip \
+    sudo apt-get install -y python3-pip ros-${ROS_DISTRO}-tf2-msgs build-essential \
     ros-${ROS_DISTRO}-pcl-ros python3-catkin-tools \
     python3-osrf-pycommon ros-${ROS_DISTRO}-dynamixel-sdk \ 
     ros-${ROS_DISTRO}-turtlebot3-msgs ros-${ROS_DISTRO}-turtlebot3 \ 
     ros-${ROS_DISTRO}-turtlebot3-simulations ros-${ROS_DISTRO}-dwa-local-planner \
-    ros-${ROS_DISTRO}-image-transport-plugins
+    ros-${ROS_DISTRO}-image-transport-plugins ros-${ROS_DISTRO}-universal-robots
 
 # configure repos for niryo
 # RUN sudo pip3 install jsonpickle
@@ -57,44 +48,39 @@ RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros
 cd src && \
 git clone https://github.com/icclab/icclab_summit_xl.git -b noetic && \
 git clone https://github.com/icclab/icclab_grasping_niryo.git -b noetic && \
-git clone https://github.com/icclab/rosbridge_suite.git -b ros1 && \
 git clone --branch noetic https://github.com/JenniferBuehler/gazebo-pkgs.git && \
 git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
 #git clone https://github.com/icclab/icclab_turtlebot.git -b ${ROS_DISTRO} && \
 #If need two cameras for PCL add -b two_pcl_filtering below
 git clone https://github.com/icclab/irlab_point_cloud_filtering.git -b noetic && \
-# Required for plugin librealsense_gazebo_plugin.so
-git clone https://github.com/pal-robotics/realsense_gazebo_plugin && \
+# Required for plugin librealsense_gazebo_plugin.so. Removed because pointclouds are misaligned with plugin
+# git clone https://github.com/pal-robotics/realsense_gazebo_plugin && \
 #git clone https://github.com/icclab/laser_filters.git -b indigo-devel && \
 git clone --branch gazebo-simulator-noetic https://github.com/icclab/niryo_one_ros.git && \
-#git clone --branch 2.2.1 https://gitS-GIT/turtlebot3.git && \
-#git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git && \
 git clone https://github.com/SteveMacenski/slam_toolbox.git -b noetic-devel && \
 git clone https://github.com/machinekoder/ar_track_alvar.git -b noetic-devel && \
-#git clone -b development https://github.com/intel-ros/realsense.git && \
-git clone -b 3.2.3 https://github.com/intel-ros/realsense.git && \
+git clone -b ros1-legacy https://github.com/intel-ros/realsense.git && \
 git clone https://github.com/icclab/gpd_ros && \
 git clone https://github.com/roboticsgroup/roboticsgroup_gazebo_plugins && \
-git clone https://github.com/scanse/sweep-sdk.git && \
 git clone https://github.com/Danfoa/robotiq_2finger_grippers.git && \
 git clone https://github.com/tu-darmstadt-ros-pkg/hector_gazebo.git -b kinetic-devel && \
 git clone https://github.com/tu-darmstadt-ros-pkg/hector_models.git -b kinetic-devel && \
 git clone -b noetic-devel https://github.com/ros-planning/moveit_visual_tools.git && \
-git clone https://github.com/ros-industrial/universal_robot.git && \
 git clone https://github.com/ros-perception/depthimage_to_laserscan.git && \
 git clone https://github.com/rst-tu-dortmund/costmap_prohibition_layer.git && \
 git clone https://github.com/SteveMacenski/spatio_temporal_voxel_layer.git -b noetic-devel && \
 git clone https://github.com/iralabdisco/ira_laser_tools.git && \
 git clone https://github.com/MoriKen254/timed_roslaunch.git && \
-#git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git && \
 mkdir summit_xl_sources && cd summit_xl_sources && \
 git clone https://github.com/RobotnikAutomation/rcomponent.git && \
 git clone https://github.com/RobotnikAutomation/robotnik_msgs.git && \
 git clone https://github.com/RobotnikAutomation/robotnik_sensors.git -b kinetic-devel && \
 git clone https://github.com/RobotnikAutomation/ros-system-monitor && \
 git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b kinetic-multirobot-devel && \
-git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b melodic-master && \
-git clone https://github.com/RobotnikAutomation/ur_modern_driver.git
+git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b melodic-master 
+# One of the two packages is needed only on robot controlling UR5 arm
+# git clone https://github.com/RobotnikAutomation/ur_modern_driver.git # deprecated in favor of UniversalRobots/Universal_Robots_ROS_Driver.git 
+# git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git
 
 
 COPY /issues_solvers/pick_place_interface.py /opt/ros/noetic/lib/python3/dist-packages/moveit_python
