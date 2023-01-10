@@ -22,20 +22,6 @@ pipeline {
        				}
       	   		}
 		}
-		stage('Build on GPU') {
-			steps {
-				sh "chmod +x -R ${env.WORKSPACE}"
-				//echo 'Building BASE_GPU image...'
-				//sh "cd ./BASE_GPU/  && ./build.sh"
-				echo 'Building BASE_GPU_with_workspace image...'
-         			sh "cd ./WORKSPACE/  && ./build_gpu_with_workspace.sh"
-			}
-			post {        
-				failure {
-          				echo "Build GPU failed"
-       				}
-      	   		}
-		}
 		stage('Build on K8s') {
 			steps {
 				sh "chmod +x -R ${env.WORKSPACE}"
@@ -68,19 +54,6 @@ pipeline {
        				}
       	   		}
 		} 
-		stage('Testing on GPU') {
-			steps {
-				echo 'Testing grasping stack... '
-	 			sh "cd ./test/ && ./run_grasp_test_bash_gpu.sh"
-				//echo 'Testing navigation stack... '
-	 			//sh "cd ./test/ && ./run_nav_test_bash_gpu.sh"
-			}
-			post {        
-				failure {
-          				echo "Testing on GPU failed"
-       				}
-      	   		}
-		}
 		stage('Testing on K8S') {
 			steps {
 				echo 'Testing grasping stack... '
@@ -111,16 +84,12 @@ pipeline {
 	stage('Push') {
 			steps {
 				//sh 'docker image tag robopaas/rosdocked-noetic-base-cpu robopaas/rosdocked-noetic-base-cpu:jenkins'
-				//sh 'docker image tag robopaas/rosdocked-noetic-base-gpu robopaas/rosdocked-noetic-base-gpu:jenkins'
 				//sh 'docker image tag robopaas/rosdocked-noetic-base-k8s robopaas/rosdocked-noetic-base-k8s:jenkins'
 				sh 'docker image tag robopaas/rosdocked-noetic-cpu robopaas/rosdocked-noetic-cpu:jenkins'
-				sh 'docker image tag robopaas/rosdocked-noetic-gpu robopaas/rosdocked-noetic-gpu:jenkins'
 				sh 'docker image tag robopaas/rosdocked-noetic-k8s robopaas/rosdocked-noetic-k8s:jenkins'
 				//sh 'docker push robopaas/rosdocked-noetic-base-cpu:jenkins'
-				//sh 'docker push robopaas/rosdocked-noetic-base-gpu:jenkins'
 				//sh 'docker push robopaas/rosdocked-noetic-base-k8s:jenkins'
 				sh 'docker push robopaas/rosdocked-noetic-cpu:jenkins'
-        			sh 'docker push robopaas/rosdocked-noetic-gpu:jenkins'
         			sh 'docker push robopaas/rosdocked-noetic-k8s:jenkins'
 				}
      			 post {
