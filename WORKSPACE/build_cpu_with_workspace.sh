@@ -8,12 +8,11 @@
 # Date:         2021-11-08
 ################################################################################
 
-export IMAGE_NAME=robopaas/rosdocked-noetic-cpu:latest
+export IMAGE_NAME=robopaas/rosdocked-humble-cpu:latest
 
 # Build the docker image
 docker build \
-  --no-cache \
-  --build-arg BASE_IMAGE=robopaas/rosdocked-noetic-base-cpu:latest \
+  --build-arg BASE_IMAGE=robopaas/rosdocked-humble-base-cpu:latest \
   --build-arg USER=ros \
   --build-arg home=/home/ros \
   --build-arg workspace=/home/ros \

@@ -6,7 +6,7 @@
 # Authors:      Leonardo Militano, Mark Straub, Giovanni Toffetti
 # Date:         2021-11-08
 ################################################################################
-export ROS_DISTRO=noetic
+export ROS_DISTRO=humble
 export IMAGE_NAME=robopaas/rosdocked-${ROS_DISTRO}-base-k8s:latest
 
 # Get this script's path

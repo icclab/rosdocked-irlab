@@ -7,14 +7,14 @@
 
 # Base image
 #FROM ghcr.io/ehfd/nvidia-glx-desktop:latest
-ARG UBUNTU_RELEASE=20.04
+ARG UBUNTU_RELEASE=22.04
 #FROM nvcr.io/nvidia/cudagl:11.0.3-runtime-ubuntu${UBUNTU_RELEASE}
 FROM robopaas/cudagl:11.8.0-devel-ubuntu${UBUNTU_RELEASE}
 
 ################################################################################
 
 # Arguments
-ENV ROS_DISTRO=noetic
+ENV ROS_DISTRO=humble
 ENV DEBIAN_FRONTEND=noninteractive
 ENV USER=ros
 
@@ -46,9 +46,9 @@ ENV ENABLE_BASIC_AUTH true
 # RUN sed -i -e 's/archive.ubuntu.com/mirror.cloudlab.zhaw.ch/g' /etc/apt/sources.list
 
 # Add custom packages below this comment
-RUN rm /etc/apt/sources.list.d/cuda.list
-RUN apt-key del 7fa2af80
-RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub
+#RUN rm /etc/apt/sources.list.d/cuda.list
+#RUN apt-key del 7fa2af80
+#RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub
 
 # Install locales to prevent errors
 RUN apt-get clean && \
@@ -79,8 +79,8 @@ RUN dpkg --add-architecture i386 && \
         git \
         jq \
         make \
-        python \
-        python-numpy \
+#        python \
+#        python-numpy \
         python3 \
         python3-numpy \
         mlocate \
@@ -115,7 +115,7 @@ RUN dpkg --add-architecture i386 && \
         libxrandr-dev \
         xorg-dev \
         iproute2 && \
-    apt-get install -y  xfce4 vulkan-tools && \
+    apt-get install -y  xfce4 xfce4-goodies vulkan-tools && \
     # Remove Bluetooth packages that throw errors
     apt-get autoremove --purge -y \
         blueman \
@@ -130,10 +130,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
         chrpath \
         debhelper \
         jq \
-        python \
-        python-numpy \
-        python3 \
-        python3-numpy \
+#        python \
+#        python-numpy \
+#        python3 \
+#        python3-numpy \
         libc6-dev \
         libcairo2-dev \
         libjpeg-turbo8-dev \
@@ -162,7 +162,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     rm -rf /var/lib/apt/lists/* && \
     groupadd -g 1000 ${USER} && \
     useradd -ms /bin/bash ${USER} -u 1000 -g 1000 && \
-    usermod -a -G adm,audio,cdrom,dialout,dip,fax,floppy,input,lp,lpadmin,netdev,plugdev,scanner,sudo,tape,tty,video,voice ${USER} && \
+    usermod -a -G adm,audio,cdrom,dialout,dip,fax,floppy,input,lp,netdev,plugdev,scanner,sudo,tape,tty,video,voice ${USER} && \
     echo "${USER} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     chown ${USER}:${USER} /home/${USER} && \
     echo "${USER}:${PASSWD}" | chpasswd && \
@@ -176,16 +176,18 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 #    apt install -y lsb-release gnupg sudo python3-pip 
 
 # set up ROS
-RUN bash -c 'apt install curl gnupg2 lsb-release && \
-echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list && \
-curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -'
+RUN bash -c 'apt install curl gnupg2 lsb-release software-properties-common gnupg && \
+echo "sudo add-apt-repository universe" &&\
+echo "sudo apt update" &&\
+curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg &&\
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(source /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null'
 
 # install git and other needed libs including catkin build
 RUN apt update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git apt-utils ros-${ROS_DISTRO}-desktop \
-    ros-${ROS_DISTRO}-pcl-ros python3-catkin-tools \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git apt-utils ros-${ROS_DISTRO}-desktop-full \
+    ros-${ROS_DISTRO}-pcl-ros \
     python3-osrf-pycommon \
-    curl wget vim less lsof net-tools git htop xterm terminator
+    curl wget vim less lsof net-tools git htop xterm terminator novnc python3-websockify
 
 # Install gpd
 USER $USER
@@ -204,25 +206,26 @@ USER ${USER}
 WORKDIR /home/${USER}
 
 # create catkin ws and clone projects
-RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" && cd / 
-
-RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+#RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" && cd / 
+#RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
 # update dependencies
 RUN sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y python3-rosdep \ 
-    ros-${ROS_DISTRO}-pcl-ros build-essential g++ python && \
-    cd ~/catkin_ws && sudo rosdep init && \
-    rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths src 
+    ros-${ROS_DISTRO}-pcl-ros build-essential g++ 
+#&& \
+    #cd ~/catkin_ws && sudo rosdep init && \
+   # rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths src 
 
 # install ros-pcl AGAIN. No clue why it doesn't keep it
-RUN sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-moveit wget vim 
-
+RUN sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-moveit wget vim  
+RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash"
 ################################################################################
 
 # build workspace
 #RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build && source devel/setup.bash"
 
 ################################################################################
+
 
 USER root
 COPY entrypoint.sh /etc/entrypoint.sh

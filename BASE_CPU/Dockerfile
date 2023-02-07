@@ -6,12 +6,12 @@
 ################################################################################
 
 # Base image
-FROM osrf/ros:noetic-desktop-full
+FROM osrf/ros:humble-desktop-full
 
 ################################################################################
 
 # Arguments
-ENV ROS_DISTRO=noetic
+ENV ROS_DISTRO=humble
 ARG USER=ros
 ARG uid
 ARG home
