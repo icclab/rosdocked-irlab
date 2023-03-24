@@ -126,11 +126,14 @@ RUN sudo pip3 install jsonpickle pyquaternion
 
 # install ros-pcl AGAIN. No clue why it doesn't see it
 RUN sudo apt-get update && \
-    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros wget vim ros-${ROS_DISTRO}-turtlebot3-bringup 
+    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros wget vim ros-${ROS_DISTRO}-turtlebot3-bringup ros-${ROS_DISTRO}-rmw-cyclonedds-cpp 
 #ros-${ROS_DISTRO}-moveit-python  doesn't work
 
 # build workspace
 #RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build && source devel/setup.bash"
+COPY env.sh /home/"${USER}"/env.sh
+COPY cyclonedds.xml  /home/"${USER}"/cyclonedds.xml
+RUN echo "if [ -f "env.sh" ]; then source env.sh; fi" >> ~/.bashrc
 
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash"
 # patch summit_xl old files and add unmerged PRs
@@ -139,3 +142,4 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash"
 
 # add demo script
 #COPY demo.sh  /home/"${USER}"/
+
