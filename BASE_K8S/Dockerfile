@@ -224,6 +224,21 @@ RUN sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DIST
 
 ################################################################################
 
+#################
+# add YOLO from Tharaka
+
+# install yolo and supporting repositories
+RUN sudo apt install -y python3-pip && cd ~/catkin_ws/src && \ 
+    git clone https://github.com/mats-robotics/detection_msgs.git && \ 
+    git clone https://github.com/tharaka27/ypc_ros.git && \ 
+    cd ypc_ros/src/yolov5 && pip3 install -r requirements.txt 
+RUN cd ~/catkin_ws/ && catkin config --extend /opt/ros/${ROS_DISTRO} && \ 
+    /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" && \ 
+    cd ~/catkin_ws/ && catkin build ypc_ros 
+RUN cd ~/catkin_ws/src/ypc_ros/src && chmod +x detect.py && chmod +x cluster.py && chmod +x camera_info.py
+
+#################
+
 USER root
 COPY entrypoint.sh /etc/entrypoint.sh
 RUN chmod 755 /etc/entrypoint.sh
