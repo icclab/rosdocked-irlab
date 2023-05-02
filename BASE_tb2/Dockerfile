@@ -43,9 +43,9 @@ RUN /bin/bash -c 'echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc &
 
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
     cd colcon_ws/src && \
-    git clone https://github.com/igrak34/TurtleBot2-on-ROS2.git && \
+    git clone https://github.com/icclab/TurtleBot2-on-ROS2.git && \
     git clone https://github.com/kobuki-base/kobuki_core.git && \
-    git clone https://github.com/CNURobotics/kobuki_ros.git -b humble-test && \
+    git clone https://github.com/icclab/kobuki_ros.git -b humble-test && \
     git clone https://github.com/kobuki-base/kobuki_ros_interfaces.git && \
     git clone https://github.com/CNURobotics/ecl_lite.git -b humble-test && \
     git clone https://github.com/CNURobotics/ecl_core.git -b humble-test && \
@@ -53,11 +53,12 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
     git clone https://github.com/kobuki-base/cmd_vel_mux.git && \
     git clone https://github.com/stonier/sophus.git -b release/1.2.x && \
     git clone https://github.com/Juancams/ros_astra_camera -b ros2 && \
+    git clone https://github.com/icclab/sllidar_ros2.git && \
     rm -rf TurtleBot2-on-ROS2/turtlebot2_commander && \
     cd .. && \
     rosdep install -ry --from-path src --ignore-src"
 
-RUN sudo apt install -y libudev-dev libjpeg-dev && \
+RUN sudo apt install -y libudev-dev libjpeg-dev vim && \
     wget https://github.com/libusb/libusb/releases/download/v1.0.26/libusb-1.0.26.tar.bz2 && \
     tar xf libusb-1.0.26.tar.bz2 && \
     /bin/bash -c "cd libusb-1.0.26 && ./configure && make && sudo make install" && \
@@ -69,7 +70,7 @@ RUN sudo apt install -y libudev-dev libjpeg-dev && \
     rm -rf libuvc*
 
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
-    cd colcon_ws &&  colcon build"
+    cd colcon_ws &&  colcon build --symlink-install"
 
 RUN /bin/bash -c 'echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/" >> ~/.bashrc && \
     echo "source ~/colcon_ws/install/setup.bash" >> ~/.bashrc'
