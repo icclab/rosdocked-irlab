@@ -21,7 +21,7 @@ ARG shell
 ################################################################################
 # install sudo and git
 RUN apt-get update && \
-    apt-get install -y sudo wget apt-utils git iproute2 python3-colcon-bash python3-rosdep2 python3-colcon-common-extensions
+    apt-get install -y sudo wget apt-utils git iproute2 python3-colcon-bash python3-rosdep2 python3-colcon-common-extensions ros-${ROS_DISTRO}-cyclonedds ros-${ROS_DISTRO}-rmw-cyclonedds-cpp ros-${ROS_DISTRO}-compressed-image-transport ros-${ROS_DISTRO}-compressed-depth-image-transport
 
 # add ros user to container and make sudoer
 RUN useradd -m -s /bin/bash -G video,plugdev ${USER} && \
@@ -72,8 +72,12 @@ RUN sudo apt install -y libudev-dev libjpeg-dev vim && \
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
     cd colcon_ws &&  colcon build --symlink-install"
 
+ADD cyclone-env.sh /home/ros
+#RUN sudo apt update && sudo apt install -y ros-humble-cyclonedds ros-humble-rmw-cyclonedds-cpp
 RUN /bin/bash -c 'echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/" >> ~/.bashrc && \
-    echo "source ~/colcon_ws/install/setup.bash" >> ~/.bashrc'
+    echo "source ~/colcon_ws/install/setup.bash" >> ~/.bashrc && \
+    echo "source ~/cyclone-env.sh" >> ~/.bashrc' && \
+    sudo chown ros:ros /home/ros/cyclone-env.sh
 
 ################################################################################
 
