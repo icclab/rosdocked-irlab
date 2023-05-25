@@ -133,7 +133,7 @@ RUN sudo apt-get update && \
 #RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build && source devel/setup.bash"
 COPY env.sh /home/"${USER}"/env.sh
 COPY cyclonedds.xml  /home/"${USER}"/cyclonedds.xml
-RUN echo "if [ -f "env.sh" ]; then source env.sh; fi" >> ~/.bashrc
+RUN echo "if [ -f "~/env.sh" ]; then source ~/env.sh; fi" >> ~/.bashrc
 
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash"
 # patch summit_xl old files and add unmerged PRs
