@@ -21,7 +21,7 @@ ARG shell
 ################################################################################
 # install sudo and git
 RUN apt-get update && \
-    apt-get install -y sudo wget apt-utils git iproute2 python3-colcon-bash python3-rosdep2 python3-colcon-common-extensions ros-${ROS_DISTRO}-cyclonedds ros-${ROS_DISTRO}-rmw-cyclonedds-cpp ros-${ROS_DISTRO}-compressed-image-transport ros-${ROS_DISTRO}-compressed-depth-image-transport
+    apt-get install -y sudo wget apt-utils git iproute2 python3-colcon-bash python3-rosdep2 python3-colcon-common-extensions ros-${ROS_DISTRO}-cyclonedds ros-${ROS_DISTRO}-rmw-cyclonedds-cpp ros-${ROS_DISTRO}-compressed-image-transport ros-${ROS_DISTRO}-compressed-depth-image-transport libudev-dev libjpeg-dev vim
 
 # add ros user to container and make sudoer
 RUN useradd -m -s /bin/bash -G video,plugdev ${USER} && \
@@ -35,12 +35,23 @@ WORKDIR ${workspace}
 USER "${USER}"
 RUN mkdir -p colcon_ws/src && rosdep update
 
+RUN wget https://github.com/libusb/libusb/releases/download/v1.0.26/libusb-1.0.26.tar.bz2 && \
+    tar xf libusb-1.0.26.tar.bz2 && \
+    /bin/bash -c "cd libusb-1.0.26 && ./configure && make && sudo make install" && \
+    rm -rf libusb* && \
+    git clone https://github.com/libuvc/libuvc.git && \
+    /bin/bash -c "cd libuvc && mkdir build && cd build && \
+    cmake -DCMAKE_BUILD_TYPE=Release .. && \
+    make && sudo make install" && \
+    rm -rf libuvc*
+
 # Add environment and colcon utilities to .bashrc
 RUN /bin/bash -c 'echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc && \
     echo "source /usr/share/colcon_cd/function/colcon_cd.sh" >> ~/.bashrc && \
     echo "export _colcon_cd_root=/opt/ros/${ROS_DISTRO}/" >> ~/.bashrc && \
     echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> ~/.bashrc'
 
+# Prepare workspace
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
     cd colcon_ws/src && \
     git clone https://github.com/icclab/TurtleBot2-on-ROS2.git && \
@@ -54,21 +65,12 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
     git clone https://github.com/stonier/sophus.git -b release/1.2.x && \
     git clone https://github.com/Juancams/ros_astra_camera -b ros2 && \
     git clone https://github.com/icclab/sllidar_ros2.git && \
+    git clone https://github.com/icclab/hls_lfcd_lds_driver.git -b humble-devel && \
     rm -rf TurtleBot2-on-ROS2/turtlebot2_commander && \
     cd .. && \
     rosdep install -ry --from-path src --ignore-src"
 
-RUN sudo apt install -y libudev-dev libjpeg-dev vim && \
-    wget https://github.com/libusb/libusb/releases/download/v1.0.26/libusb-1.0.26.tar.bz2 && \
-    tar xf libusb-1.0.26.tar.bz2 && \
-    /bin/bash -c "cd libusb-1.0.26 && ./configure && make && sudo make install" && \
-    rm -rf libusb* && \
-    git clone https://github.com/libuvc/libuvc.git && \
-    /bin/bash -c "cd libuvc && mkdir build && cd build && \
-    cmake -DCMAKE_BUILD_TYPE=Release .. && \
-    make && sudo make install" && \
-    rm -rf libuvc*
-
+# Build
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
     cd colcon_ws &&  colcon build --symlink-install"
 
