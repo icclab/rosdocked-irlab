@@ -43,17 +43,23 @@ RUN sudo apt-get update && \
 # configure repos for niryo
 # RUN sudo pip3 install jsonpickle
 
-RUN mkdir -p ~/turtlebot3_ws/src && cd ~/turtlebot3_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" && \
-cd src && \
-git clone -b humble-devel https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
+#RUN mkdir -p ~/colcon_ws/src && cd ~/turtlebot3_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" && \
+#cd src && \
+#git clone -b humble-devel https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
 
 #RUN cd ~/turtlebot3_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" 
-RUN /bin/bash -c "source /opt/ros/humble/setup.bash; colcon build --symlink-install"
+#RUN /bin/bash -c "source /opt/ros/humble/setup.bash; mkdir -p ~/colcon_ws/src; cd colcon_ws; colcon build --symlink-install"
 
 # create catkin ws and clone projects
-#RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash"
-#cd src && \
-#git clone https://github.com/icclab/icclab_summit_xl.git -b noetic && \
+RUN mkdir -p ~/colcon_ws/src && cd ~/colcon_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
+cd src && \
+git clone https://github.com/icclab/TurtleBot2-on-ROS2.git && \
+git clone -b humble https://github.com/icclab/summit_xl_sim && \
+git clone -b humble https://github.com/RobotnikAutomation/robotnik_common.git && \
+git clone -b humble https://github.com/icclab/summit_xl_common && \
+git clone -b humble-devel https://github.com/RobotnikAutomation/robotnik_sensors.git && \
+git clone https://github.com/icclab/kobuki_ros"
+
 #git clone https://github.com/icclab/icclab_grasping_niryo.git -b noetic && \
 #git clone --branch noetic https://github.com/JenniferBuehler/gazebo-pkgs.git && \
 #git clone --branch 1.0.0 https://github.com/JenniferBuehler/general-message-pkgs.git && \
@@ -109,10 +115,10 @@ RUN  echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc
 #COPY /issues_solvers/CMakeLists.txt  /home/"${USER}"/catkin_ws/src/gpd_ros
 
 #RUN sudo pip3 install pyOpenSSL --upgrade
-RUN wget https://files.pythonhosted.org/packages/00/3f/ea5cfb789dddb327e6d2cf9377c36d9d8607af85530af0e7001165587ae7/pyOpenSSL-22.1.0-py3-none-any.whl
-RUN sudo pip3 install pyopenssl
+#RUN wget https://files.pythonhosted.org/packages/00/3f/ea5cfb789dddb327e6d2cf9377c36d9d8607af85530af0e7001165587ae7/pyOpenSSL-22.1.0-py3-none-any.whl
+#RUN sudo pip3 install pyopenssl
 #RUN sudo python3 -m easy_install pyOpenSSL-22.1.0-py3-none-any.whl
-RUN sudo pip3 install jsonpickle pyquaternion
+#RUN sudo pip3 install jsonpickle pyquaternion
 
 # add gazebo models to decrease initial gazebo bringup time
 #RUN mkdir -p ~/.gazebo
@@ -121,16 +127,18 @@ RUN sudo pip3 install jsonpickle pyquaternion
 #RUN cp -r ~/catkin_ws/src/icclab_summit_xl/worlds/models/marker* /home/"${user}"/.gazebo/models
 
 # update dependencies
-#RUN sudo apt-get update && cd ~/catkin_ws && \
-#rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths src
+RUN sudo apt-get update && cd ~/colcon_ws && sudo rosdep init && \
+rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths src
 
 # install ros-pcl AGAIN. No clue why it doesn't see it
-RUN sudo apt-get update && \
-    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros wget vim ros-${ROS_DISTRO}-turtlebot3-bringup ros-${ROS_DISTRO}-rmw-cyclonedds-cpp 
+#RUN sudo apt-get update && \
+#    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros wget vim ros-${ROS_DISTRO}-turtlebot3-bringup ros-${ROS_DISTRO}-rmw-cyclonedds-cpp 
 #ros-${ROS_DISTRO}-moveit-python  doesn't work
 
 # build workspace
-#RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build && source devel/setup.bash"
+RUN touch COLCON_IGNORE; cp COLCON_IGNORE ~/colcon_ws/src/kobuki_ros
+RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && colcon build --symlink-install"
+
 COPY env.sh /home/"${USER}"/env.sh
 COPY cyclonedds.xml  /home/"${USER}"/cyclonedds.xml
 RUN echo "if [ -f "~/env.sh" ]; then source ~/env.sh; fi" >> ~/.bashrc
