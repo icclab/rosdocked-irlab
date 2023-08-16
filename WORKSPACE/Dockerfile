@@ -40,6 +40,12 @@ RUN sudo apt-get update && \
     ros-${ROS_DISTRO}-turtlebot3-simulations  \
     ros-${ROS_DISTRO}-image-transport-plugins python3-colcon-common-extensions
 
+# Add environment and colcon utilities to .bashrc
+RUN /bin/bash -c 'echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc && \
+    echo "source /usr/share/colcon_cd/function/colcon_cd.sh" >> ~/.bashrc && \
+    echo "export _colcon_cd_root=/opt/ros/${ROS_DISTRO}/" >> ~/.bashrc && \
+    echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> ~/.bashrc'
+
 # configure repos for niryo
 # RUN sudo pip3 install jsonpickle
 
@@ -141,7 +147,7 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && co
 
 COPY env.sh /home/"${USER}"/env.sh
 COPY cyclonedds.xml  /home/"${USER}"/cyclonedds.xml
-RUN echo "if [ -f "~/env.sh" ]; then source ~/env.sh; fi" >> ~/.bashrc
+#RUN echo "if [ -f "~/env.sh" ]; then source ~/env.sh; fi" >> ~/.bashrc
 
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash"
 # patch summit_xl old files and add unmerged PRs
