@@ -28,6 +28,10 @@ In the browser you will see Gazebo and Rviz and you'll be able to control the ro
 
 ![](docs/grasping_rviz.png) 
 
+You may also want to start a container without novnc, but connecting to a *local running Xserver instance*. For this you can use the following command instead:
+
+    cd WORKSPACE
+    ./run_cpu_xserver.sh
 
 ## Longer story (Only if you need to rebuild / edit code)
 
