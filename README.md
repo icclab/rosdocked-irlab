@@ -9,7 +9,7 @@ Run our ROS noetic environment including the workspace and projects
 	docker-compose -f docker-compose.yml up
 
 A container (robopaas/rosdocked-noetic-cpu:latest) will be pulled and started. 
-Another container running noVNC will be started and you'll be able to access it and see the GUI through a browser at: http://localhost
+Another container running noVNC will be started and you'll be able to access it and see the GUI through a browser at: http://localhost/vnc.html
 
 In order to access the container and start our components, in another console, you'll have to find the ros container and enter it, e.g.:
 	
