@@ -4,7 +4,7 @@
 
 When working with your own laptop, you can launch the containers using docker-compose with the following command:
 
-    docker-compose -f docker-compose-cpu.yml up
+    docker-compose -f docker-compose.yml up
 
 This will launch two containers, one with the ROS Kinetic environment installed for you to work on, and one for novnc (the GUI) which you can access through your browser at: 
 [http://localhost/vnc.html](http://localhost/vnc.html) 
