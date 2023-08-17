@@ -1,5 +1,5 @@
-# Noetic Containers With included Workspace
-
+# Humble Containers With included Workspace
+<!--
 ## On your own laptop (Any OS supporting docker compose)
 
 When working with your own laptop, you can launch the containers using docker-compose with the following command:
@@ -36,3 +36,4 @@ You may also want to start a container without novnc, but connecting to a *local
     ./run_cpu_xserver.sh
 
 Note that the xhost needs to be correctly set in order to make it work correctly. (xhost +local:root would do the trick)
+-->
