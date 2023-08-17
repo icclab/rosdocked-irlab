@@ -6,7 +6,7 @@ A docker container with some of the robotic simulations from the cloud robotics 
 Run our ROS noetic environment including the workspace and projects
 
 	cd WORKSPACE
-	docker-compose -f docker-compose-cpu.yml up
+	docker-compose -f docker-compose.yml up
 
 A container (robopaas/rosdocked-noetic-cpu:latest) will be pulled and started. 
 Another container running noVNC will be started and you'll be able to access it and see the GUI through a browser at: http://localhost
