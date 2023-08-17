@@ -133,7 +133,8 @@ RUN  echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc
 #RUN cp -r ~/catkin_ws/src/icclab_summit_xl/worlds/models/marker* /home/"${user}"/.gazebo/models
 
 # update dependencies
-RUN sudo apt-get update && cd ~/colcon_ws && sudo rosdep init && \
+RUN sudo apt-get update && cd ~/colcon_ws && \
+bash -c "if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then sudo rosdep init; fi" && \
 rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths src
 
 # install ros-pcl AGAIN. No clue why it doesn't see it
