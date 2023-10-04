@@ -90,5 +90,6 @@ RUN /bin/bash -c 'echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/"
 ENV QT_X11_NO_MITSHM=1
 ENV CATKIN_TOPLEVEL_WS="${workspace}/devel"
 
-
+COPY ros_entrypoint.sh /
+COPY start_tb2.sh /home/ros
 
