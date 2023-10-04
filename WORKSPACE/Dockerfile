@@ -38,7 +38,8 @@ RUN sudo apt-get update && \
     python3-osrf-pycommon ros-${ROS_DISTRO}-dynamixel-sdk \ 
     ros-${ROS_DISTRO}-turtlebot3-msgs ros-${ROS_DISTRO}-turtlebot3 \ 
     ros-${ROS_DISTRO}-turtlebot3-simulations  \
-    ros-${ROS_DISTRO}-image-transport-plugins python3-colcon-common-extensions
+    ros-${ROS_DISTRO}-image-transport-plugins python3-colcon-common-extensions \
+    ros-${ROS_DISTRO}-rqt-tf-tree inetutils-ping
 
 # Add environment and colcon utilities to .bashrc
 RUN /bin/bash -c 'echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc && \
@@ -63,6 +64,7 @@ git clone https://github.com/icclab/TurtleBot2-on-ROS2.git && \
 git clone -b humble https://github.com/icclab/summit_xl_sim && \
 git clone -b humble https://github.com/RobotnikAutomation/robotnik_common.git && \
 git clone -b humble https://github.com/icclab/summit_xl_common && \
+git clone -b humble https://github.com/icclab/icclab_summit_xl && \
 git clone -b humble-devel https://github.com/RobotnikAutomation/robotnik_sensors.git && \
 git clone https://github.com/icclab/kobuki_ros"
 
@@ -108,8 +110,9 @@ git clone https://github.com/icclab/kobuki_ros"
 #COPY /issues_solvers/turtlebot3_waffle.gazebo.xacro   /opt/ros/"${ROS_DISTRO}"/share/turtlebot3_description/urdf
 
 # edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
-RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc 
-RUN  echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc
+RUN echo "source ~/colcon_ws/install/setup.bash" >> ~/.bashrc 
+RUN echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc
+RUN echo "export GAZEBO_MODEL_PATH=/opt/ros/humble/share/turtlebot3_gazebo/models" >> ~/.bashrc
 
 #solve orbecc astra bug in xacro
 #RUN sed -i 's/<sensor_orbbec_astra_gazebo/<xacro:sensor_orbbec_astra_gazebo/g' /home/$USER/catkin_ws/src/summit_xl_sources/robotnik_sensors/urdf/orbbec_astra.urdf.xacro
@@ -138,13 +141,17 @@ bash -c "if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then sudo r
 rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths src
 
 # install ros-pcl AGAIN. No clue why it doesn't see it
-#RUN sudo apt-get update && \
-#    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros wget vim ros-${ROS_DISTRO}-turtlebot3-bringup ros-${ROS_DISTRO}-rmw-cyclonedds-cpp 
+RUN sudo apt-get update && \
+    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros wget vim ros-${ROS_DISTRO}-turtlebot3-bringup ros-${ROS_DISTRO}-rmw-cyclonedds-cpp 
 #ros-${ROS_DISTRO}-moveit-python  doesn't work
 
 # build workspace
 RUN touch COLCON_IGNORE; cp COLCON_IGNORE ~/colcon_ws/src/kobuki_ros
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && colcon build --symlink-install"
+
+# Install Zenoh (install fails because of no systemd in container so we use a workaround)
+RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null && \
+    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-dds > /dev/null 2>1; echo $?"
 
 COPY env.sh /home/"${USER}"/env.sh
 COPY cyclonedds.xml  /home/"${USER}"/cyclonedds.xml

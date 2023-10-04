@@ -8,8 +8,10 @@
 # Base image
 #FROM ghcr.io/ehfd/nvidia-glx-desktop:latest
 ARG UBUNTU_RELEASE=22.04
+ARG CUDA_RELEASE=12.2.0
 #FROM nvcr.io/nvidia/cudagl:11.0.3-runtime-ubuntu${UBUNTU_RELEASE}
-FROM robopaas/cudagl:11.8.0-devel-ubuntu${UBUNTU_RELEASE}
+#FROM robopaas/cudagl:11.8.0-devel-ubuntu${UBUNTU_RELEASE}
+FROM robopaas/cudagl:${CUDA_RELEASE}-devel-ubuntu${UBUNTU_RELEASE}
 
 ################################################################################
 
