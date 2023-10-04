@@ -74,6 +74,10 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
     cd colcon_ws &&  colcon build --symlink-install"
 
+# install fails because of no systemd in container
+RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null && \
+    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-dds > /dev/null 2>1; echo $?"
+
 ADD cyclone-env.sh /home/ros
 #RUN sudo apt update && sudo apt install -y ros-humble-cyclonedds ros-humble-rmw-cyclonedds-cpp
 RUN /bin/bash -c 'echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/" >> ~/.bashrc && \
