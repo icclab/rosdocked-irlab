@@ -21,7 +21,7 @@ ARG shell
 ################################################################################
 # install sudo and git
 RUN apt-get update && \
-    apt-get install -y sudo wget apt-utils git iproute2 python3-colcon-bash python3-rosdep2 python3-colcon-common-extensions ros-${ROS_DISTRO}-cyclonedds ros-${ROS_DISTRO}-rmw-cyclonedds-cpp ros-${ROS_DISTRO}-compressed-image-transport ros-${ROS_DISTRO}-compressed-depth-image-transport libudev-dev libjpeg-dev vim
+    apt-get install -y sudo wget apt-utils git iproute2 python3-colcon-bash python3-rosdep2 python3-colcon-common-extensions ros-${ROS_DISTRO}-cyclonedds ros-${ROS_DISTRO}-rmw-cyclonedds-cpp ros-${ROS_DISTRO}-compressed-image-transport libudev-dev libjpeg-dev vim
 
 # add ros user to container and make sudoer
 RUN useradd -m -s /bin/bash -G video,plugdev ${USER} && \
@@ -65,10 +65,13 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
     git clone https://github.com/stonier/sophus.git -b release/1.2.x && \
     git clone https://github.com/Juancams/ros_astra_camera -b ros2 && \
     git clone https://github.com/icclab/sllidar_ros2.git && \
-    git clone https://github.com/icclab/hls_lfcd_lds_driver.git -b humble-devel && \
     rm -rf TurtleBot2-on-ROS2/turtlebot2_commander && \
+    git clone -b humble https://github.com/ros-perception/image_transport_plugins.git && \
     cd .. && \
     rosdep install -ry --from-path src --ignore-src"
+
+# Patch compressed depth image transport to reduce compression
+COPY compressed_depth_publisher.cpp /home/ros/colcon_ws/src/image_transport_plugins/compressed_depth_image_transport/src/
 
 # Build
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
@@ -96,4 +99,4 @@ ENV CATKIN_TOPLEVEL_WS="${workspace}/devel"
 
 COPY ros_entrypoint.sh /
 COPY start_tb2.sh /home/ros
-
+COPY start_tb2_VPN.sh /home/ros
