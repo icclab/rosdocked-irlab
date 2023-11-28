@@ -7,7 +7,7 @@
 # Date:         2021-11-08
 ################################################################################
 
-export IMAGE_NAME=robopaas/rosdocked-humble-tb2:latest
+export IMAGE_NAME=robopaas/rosdocked-humble-tb2_OH:latest
 
 # Get this script's path
 pushd `dirname $0` > /dev/null
