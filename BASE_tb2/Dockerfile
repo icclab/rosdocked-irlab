@@ -98,6 +98,7 @@ ENV QT_X11_NO_MITSHM=1
 ENV CATKIN_TOPLEVEL_WS="${workspace}/devel"
 
 COPY ros_entrypoint.sh /
+COPY entrypoint_example.sh /home/ros
 COPY cyclonedds.xml /home/ros
 COPY start_tb2.sh /home/ros
 COPY start_tb2_VPN.sh /home/ros
