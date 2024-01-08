@@ -97,7 +97,7 @@ git clone https://github.com/icclab/kobuki_ros"
 #git clone https://github.com/RobotnikAutomation/robotnik_msgs.git && \
 #git clone https://github.com/RobotnikAutomation/robotnik_sensors.git -b kinetic-devel && \
 #git clone https://github.com/RobotnikAutomation/ros-system-monitor && \
-#git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b kinetic-multirobot-devel && \
+#git clone https://github.com/ENV ROS_DISTRO=humbleRobotnikAutomation/summit_xls_ur5_common.git -b kinetic-multirobot-devel && \
 #git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b melodic-master 
 # One of the two packages is needed only on robot controlling UR5 arm
 # git clone https://github.com/RobotnikAutomation/ur_modern_driver.git # deprecated in favor of UniversalRobots/Universal_Robots_ROS_Driver.git 
@@ -157,7 +157,10 @@ COPY env.sh /home/"${USER}"/env.sh
 COPY cyclonedds.xml  /home/"${USER}"/cyclonedds.xml
 #RUN echo "if [ -f "~/env.sh" ]; then source ~/env.sh; fi" >> ~/.bashrc
 
-RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash"
+COPY .gazebo /home/ros/.gazebo
+RUN sudo chown -R ros:ros .gazebo
+
+#RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash"
 # patch summit_xl old files and add unmerged PRs
 #RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
 #    git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro"
