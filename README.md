@@ -3,7 +3,7 @@ A docker container with some of the robotic simulations from the cloud robotics 
 
 ## TL;DR
 
-Run our ROS humble environment including the workspace and projects (initial porting to ROS2 ongoing)
+Run our ROS humble environment including the workspace and projects on Ubuntu (porting to ROS2 still ongoing)
 
 	cd WORKSPACE
 	./run_cpu_xserver.sh
@@ -19,10 +19,10 @@ In order to access the container and start our components, in another console, y
 
 You can try our projects within it, e.g., to run the robot navigation project:
 
-	ros2 launch summit_xl_gazebo summit_nav2_demo_launch.py
-	ros2 launch summit_xl_navigation nav2_bringup_launch.py
+	ros2 launch icclab_summit_xl summit_xl_simulation.launch.py
+	ros2 launch icclab_summit_xl summit_xl_nav2.launch.py rviz:=true
 	
-Then you should give an initial position in Rviz for the robot.
+<!-- Then you should give an initial position in Rviz for the robot.
 Note that the world model is already available and to avoid Gazebo downloading again the models you can export the path as follows:
 
-	export GAZEBO_MODEL_PATH=/opt/ros/humble/share/turtlebot3_gazebo/models
+	export GAZEBO_MODEL_PATH=/opt/ros/humble/share/turtlebot3_gazebo/models -->
