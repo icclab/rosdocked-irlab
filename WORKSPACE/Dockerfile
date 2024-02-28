@@ -90,7 +90,8 @@ COPY /issues_solvers/turtlebot3_waffle.gazebo.xacro   /opt/ros/noetic/share/turt
 
 # edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
 RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc && \
-    echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc
+    echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc && \
+    echo "export IGN_IP=127.0.0.1" >> ~/.bashrc
 
 #solve orbecc astra bug in xacro
 RUN sed -i 's/<sensor_orbbec_astra_gazebo/<xacro:sensor_orbbec_astra_gazebo/g' /home/$USER/catkin_ws/src/summit_xl_sources/robotnik_sensors/urdf/orbbec_astra.urdf.xacro
