@@ -1,0 +1,43 @@
+ {
+  mode: "client",
+  connect:{ endpoints: ["tcp/160.85.253.140:30447"] },
+  timestamping: {
+    /// Whether data messages should be timestamped if not already.
+    /// Accepts a single boolean value or different values for router, peer and client.
+    enabled: true,
+    /// Whether data messages with timestamps in the future should be dropped or not.
+    /// If set to false (default), messages with timestamps in the future are retimestamped.
+    /// Timestamps are ignored if timestamping is disabled.
+    drop_future_timestamp: false,
+  },
+  plugins: {
+    ros2dds: {
+      id: "bot1",
+      namespace: "/bot1",
+      ros_localhost_only: false,
+      deny: {
+        publishers: [".*/rosout", ".*/.*parameter.*",
+           ".*/_internal/.*"],
+        subscribers: [".*/rosout", ".*/.*parameter.*",
+           ".*/_internal/.*"],
+        service_servers: [".*/.*parameter.*", ".*/_internal/.*"],
+        service_clients: [".*/.*parameter.*", ".*/_internal/.*"],
+        action_servers: [".*/_internal/.*"],
+        action_clients: [".*/_internal/.*"],
+      },
+      pub_max_frequencies: [
+        ".*/image_raw=5",
+        ".*/camera_info=5",
+        ".*/scan=10",
+        ".*/imu=50",
+      ],
+      queries_timeout: {
+         //// default timeout that will apply to all query, except the ones specified below
+         //// in 'transient_local_subscribers', 'services' and 'actions'
+         //default: 500.0,
+         }
+    },
+    rest: { http_port: 8000 }
+  }
+}
+
