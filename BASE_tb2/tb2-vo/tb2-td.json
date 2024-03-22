@@ -1,0 +1,76 @@
+{ 
+    "title": "tb2", 
+    "id": "urn:dev:wot:roswotexample:tb2", 
+    "description": "A ROS WOT node for a TB2", 
+    "@context": [ 
+        "https://www.w3.org/2022/wot/td/v1.1" 
+    ], 
+   "securityDefinitions": { 
+        "basic_sec": { 
+            "scheme": "basic" 
+        } 
+    }, 
+    "security": "basic_sec", 
+    "properties": { 
+        "allAvailableResources": { 
+            "type": "object", 
+            "description": "Current level of all available resources given as an integer percentage for each particular resource. The data is obtained from the machine's sensors but can be set manually in case the sensors are broken.", 
+            "properties": { 
+                "battery_percent": { 
+                    "type": "integer", 
+                    "minimum": 0, 
+                    "maximum": 100 
+                }, 
+                "battery_charging": { 
+                    "type": "boolean" 
+                } 
+           	} 
+        }, 
+        "possibleLaunchfiles": { 
+            "type": "array", 
+            "description": "The list of possible launchfiles. Doesn't depend on the available resources.", 
+            "items": { 
+                "type": "string" 
+            } 
+        }
+    }, 
+    "actions": { 
+        "triggerBringup": { 
+            "title": "Trigger ROS launchfiles", 
+            "description": "Brings hw components up (corresponding ROS launch files are launched). Accepts launchfile id as input. Brings up all if no input is specified.", 
+            "input": { 
+                "type": "object", 
+                "properties": { 
+                    "launchfileId": { 
+                        "type": "string", 
+                        "description": "Defines what HW to bring up, launchfileId is one of possibleLaunchfiles property values, e.g., bringup_complete" 
+                    }
+                }
+            },
+            "output": { 
+                "type": "object", 
+                "description": "Returns True/false and a message when all invoked promises are resolved (asynchronous).", 
+                "properties": { 
+                    "result": { 
+                        "type": "boolean" 
+                    }, 
+                    "message": { 
+                        "type": "string" 
+                    } 
+                } 
+            } 
+
+        },
+        "currentValues": {
+            "description": "Returns the current values"
+        }
+    }, 
+    "events": { 
+        "outOfResource": { 
+            "description": "Out of resource event. Emitted when the available resource level is not sufficient to operate further (e.g., battery level).", 
+            "data": { 
+                "type": "string" 
+            } 
+        } 
+    } 
+} 

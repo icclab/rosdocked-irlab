@@ -1,0 +1,19 @@
+# ========================================
+# TB2 Descriptor
+# ========================================
+name: tb2
+type: VO
+resourceType:
+  specification: WoT
+  version: 1.1
+deploymentType: B
+catalogue: 9090
+bindingNB:
+  bindingModeNB: [M]
+  hostname: 160.85.253.140
+  brokerIP: "mqtt://160.85.253.140:30884"
+  securityNB:
+    securityScheme: basic
+    username: user
+    password: pass
+

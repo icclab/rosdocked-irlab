@@ -103,3 +103,12 @@ COPY start_tb2.sh /home/ros
 COPY start_tb2_nomap.sh /home/ros
 COPY zenoh-bridge-conf.json5 /home/ros
 COPY zenoh-bridge-ros2dds /home/ros
+RUN sudo apt-get update && \
+    sudo apt-get install -y python3-pip
+RUN sudo pip install vo-wot
+COPY tb2-vo/tb2-td.json /home/ros
+COPY tb2-vo/tb2.py /home/ros
+COPY tb2-vo/tb2.yaml /home/ros
+COPY start_zenoh_tb2nomap_vo.sh /home/ros
+
+ENTRYPOINT /home/ros/start_zenoh_tb2nomap_vo.sh
