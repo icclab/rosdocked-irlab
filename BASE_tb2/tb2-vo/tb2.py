@@ -90,7 +90,7 @@ async def triggerBringup_handler(params):
     mappingaction = None
     saveaction = None
 
-    if launchfileId == 'bringup' or batterypercent is None :
+    if launchfileId == 'bringup' and batterypercent is None :
         # If battery percentage is None, start the tb2 launch file
         print("Battery status unknown, start turtlebot2_bringup!")
         process_bringup = subprocess.Popen(['ros2', 'launch', 'turtlebot2_bringup', 'tb2_complete_no_map.launch.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
