@@ -24,7 +24,7 @@ def read_from_sensor(sensorType):
     class BatteryRead(Node):
         def __init__(self):
             super().__init__('battery_read')
-            self.subscription = self.create_subscription(DiagnosticArray, '/diagnostics', self.diagnostics_callback, 20)
+            self.subscription = self.create_subscription(DiagnosticArray, '/diagnostics', self.diagnostics_callback, 10)
 #            self.battery_percent_pub = self.create_publisher(Float32, '/battery_level', 10)
 #            self.battery_charging_pub = self.create_publisher(Bool, '/battery_charging', 10)
 
@@ -38,7 +38,7 @@ def read_from_sensor(sensorType):
                             battery_percent = float(item.value)
                             # print(f'battery percent is {self.battery_level}%')
                         if item.key == 'Charging State':
-                            if item.value == 'Trickle Charging':
+                            if item.value == 'Trickle Charging'  or 'Full Charging':
                                 battery_charging = True
                             elif item.value == 'Not Charging':
                                 battery_charging = False
@@ -82,6 +82,7 @@ async def triggerBringup_handler(params):
 
     # Check if there is resources
     battery_info = read_from_sensor('kobuki: Battery')
+    time.sleep(2)
     batterypercent = battery_info[0] if battery_info is not None else None
     batterycharging = battery_info[1] if battery_info is not None else None
     print(f'Battery Percentage: {batterypercent}%')
@@ -104,8 +105,8 @@ async def triggerBringup_handler(params):
         else:
             print("Failed to start the launch file.")
             bringupaction = False
-    else:
-        print(f'Battery Percentage: {batterypercent}%')
+   # else:
+   #     print(f'Battery Percentage: {batterypercent}%')
 
     if launchfileId == 'startmapping' and batterypercent >= 30:
         # If battery percentage is more than 50, allow to start the mapping launch file
