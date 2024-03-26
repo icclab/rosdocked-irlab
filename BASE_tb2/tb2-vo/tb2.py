@@ -24,9 +24,9 @@ def read_from_sensor(sensorType):
     class BatteryRead(Node):
         def __init__(self):
             super().__init__('battery_read')
-            self.subscription = self.create_subscription(DiagnosticArray, '/diagnostics', self.diagnostics_callback, 10)
-            self.battery_percent_pub = self.create_publisher(Float32, '/battery_level', 10)
-            self.battery_charging_pub = self.create_publisher(Bool, '/battery_charging', 10)
+            self.subscription = self.create_subscription(DiagnosticArray, '/diagnostics', self.diagnostics_callback, 20)
+#            self.battery_percent_pub = self.create_publisher(Float32, '/battery_level', 10)
+#            self.battery_charging_pub = self.create_publisher(Bool, '/battery_charging', 10)
 
         def diagnostics_callback(self, msg):
             nonlocal battery_percent
@@ -43,14 +43,14 @@ def read_from_sensor(sensorType):
                             elif item.value == 'Not Charging':
                                 battery_charging = False
 
-            if battery_percent is not None:
-                msg_percentage = Float32()
-                msg_percentage.data = battery_percent
-                self.battery_percent_pub.publish(msg_percentage)
-            if battery_charging is not None:
-                msg_charging = Bool()
-                msg_charging.data = battery_charging
-                self.battery_charging_pub.publish(msg_charging)
+         #   if battery_percent is not None:
+         #       msg_percentage = Float32()
+         #       msg_percentage.data = battery_percent
+         #       self.battery_percent_pub.publish(msg_percentage)
+         #   if battery_charging is not None:
+         #       msg_charging = Bool()
+         #       msg_charging.data = battery_charging
+         #       self.battery_charging_pub.publish(msg_charging)
 
     def main():
         rclpy.init()
@@ -69,7 +69,7 @@ allAvailableResources_init = {
     'battery_charging': read_from_sensor('kobuki: Battery')[1],
 }
 
-possibleLaunchfiles_init = ['startmapping', 'bringup', 'saveMap']
+possibleLaunchfiles_init = ['startmapping', 'bringup', 'savemap']
 
 async def triggerBringup_handler(params):
     params = params['input'] if params['input'] else {}
@@ -107,7 +107,7 @@ async def triggerBringup_handler(params):
     else:
         print(f'Battery Percentage: {batterypercent}%')
 
-    if launchfileId == 'startmapping' and batterypercent >= 50:
+    if launchfileId == 'startmapping' and batterypercent >= 30:
         # If battery percentage is more than 50, allow to start the mapping launch file
         print("Battery sufficient, start turtlebot2 mapping!")
         process_mapping = subprocess.Popen(['ros2', 'launch', 'slam_toolbox', 'online_async_launch.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -119,14 +119,14 @@ async def triggerBringup_handler(params):
         else:
             print("Failed to start mapping.")
             mappingaction = False
-    else:
-        print("Unable to start mapping")
-        mappingaction = False
+    #else:
+   #     print("Unable to start mapping")
+   #     mappingaction = False
 
-    if launchfileId == 'saveMap' and mappingaction == True:
+    if launchfileId == 'savemap': #and mappingaction == True:
         print("Mapping finished, save the map!")
         process_mapping = subprocess.Popen(['ros2', 'launch', 'turtlebot2_bringup', 'map_save.launch.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        time.sleep(8) 
+        time.sleep(10) 
 
         if process_mapping.poll() is None:
             print("Map saved successfully.")
@@ -158,7 +158,7 @@ async def triggerBringup_handler(params):
         return {'result': bringupaction, 'message': f'Your {launchfileId} is in progress!'}
     elif launchfileId == 'startmapping':
         return {'result': mappingaction, 'message': f'Your {launchfileId} is in progress!'}
-    elif launchfileId == 'saveMap':
+    elif launchfileId == 'savemap':
         return {'result': saveaction, 'message': f'Your {launchfileId} is in progress!'}
     
 async def allAvailableResources_read_handler():
