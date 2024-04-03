@@ -59,7 +59,19 @@
                     } 
                 } 
             } 
-
+        },
+        "mapExport": { 
+            "title": "Export map data", 
+            "description": "Get map data", 
+            "output": { 
+                "type": "object", 
+                "description": "Returns map in string format.", 
+                "properties": { 
+                    "maptoString": { 
+                        "type": "string" 
+                    }
+                } 
+            } 
         },
         "currentValues": {
             "description": "Returns the current values"
@@ -73,4 +85,5 @@
             } 
         } 
     } 
-} 
+}
+

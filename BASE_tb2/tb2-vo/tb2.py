@@ -8,6 +8,7 @@ from diagnostic_msgs.msg import DiagnosticArray
 
 import subprocess
 import time
+import base64 
 
 logging.basicConfig()
 LOGGER = logging.getLogger()
@@ -25,8 +26,6 @@ def read_from_sensor(sensorType):
         def __init__(self):
             super().__init__('battery_read')
             self.subscription = self.create_subscription(DiagnosticArray, '/diagnostics', self.diagnostics_callback, 10)
-#            self.battery_percent_pub = self.create_publisher(Float32, '/battery_level', 10)
-#            self.battery_charging_pub = self.create_publisher(Bool, '/battery_charging', 10)
 
         def diagnostics_callback(self, msg):
             nonlocal battery_percent
@@ -38,19 +37,10 @@ def read_from_sensor(sensorType):
                             battery_percent = float(item.value)
                             # print(f'battery percent is {self.battery_level}%')
                         if item.key == 'Charging State':
-                            if item.value == 'Trickle Charging'  or 'Full Charging':
+                            if item.value == 'Trickle Charging' or 'Full Charging':
                                 battery_charging = True
                             elif item.value == 'Not Charging':
                                 battery_charging = False
-
-         #   if battery_percent is not None:
-         #       msg_percentage = Float32()
-         #       msg_percentage.data = battery_percent
-         #       self.battery_percent_pub.publish(msg_percentage)
-         #   if battery_charging is not None:
-         #       msg_charging = Bool()
-         #       msg_charging.data = battery_charging
-         #       self.battery_charging_pub.publish(msg_charging)
 
     def main():
         rclpy.init()
@@ -70,6 +60,22 @@ allAvailableResources_init = {
 }
 
 possibleLaunchfiles_init = ['startmapping', 'bringup', 'savemap']
+mapdataExportTF_init = [True, False]
+
+def get_map_as_string(map_file_path):
+    try:
+        # Read the PGM file as binary
+        with open(map_file_path, 'rb') as file:
+            pgm_data = file.read()
+
+        # Convert the PGM binary data to a string
+        pgm_string = base64.b64encode(pgm_data).decode('utf-8')
+
+        return pgm_string
+
+    except FileNotFoundError:
+        print("Error: Map file not found.")
+        return None
 
 async def triggerBringup_handler(params):
     params = params['input'] if params['input'] else {}
@@ -82,7 +88,6 @@ async def triggerBringup_handler(params):
 
     # Check if there is resources
     battery_info = read_from_sensor('kobuki: Battery')
-    time.sleep(2)
     batterypercent = battery_info[0] if battery_info is not None else None
     batterycharging = battery_info[1] if battery_info is not None else None
     print(f'Battery Percentage: {batterypercent}%')
@@ -105,8 +110,6 @@ async def triggerBringup_handler(params):
         else:
             print("Failed to start the launch file.")
             bringupaction = False
-   # else:
-   #     print(f'Battery Percentage: {batterypercent}%')
 
     if launchfileId == 'startmapping' and batterypercent >= 30:
         # If battery percentage is more than 50, allow to start the mapping launch file
@@ -120,21 +123,21 @@ async def triggerBringup_handler(params):
         else:
             print("Failed to start mapping.")
             mappingaction = False
-    #else:
-   #     print("Unable to start mapping")
-   #     mappingaction = False
 
     if launchfileId == 'savemap': #and mappingaction == True:
         print("Mapping finished, save the map!")
-        process_mapping = subprocess.Popen(['ros2', 'launch', 'turtlebot2_bringup', 'map_save.launch.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process_savemapping = subprocess.Popen(['ros2', 'launch', 'turtlebot2_bringup', 'map_save.launch.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         time.sleep(10) 
 
-        if process_mapping.poll() is None:
-            print("Map saved successfully.")
-            saveaction = True
-        else:
-            print("Failed to save map.")
-            saveaction = False
+        print("Map saved successfully.")
+        saveaction = True
+
+       # if process_savemapping.poll() is None:
+       #     print("Map saved successfully.")
+       #     saveaction = True
+       # else:
+       #     print("Failed to save map.")
+       #     saveaction = False
     
 
     # Read the current level of allAvailableResources
@@ -162,6 +165,18 @@ async def triggerBringup_handler(params):
     elif launchfileId == 'savemap':
         return {'result': saveaction, 'message': f'Your {launchfileId} is in progress!'}
     
+async def mapExport_handler(params):
+    params = params['input'] if params['input'] else {}
+
+
+    map_file_path = '/home/ros/my_map.pgm'
+    map_string = get_map_as_string(map_file_path)
+    return map_string
+#    if map_string is None
+       # return {'result': mapExport, 'message': f'No map found on device!'}
+#    else
+#        return map_string
+    
 async def allAvailableResources_read_handler():
     allAvailableResources_current = {
         'battery_percent': read_from_sensor('kobuki: Battery')[0],
@@ -175,7 +190,9 @@ async def currentValues_handler(params):
         'result': True,
         'message': {
             "battery_percent": read_from_sensor('kobuki: Battery')[0],
-            "battery_status": read_from_sensor('kobuki: Battery')[1]
+            "battery_charging": read_from_sensor('kobuki: Battery')[1]
         }
     }
+
+
 

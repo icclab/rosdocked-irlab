@@ -15,7 +15,7 @@ SCRIPTPATH=`pwd`
 popd > /dev/null
 
 # Build the docker image
-docker build  \
+docker build   \
   --build-arg uid=$UID\
   --build-arg home=/home/ros \
   --build-arg workspace=/home/ros \
