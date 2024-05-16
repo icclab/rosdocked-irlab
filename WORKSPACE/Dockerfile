@@ -61,11 +61,12 @@ RUN /bin/bash -c 'echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc &
 RUN mkdir -p ~/colcon_ws/src && cd ~/colcon_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
 cd src && \
 git clone https://github.com/icclab/TurtleBot2-on-ROS2.git && \
-git clone -b humble https://github.com/icclab/summit_xl_sim && \
+git clone -b humble https://github.com/icclab/summit_xl_sim  && \
 git clone -b humble https://github.com/RobotnikAutomation/robotnik_common.git && \
 git clone -b humble https://github.com/icclab/summit_xl_common && \
 git clone -b humble https://github.com/icclab/icclab_summit_xl && \
 git clone -b humble-devel https://github.com/RobotnikAutomation/robotnik_sensors.git && \
+git clone https://github.com/PickNikRobotics/ros2_robotiq_gripper.git && \
 git clone https://github.com/icclab/kobuki_ros"
 
 #git clone https://github.com/icclab/icclab_grasping_niryo.git -b noetic && \
@@ -146,7 +147,7 @@ RUN sudo apt-get update && \
 #ros-${ROS_DISTRO}-moveit-python  doesn't work
 
 # build workspace
-RUN touch COLCON_IGNORE; cp COLCON_IGNORE ~/colcon_ws/src/kobuki_ros
+RUN touch COLCON_IGNORE; cp COLCON_IGNORE ~/colcon_ws/src/kobuki_ros ; cp COLCON_IGNORE ~/colcon_ws/src/ros2_robotiq_gripper/robotiq_driver ; cp COLCON_IGNORE ~/colcon_ws/src/ros2_robotiq_gripper/robotiq_controllers ; cp COLCON_IGNORE ~/colcon_ws/src/ros2_robotiq_gripper/robotiq_hardware_tests
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && colcon build --symlink-install"
 
 # Install Zenoh (install fails because of no systemd in container so we use a workaround)
