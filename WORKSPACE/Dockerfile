@@ -110,9 +110,12 @@ git clone https://github.com/icclab/kobuki_ros"
 #COPY /issues_solvers/turtlebot3_waffle.gazebo.xacro   /opt/ros/"${ROS_DISTRO}"/share/turtlebot3_description/urdf
 
 # edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
-RUN echo "source ~/colcon_ws/install/setup.bash" >> ~/.bashrc 
-RUN echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc
-RUN echo "export GAZEBO_MODEL_PATH=/opt/ros/humble/share/turtlebot3_gazebo/models" >> ~/.bashrc
+RUN bash -c 'echo "source ~/colcon_ws/install/setup.bash" >> ~/.bashrc && \ 
+    echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc && \
+    echo "export GAZEBO_MODEL_PATH=/opt/ros/humble/share/turtlebot3_gazebo/models:/home/ros/.gazebo/models" >> ~/.bashrc && \
+    echo "export IGN_IP=127.0.0.1" >> ~/.bashrc && \
+    echo "export ROS_LOCALHOST_ONLY=1" >> ~/.bashrc'
+
 
 #solve orbecc astra bug in xacro
 #RUN sed -i 's/<sensor_orbbec_astra_gazebo/<xacro:sensor_orbbec_astra_gazebo/g' /home/$USER/catkin_ws/src/summit_xl_sources/robotnik_sensors/urdf/orbbec_astra.urdf.xacro
@@ -150,8 +153,8 @@ RUN touch COLCON_IGNORE; cp COLCON_IGNORE ~/colcon_ws/src/kobuki_ros
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && colcon build --symlink-install"
 
 # Install Zenoh (install fails because of no systemd in container so we use a workaround)
-RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null && \
-    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-dds > /dev/null 2>1; echo $?"
+#RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null && \
+#    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-dds > /dev/null 2>1; echo $?"
 
 COPY env.sh /home/"${USER}"/env.sh
 COPY cyclonedds.xml  /home/"${USER}"/cyclonedds.xml
