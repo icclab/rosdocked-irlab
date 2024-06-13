@@ -9,6 +9,8 @@ from diagnostic_msgs.msg import DiagnosticArray
 import subprocess
 import time
 import base64 
+import os
+import signal
 
 logging.basicConfig()
 LOGGER = logging.getLogger()
@@ -95,6 +97,9 @@ async def triggerBringup_handler(params):
     bringupaction = None
     mappingaction = None
     saveaction = None
+    savebagaction = None
+    stopbagaction = None
+   # process_bagrecording = None
 
     if launchfileId == 'bringup' and batterypercent is None :
         # If battery percentage is None, start the tb2 launch file
@@ -131,14 +136,30 @@ async def triggerBringup_handler(params):
 
         print("Map saved successfully.")
         saveaction = True
+   
+    if launchfileId == 'savebag':
+        print("Starting recording rosbag!")
+        global process_bagrecording 
+        process_bagrecording = subprocess.Popen(['exec ros2 bag record -a -s mcap -o my_bag'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
+        time.sleep(1)
+        print("Bag recording started.")
+        savebagaction = True
 
-       # if process_savemapping.poll() is None:
+# if process_savemapping.poll() is None:
        #     print("Map saved successfully.")
        #     saveaction = True
        # else:
        #     print("Failed to save map.")
        #     saveaction = False
     
+    if launchfileId == 'stopbag':
+        print("Stopping recording rosbag!")
+        if process_bagrecording.poll() is None:
+            process_bagrecording.terminate()    
+            process_bagrecording.wait()
+            time.sleep(1)
+        print("Bag recording stopped.")
+        stopbagaction = True
 
     # Read the current level of allAvailableResources
     resources = await exposed_thing.read_property('allAvailableResources')
@@ -164,7 +185,11 @@ async def triggerBringup_handler(params):
         return {'result': mappingaction, 'message': f'Your {launchfileId} is in progress!'}
     elif launchfileId == 'savemap':
         return {'result': saveaction, 'message': f'Your {launchfileId} is in progress!'}
-    
+    elif launchfileId == 'savebag':
+        return {'result': savebagaction, 'message': f'Your {launchfileId} is in progress!'}
+    elif launchfileId == 'stopbag':
+        return {'result': stopbagaction, 'message': f'Your {launchfileId} is in progress!'}
+
 async def mapExport_handler(params):
     params = params['input'] if params['input'] else {}
 
