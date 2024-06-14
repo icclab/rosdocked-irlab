@@ -11,10 +11,12 @@ import time
 import base64 
 import os
 import signal
+#from mcap.mcap_reader import McapReader
 
 logging.basicConfig()
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
+
 
 def read_from_sensor(sensorType):
     if sensorType != 'kobuki: Battery':
@@ -79,6 +81,18 @@ def get_map_as_string(map_file_path):
         print("Error: Map file not found.")
         return None
 
+def get_rosbag_as_string(bag_file_path):
+    try:
+        with open(bag_file_path, 'rb') as file:
+            binary_content = file.read()
+            bag_string = base64.b64encode(binary_content).decode('utf-8')
+        return bag_string
+
+    except FileNotFoundError:
+        print("Error: Bagfile not found.")
+        return None
+
+
 async def triggerBringup_handler(params):
     params = params['input'] if params['input'] else {}
 
@@ -140,7 +154,9 @@ async def triggerBringup_handler(params):
     if launchfileId == 'savebag':
         print("Starting recording rosbag!")
         global process_bagrecording 
-        process_bagrecording = subprocess.Popen(['exec ros2 bag record -a -s mcap -o my_bag'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
+        #process_bagrecording = subprocess.Popen(['exec ros2 bag record -a -s mcap -o my_bag'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
+        process_bagrecording = subprocess.Popen(['exec ros2 bag record -s mcap -o my_bag -d 20 -b 50000000 -a'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
+
         time.sleep(1)
         print("Bag recording started.")
         savebagaction = True
@@ -202,6 +218,13 @@ async def mapExport_handler(params):
 #    else
 #        return map_string
     
+
+async def bagExport_handler(params):
+    params = params['input'] if params['input'] else {}
+    bag_file_path = '/home/ros/my_bag/my_bag_0.mcap'
+    bag_string = get_rosbag_as_string(bag_file_path)
+    return bag_string
+
 async def allAvailableResources_read_handler():
     allAvailableResources_current = {
         'battery_percent': read_from_sensor('kobuki: Battery')[0],

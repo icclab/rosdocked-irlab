@@ -111,5 +111,4 @@ COPY tb2-vo/tb2.py /home/ros
 COPY tb2-vo/tb2.yaml /home/ros
 COPY start_zenoh_tb2nomap_vo.sh /home/ros
 #COPY my_map.pgm /home/ros
-
 ENTRYPOINT /home/ros/start_zenoh_tb2nomap_vo.sh
