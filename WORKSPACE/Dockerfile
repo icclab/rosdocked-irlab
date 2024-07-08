@@ -61,11 +61,12 @@ RUN /bin/bash -c 'echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc &
 RUN mkdir -p ~/colcon_ws/src && cd ~/colcon_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
 cd src && \
 git clone https://github.com/icclab/TurtleBot2-on-ROS2.git && \
-git clone -b humble https://github.com/icclab/summit_xl_sim && \
+git clone -b humble https://github.com/icclab/summit_xl_sim  && \
 git clone -b humble https://github.com/RobotnikAutomation/robotnik_common.git && \
 git clone -b humble https://github.com/icclab/summit_xl_common && \
 git clone -b humble https://github.com/icclab/icclab_summit_xl && \
 git clone -b humble-devel https://github.com/RobotnikAutomation/robotnik_sensors.git && \
+git clone https://github.com/PickNikRobotics/ros2_robotiq_gripper.git && \
 git clone https://github.com/icclab/kobuki_ros"
 
 #git clone https://github.com/icclab/icclab_grasping_niryo.git -b noetic && \
@@ -97,7 +98,7 @@ git clone https://github.com/icclab/kobuki_ros"
 #git clone https://github.com/RobotnikAutomation/robotnik_msgs.git && \
 #git clone https://github.com/RobotnikAutomation/robotnik_sensors.git -b kinetic-devel && \
 #git clone https://github.com/RobotnikAutomation/ros-system-monitor && \
-#git clone https://github.com/RobotnikAutomation/summit_xls_ur5_common.git -b kinetic-multirobot-devel && \
+#git clone https://github.com/ENV ROS_DISTRO=humbleRobotnikAutomation/summit_xls_ur5_common.git -b kinetic-multirobot-devel && \
 #git clone https://github.com/RobotnikAutomation/summit_xl_common.git -b melodic-master 
 # One of the two packages is needed only on robot controlling UR5 arm
 # git clone https://github.com/RobotnikAutomation/ur_modern_driver.git # deprecated in favor of UniversalRobots/Universal_Robots_ROS_Driver.git 
@@ -110,9 +111,12 @@ git clone https://github.com/icclab/kobuki_ros"
 #COPY /issues_solvers/turtlebot3_waffle.gazebo.xacro   /opt/ros/"${ROS_DISTRO}"/share/turtlebot3_description/urdf
 
 # edit bashrc + workaround for this: https://github.com/SteveMacenski/spatio_temporal_voxel_layer/issues/167
-RUN echo "source ~/colcon_ws/install/setup.bash" >> ~/.bashrc 
-RUN echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc
-RUN echo "export GAZEBO_MODEL_PATH=/opt/ros/humble/share/turtlebot3_gazebo/models" >> ~/.bashrc
+RUN bash -c 'echo "source ~/colcon_ws/install/setup.bash" >> ~/.bashrc && \ 
+    echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc && \
+    echo "export GAZEBO_MODEL_PATH=/opt/ros/humble/share/turtlebot3_gazebo/models:/home/ros/.gazebo/models" >> ~/.bashrc && \
+    echo "export IGN_IP=127.0.0.1" >> ~/.bashrc && \
+    echo "export ROS_LOCALHOST_ONLY=1" >> ~/.bashrc'
+
 
 #solve orbecc astra bug in xacro
 #RUN sed -i 's/<sensor_orbbec_astra_gazebo/<xacro:sensor_orbbec_astra_gazebo/g' /home/$USER/catkin_ws/src/summit_xl_sources/robotnik_sensors/urdf/orbbec_astra.urdf.xacro
@@ -146,18 +150,21 @@ RUN sudo apt-get update && \
 #ros-${ROS_DISTRO}-moveit-python  doesn't work
 
 # build workspace
-RUN touch COLCON_IGNORE; cp COLCON_IGNORE ~/colcon_ws/src/kobuki_ros
+RUN touch COLCON_IGNORE; cp COLCON_IGNORE ~/colcon_ws/src/kobuki_ros ; cp COLCON_IGNORE ~/colcon_ws/src/ros2_robotiq_gripper/robotiq_driver ; cp COLCON_IGNORE ~/colcon_ws/src/ros2_robotiq_gripper/robotiq_controllers ; cp COLCON_IGNORE ~/colcon_ws/src/ros2_robotiq_gripper/robotiq_hardware_tests
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && colcon build --symlink-install"
 
 # Install Zenoh (install fails because of no systemd in container so we use a workaround)
-RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null && \
-    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-dds > /dev/null 2>1; echo $?"
+#RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null && \
+#    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-dds > /dev/null 2>1; echo $?"
 
 COPY env.sh /home/"${USER}"/env.sh
 COPY cyclonedds.xml  /home/"${USER}"/cyclonedds.xml
 #RUN echo "if [ -f "~/env.sh" ]; then source ~/env.sh; fi" >> ~/.bashrc
 
-RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash"
+COPY .gazebo /home/ros/.gazebo
+RUN sudo chown -R ros:ros .gazebo
+
+#RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash"
 # patch summit_xl old files and add unmerged PRs
 #RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
 #    git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro"

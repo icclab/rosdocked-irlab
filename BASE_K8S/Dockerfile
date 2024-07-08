@@ -179,8 +179,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 # set up ROS
 RUN bash -c 'apt install curl gnupg2 lsb-release software-properties-common gnupg && \
-echo "sudo add-apt-repository universe" &&\
-echo "sudo apt update" &&\
+sudo add-apt-repository universe &&\
+sudo apt update &&\
 curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg &&\
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(source /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null'
 
