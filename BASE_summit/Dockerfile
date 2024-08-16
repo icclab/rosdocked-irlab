@@ -90,4 +90,4 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && co
 
 # Install Zenoh (install fails because of no systemd in container so we use a workaround)
 RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null && \
-    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-dds > /dev/null 2>1; echo $?"
+    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-ros2dds > /dev/null 2>1; echo $?"
