@@ -70,9 +70,11 @@ RUN mkdir -p ~/colcon_ws/src && cd ~/colcon_ws && /bin/bash -c "source /opt/ros/
 cd src && \
 git clone -b humble https://github.com/RobotnikAutomation/robotnik_common.git && \
 git clone -b humble https://github.com/icclab/summit_xl_common && \
-git clone -b humble https://github.com/icclab/icclab_summit_xl  && \
+git clone -b humble https://github.com/icclab/icclab_summit_xl && \
 git clone -b humble-devel https://github.com/RobotnikAutomation/robotnik_sensors.git && \
-git clone https://github.com/Juancams/ros_astra_camera"
+git clone https://github.com/Juancams/ros_astra_camera && \
+git clone -b humble https://github.com/PickNikRobotics/ros2_robotiq_gripper.git && \
+git clone -b ros2 https://github.com/tylerjw/serial.git"
 
 # update dependencies
 RUN sudo apt-get update && cd ~/colcon_ws && \
@@ -88,4 +90,5 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && co
 
 # Install Zenoh (install fails because of no systemd in container so we use a workaround)
 RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null && \
-    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-dds > /dev/null 2>1; echo $?"
+    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-ros2dds > /dev/null 2>1; echo $?"
+
