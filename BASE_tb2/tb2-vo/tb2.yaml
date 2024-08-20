@@ -9,9 +9,11 @@ resourceType:
 deploymentType: B
 catalogue: 9090
 bindingNB:
-  bindingModeNB: [M]
-  hostname: 160.85.253.140
-  brokerIP: "mqtt://160.85.253.140:30884"
+        # bindingModeNB: [M]
+        #  hostname: 160.85.253.140
+        #  brokerIP: "mqtt://160.85.253.140:30884"
+  bindingModeNB: [Z]
+  routerURL: "160.85.253.140:30447"
   securityNB:
     securityScheme: basic
     username: user

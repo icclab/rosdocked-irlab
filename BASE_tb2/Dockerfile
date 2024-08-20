@@ -79,8 +79,8 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
     cd colcon_ws &&  colcon build --symlink-install"
 
 # install fails because of no systemd in container
-#RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null && \
-#    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-rosdds > /dev/null 2>1; echo $?"
+RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null && \
+    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-ros2dds=0.11.0 > /dev/null 2>1; echo $?"
 
 ADD cyclone-env.sh /home/ros
 #RUN sudo apt update && sudo apt install -y ros-humble-cyclonedds ros-humble-rmw-cyclonedds-cpp
@@ -98,11 +98,11 @@ ENV QT_X11_NO_MITSHM=1
 ENV CATKIN_TOPLEVEL_WS="${workspace}/devel"
 
 COPY ros_entrypoint.sh /
-COPY cyclonedds.xml /home/ros
 COPY start_tb2.sh /home/ros
+COPY cyclonedds.xml /home/ros
 COPY start_tb2_nomap.sh /home/ros
 COPY zenoh-bridge-conf.json5 /home/ros
-COPY zenoh-bridge-ros2dds /home/ros
+#COPY zenoh-bridge-ros2dds /home/ros
 RUN sudo apt-get update && \
     sudo apt-get install -y python3-pip
 RUN sudo pip install vo-wot
