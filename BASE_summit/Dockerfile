@@ -83,7 +83,7 @@ rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths s
 
 # install cyclonedds
 RUN sudo apt-get update && \
-    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros wget vim ros-${ROS_DISTRO}-rmw-cyclonedds-cpp nlohmann-json3-dev ros-humble-depthai-ros
+    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros wget vim ros-${ROS_DISTRO}-rmw-cyclonedds-cpp nlohmann-json3-dev ros-humble-depthai-ros ros-${ROS_DISTRO}-rosbag2-storage-mcap
 
 # build workspace
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && colcon build --symlink-install"

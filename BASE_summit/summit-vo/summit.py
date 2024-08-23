@@ -120,12 +120,13 @@ async def triggerBringup_handler(params):
     #process_bagrecording = None
     
 
-    if launchfileId == 'bringup' and batterypercent is None :
+    #if launchfileId == 'bringup' and batterypercent is None :
+    if launchfileId == 'bringup':
         # If battery percentage is None, start the summit launch file
         print("Battery status unknown, start summit_bringup!")
         process_bringup = subprocess.Popen(['ros2', 'launch', 'icclab_summit_xl', 'summit_xl_real.launch.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         # Allow some time for the launch file to start
-        time.sleep(15)  
+        time.sleep(20)  
 
 
         # Check if the process is still running
@@ -136,12 +137,13 @@ async def triggerBringup_handler(params):
             print("Failed to start the launch file.")
             bringupaction = False
 
-    if launchfileId == 'startmapping' and batterypercent >= 30:
+   # if launchfileId == 'startmapping' and batterypercent >= 30:
+    if launchfileId == 'startmapping':
         # If battery percentage is more than 50, allow to start the mapping launch file
         print("Battery sufficient, start summit mapping!")
         #process_mapping = subprocess.Popen(['ros2', 'launch', 'slam_toolbox', 'online_async_launch.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         process_mapping = subprocess.Popen(['ros2', 'launch', 'summit_xl_navigation', 'nav2_bringup_launch.py', 'use_sim_time:=false', 'slam:=True'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        time.sleep(10) 
+        time.sleep(20) 
 
 
 
@@ -155,7 +157,7 @@ async def triggerBringup_handler(params):
     if launchfileId == 'savemap': #and mappingaction == True:
         print("Mapping finished, save the map!")
         process_savemapping = subprocess.Popen(['ros2', 'launch', 'icclab_summit_xl', 'map_save.launch.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        time.sleep(10) 
+        time.sleep(20) 
        
         print("Map saved successfully.")
         saveaction = True
@@ -164,7 +166,7 @@ async def triggerBringup_handler(params):
         print("Starting recording rosbag!")
         global process_bagrecording
         process_bagrecording = subprocess.Popen(['exec ros2 bag record -s mcap -o my_bag -d 20 -b 50000000 -a'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
-        time.sleep(1) 
+        time.sleep(20) 
        
         print("Bag recording started.")
         savebagaction = True
@@ -174,7 +176,7 @@ async def triggerBringup_handler(params):
         if process_bagrecording.poll() is None:
             process_bagrecording.terminate()
             process_bagrecording.wait()
-            time.sleep(1)
+            time.sleep(20)
         #print(process_bagrecording)
         #process_bagrecording.terminate()#kill()
         #os.killpg(process_bagrecording, signal.SIGTERM)
@@ -198,7 +200,7 @@ async def triggerBringup_handler(params):
 
     # Calculate the new level of resources
     newResources = resources.copy()
-    newResources['battery_percent'] = read_from_sensor('HDD Usage (SXLS0_180227AA)')
+    newResources['battery_percent'] = read_from_sensor()
    # newResources['battery_charging'] = read_from_sensor('HDD Usage (SXLS0_180227AA)')[1]
     
     # Check if the amount of available resources is sufficient to launch
