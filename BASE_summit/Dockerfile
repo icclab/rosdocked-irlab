@@ -87,16 +87,17 @@ RUN  sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros wget vim ros-
 # build workspace
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && colcon build --symlink-install"
 
+RUN sudo apt-get update && \
+    sudo apt-get install -y python3-pip
 
 # Install Zenoh (install fails because of no systemd in container so we use a workaround)
 RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null && \
-    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-ros2dds=1.0.0~beta.4-1 > /dev/null 2>1; echo $?"
+    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-ros2dds=1.0.2 > /dev/null 2>1; echo $?"
     
-RUN sudo apt-get update && \
-    sudo apt-get install -y python3-pip 
+#RUN sudo apt-get update && \
+#    sudo apt-get install -y python3-pip 
 RUN sudo pip install vo-wot
 COPY summit-vo/summit-td.json /home/ros
 COPY summit-vo/summit.py /home/ros
-COPY zenoh-bridge-ros2dds /home/ros
 COPY summit-vo/summit.yaml /home/ros
 
