@@ -21,7 +21,7 @@ ARG shell
 ################################################################################
 # install sudo and git
 RUN apt-get update && \
-    apt-get install -y sudo wget apt-utils git iproute2 python3-colcon-bash python3-rosdep2 python3-colcon-common-extensions ros-${ROS_DISTRO}-cyclonedds ros-${ROS_DISTRO}-rmw-cyclonedds-cpp ros-${ROS_DISTRO}-compressed-image-transport libudev-dev libjpeg-dev vim
+    apt-get install -y --no-install-recommends sudo wget apt-utils git iproute2 python3-colcon-bash python3-rosdep2 python3-colcon-common-extensions ros-${ROS_DISTRO}-cyclonedds ros-${ROS_DISTRO}-rmw-cyclonedds-cpp ros-${ROS_DISTRO}-compressed-image-transport libudev-dev libjpeg-dev vim ros-${ROS_DISTRO}-rtabmap-slam ros-${ROS_DISTRO}-rtabmap-launch
 
 # add ros user to container and make sudoer
 RUN useradd -m -s /bin/bash -G video,plugdev ${USER} && \
@@ -63,7 +63,7 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
     git clone https://github.com/kobuki-base/velocity_smoother.git && \
     git clone https://github.com/kobuki-base/cmd_vel_mux.git && \
     git clone https://github.com/stonier/sophus.git -b release/1.2.x && \
-    git clone https://github.com/Juancams/ros_astra_camera -b ros2 && \
+    git clone https://github.com/Juancams/ros_astra_camera -b humble && \
     git clone https://github.com/icclab/sllidar_ros2.git && \
     rm -rf TurtleBot2-on-ROS2/turtlebot2_commander && \
     git clone -b humble https://github.com/ros-perception/image_transport_plugins.git && \
@@ -79,7 +79,7 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
 
 # install fails because of no systemd in container
 RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null && \
-    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-dds > /dev/null 2>1; echo $?"
+    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-dds=1.0.2 > /dev/null 2>1; echo $?"
 
 ADD cyclone-env.sh /home/ros
 #RUN sudo apt update && sudo apt install -y ros-humble-cyclonedds ros-humble-rmw-cyclonedds-cpp
