@@ -239,11 +239,7 @@ async def allAvailableResources_read_tb2_handler():
 
     return allAvailableResources_current
 
-<<<<<<< HEAD
-async def currentValues_tb2_handler(params):
-=======
 async def currentValues_tb2_tb2_handler(params):
->>>>>>> 1c41059434c77393189f05c9920a82e05fae4cd6
     return {
         'result': True,
         'message': {
