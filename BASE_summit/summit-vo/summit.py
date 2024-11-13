@@ -56,13 +56,13 @@ def read_from_sensor():
 
     return battery_percent#, battery_charging
     
-allAvailableResources_init = {
+allAvailableResources_summit_init = {
     'battery_percent': read_from_sensor()
  #   'battery_percent': read_from_sensor('HDD Usage (SXLS0_180227AA)')[0],
  #   'battery_charging': read_from_sensor('HDD Usage (SXLS0_180227AA)')[1],
 }
 
-possibleLaunchfiles_init = ['startmapping', 'bringup', 'savemap', 'savebag', 'stopbag']
+possibleLaunchfiles_summit_init = ['startmapping', 'bringup', 'savemap', 'savebag', 'stopbag']
 mapdataExportTF_init = [True, False]
 
 def get_map_as_string(map_file_path):
@@ -95,7 +95,7 @@ def get_rosbag_as_string(bag_file_path):
         print("Error: Bagfile not found.")
         return None
 
-async def triggerBringup_handler(params):
+async def triggerBringup_summit_handler(params):
     params = params['input'] if params['input'] else {}
 
     # Default values
@@ -195,8 +195,8 @@ async def triggerBringup_handler(params):
        #     saveaction = False
     
 
-    # Read the current level of allAvailableResources
-    resources = await exposed_thing.read_property('allAvailableResources')
+    # Read the current level of allAvailableResources_summit
+    resources = await exposed_thing.read_property('allAvailableResources_summit')
 
     # Calculate the new level of resources
     newResources = resources.copy()
@@ -209,8 +209,8 @@ async def triggerBringup_handler(params):
         exposed_thing.emit_event('outOfResource', 'Low level of Battery Percentage')
         return {'result': False, 'message': 'battery is not sufficient'}
     
-    # Now store the new level of allAvailableResources 
-    await exposed_thing.properties['allAvailableResources'].write(newResources)
+    # Now store the new level of allAvailableResources_summit 
+    await exposed_thing.properties['allAvailableResources_summit'].write(newResources)
 
     # Finally deliver the launchfile
     if launchfileId == 'bringup':
@@ -224,28 +224,28 @@ async def triggerBringup_handler(params):
     elif launchfileId == 'stopbag':
          return {'result': stopbagaction, 'message': f'Your {launchfileId} is in progress!'}
     
-async def mapExport_handler(params):
+async def mapExport_summit_handler(params):
     params = params['input'] if params['input'] else {}
     map_file_path = '/home/ros/my_map.pgm'
     map_string = get_map_as_string(map_file_path)
     return map_string
 
-async def bagExport_handler(params):
+async def bagExport_summit_handler(params):
     params = params['input'] if params['input'] else {}
     bag_file_path = '/home/ros/my_bag/my_bag_0.mcap'
     bag_string = get_rosbag_as_string(bag_file_path)
     return bag_string
     
-async def allAvailableResources_read_handler():
-    allAvailableResources_current = {
+async def allAvailableResources_read_summit_handler():
+    allAvailableResources_summit_current = {
     'battery_percent': read_from_sensor()
  #   'battery_percent': read_from_sensor('HDD Usage (SXLS0_180227AA)')[0],
  #   'battery_charging': read_from_sensor('HDD Usage (SXLS0_180227AA)')[1],
     }
 
-    return allAvailableResources_current
+    return allAvailableResources_summit_current
 
-async def currentValues_handler(params):
+async def currentValues_summit_handler(params):
     return {
         'result': True,
         'message': {

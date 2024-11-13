@@ -108,6 +108,9 @@ RUN sudo pip install vo-wot==0.18.12
 COPY tb2-vo/tb2-td.json /home/ros
 COPY tb2-vo/tb2.py /home/ros
 COPY tb2-vo/tb2.yaml /home/ros
+COPY tb2-vo/summit-td.json /home/ros
+COPY tb2-vo/summit.py /home/ros
+COPY tb2-vo/summit.yaml /home/ros
 COPY start_zenoh_tb2nomap_vo.sh /home/ros
 #COPY my_map.pgm /home/ros
 COPY zenoh-bridge-conf.json5 /home/ros

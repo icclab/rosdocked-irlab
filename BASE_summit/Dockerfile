@@ -72,7 +72,7 @@ git clone -b humble https://github.com/RobotnikAutomation/robotnik_common.git &&
 git clone -b humble https://github.com/icclab/summit_xl_common && \
 git clone -b humble https://github.com/icclab/icclab_summit_xl && \
 git clone -b humble-devel https://github.com/RobotnikAutomation/robotnik_sensors.git && \
-git clone https://github.com/Juancams/ros_astra_camera && \
+git clone https://github.com/Juancams/ros_astra_camera -b humble && \
 git clone -b humble https://github.com/PickNikRobotics/ros2_robotiq_gripper.git && \
 git clone -b ros2 https://github.com/tylerjw/serial.git"
 
@@ -82,18 +82,20 @@ bash -c "if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then sudo r
 rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths src
 
 # install cyclonedds
-RUN sudo apt-get update && \
-    sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros wget vim ros-${ROS_DISTRO}-rmw-cyclonedds-cpp nlohmann-json3-dev ros-humble-depthai-ros ros-${ROS_DISTRO}-rosbag2-storage-mcap
+RUN  sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros wget vim ros-${ROS_DISTRO}-rmw-cyclonedds-cpp nlohmann-json3-dev ros-humble-depthai-ros ros-${ROS_DISTRO}-rosbag2-storage-mcap
 
 # build workspace
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && colcon build --symlink-install"
 
+RUN sudo apt-get update && \
+    sudo apt-get install -y python3-pip
+
 # Install Zenoh (install fails because of no systemd in container so we use a workaround)
 RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null && \
-    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-ros2dds=0.11.0 > /dev/null 2>1; echo $?"
+    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-ros2dds=1.0.2 > /dev/null 2>1; echo $?"
     
-RUN sudo apt-get update && \
-    sudo apt-get install -y python3-pip 
+#RUN sudo apt-get update && \
+#    sudo apt-get install -y python3-pip 
 RUN sudo pip install vo-wot
 COPY summit-vo/summit-td.json /home/ros
 COPY summit-vo/summit.py /home/ros

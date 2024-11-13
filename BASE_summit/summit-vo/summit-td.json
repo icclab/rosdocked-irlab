@@ -12,7 +12,7 @@
     }, 
     "security": "basic_sec", 
     "properties": { 
-        "allAvailableResources": { 
+        "allAvailableResources_summit": { 
             "type": "object", 
             "description": "Current level of all available resources given as an integer percentage for each particular resource. The data is obtained from the machine's sensors but can be set manually in case the sensors are broken.", 
             "properties": { 
@@ -23,7 +23,7 @@
                 }
            	} 
         }, 
-        "possibleLaunchfiles": { 
+        "possibleLaunchfiles_summit": { 
             "type": "array", 
             "description": "The list of possible launchfiles. Doesn't depend on the available resources.", 
             "items": { 
@@ -32,7 +32,7 @@
         }
     }, 
     "actions": { 
-        "triggerBringup": { 
+        "triggerBringup_summit": { 
             "title": "Trigger ROS launchfiles", 
             "description": "Brings hw components up (corresponding ROS launch files are launched). Accepts launchfile id as input. Brings up all if no input is specified.", 
             "input": { 
@@ -57,7 +57,7 @@
                 } 
             } 
         },
-        "mapExport": { 
+        "mapExport_summit": { 
             "title": "Export map data", 
             "description": "Get map data", 
             "output": { 
@@ -70,7 +70,7 @@
                 } 
             } 
         },
-        "bagExport": { 
+        "bagExport_summit": { 
             "title": "Export rosbag data", 
             "description": "Get rosbag data", 
             "output": { 
@@ -83,12 +83,12 @@
                 } 
             } 
         },
-        "currentValues": {
+        "currentValues_summit": {
             "description": "Returns the current values"
         }
     }, 
     "events": { 
-        "outOfResource": { 
+        "outOfResource_summmit": { 
             "description": "Out of resource event. Emitted when the available resource level is not sufficient to operate further (e.g., battery level).", 
             "data": { 
                 "type": "string" 
