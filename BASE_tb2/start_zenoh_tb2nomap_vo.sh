@@ -6,8 +6,8 @@ source "/opt/ros/$ROS_DISTRO/setup.bash" --
 source "/home/ros/colcon_ws/install/setup.bash"
 exec "$@"
 
-#vo-wot -t tb2-td.json -f tb2.yaml tb2.py &
-vo-wot -t summit-td.json -f summit.yaml summit.py &
+vo-wot -t tb2-td.json -f tb2.yaml tb2.py &
+#vo-wot -t summit-td.json -f summit.yaml summit.py &
 
 VOWOT_PID=$!
 #launchfile="tb2_complete_no_map.launch.py"
