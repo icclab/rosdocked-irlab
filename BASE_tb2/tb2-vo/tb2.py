@@ -1,10 +1,5 @@
 import logging
 import rclpy
-<<<<<<< HEAD
-#import mcap
-=======
-import mcap
->>>>>>> 1c41059434c77393189f05c9920a82e05fae4cd6
 from rclpy.node import Node
 
 from std_msgs.msg import Bool
