@@ -64,7 +64,7 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
     git clone https://github.com/kobuki-base/velocity_smoother.git && \
     git clone https://github.com/kobuki-base/cmd_vel_mux.git && \
     git clone https://github.com/stonier/sophus.git -b release/1.2.x && \
-    git clone https://github.com/Juancams/ros_astra_camera -b ros2 && \
+    git clone https://github.com/Juancams/ros_astra_camera -b humble && \
     git clone https://github.com/icclab/sllidar_ros2.git && \
     rm -rf TurtleBot2-on-ROS2/turtlebot2_commander && \
     git clone -b humble https://github.com/ros-perception/image_transport_plugins.git && \
@@ -109,6 +109,9 @@ RUN sudo pip install vo-wot
 COPY tb2-vo/tb2-td.json /home/ros
 COPY tb2-vo/tb2.py /home/ros
 COPY tb2-vo/tb2.yaml /home/ros
+COPY tb2-vo/summit-td.json /home/ros
+COPY tb2-vo/summit.py /home/ros
+COPY tb2-vo/summit.yaml /home/ros
 COPY start_zenoh_tb2nomap_vo.sh /home/ros
 #COPY my_map.pgm /home/ros
 ENTRYPOINT /home/ros/start_zenoh_tb2nomap_vo.sh
