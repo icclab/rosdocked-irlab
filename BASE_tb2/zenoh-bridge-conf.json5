@@ -8,15 +8,6 @@
     //// All settings are optional and are unset by default - uncomment the ones you want to set
     ////
     ros2dds: {
-      ////
-      //// id: An identifier for this bridge, which must be unique in the system.
-      ///      The bridge will use this identifier in it's administration space: `@ros2/<id>/**`.
-      ///      This identifier will also appears in the logs of all other bridges on discovery events.
-      ///      By default a random UUID
-      ////
-     // id: "control1",
-
-      ////
       //// nodename: A ROS node name to be used by this bridge.
       ////            Default: "zenoh_bridge_ros2dds"
       ////
@@ -30,7 +21,7 @@
       ////               Note that this also applies to topics with absolute path such as "/rosout", "/tf" and "/tf_static".
       ////            Default: "/"
       ////
-      namespace: "/bot1",
+      namespace: "/tb2",
 
       ////
       //// domain: The DDS Domain ID. By default set to 0, or to "$ROS_DOMAIN_ID" is this environment variable is defined.

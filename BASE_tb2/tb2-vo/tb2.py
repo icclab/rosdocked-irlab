@@ -1,6 +1,5 @@
 import logging
 import rclpy
-import mcap
 from rclpy.node import Node
 
 from std_msgs.msg import Bool
@@ -235,7 +234,7 @@ async def allAvailableResources_read_tb2_handler():
 
     return allAvailableResources_current
 
-async def currentValues_tb2_tb2_handler(params):
+async def currentValues_tb2_handler(params):
     return {
         'result': True,
         'message': {
