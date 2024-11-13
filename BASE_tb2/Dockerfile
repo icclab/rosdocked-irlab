@@ -80,7 +80,7 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
 
 # install fails because of no systemd in container
 RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null && \
-    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-ros2dds=0.11.0 > /dev/null 2>1; echo $?"
+    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-ros2dds=1.0.2 > /dev/null 2>1; echo $?"
 
 ADD cyclone-env.sh /home/ros
 #RUN sudo apt update && sudo apt install -y ros-humble-cyclonedds ros-humble-rmw-cyclonedds-cpp
