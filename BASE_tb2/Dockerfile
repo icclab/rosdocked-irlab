@@ -64,7 +64,7 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
     git clone https://github.com/kobuki-base/velocity_smoother.git && \
     git clone https://github.com/kobuki-base/cmd_vel_mux.git && \
     git clone https://github.com/stonier/sophus.git -b release/1.2.x && \
-    git clone https://github.com/Juancams/ros_astra_camera -b ros2 && \
+    git clone https://github.com/Juancams/ros_astra_camera -b humble && \
     git clone https://github.com/icclab/sllidar_ros2.git && \
     rm -rf TurtleBot2-on-ROS2/turtlebot2_commander && \
     git clone -b humble https://github.com/ros-perception/image_transport_plugins.git && \
@@ -80,7 +80,7 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
 
 # install fails because of no systemd in container
 RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" | sudo tee -a /etc/apt/sources.list > /dev/null && \
-    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-ros2dds=0.11.0 > /dev/null 2>1; echo $?"
+    sudo apt update && sudo bash -c "apt install -y zenoh-bridge-ros2dds=1.0.2 > /dev/null 2>1; echo $?"
 
 ADD cyclone-env.sh /home/ros
 #RUN sudo apt update && sudo apt install -y ros-humble-cyclonedds ros-humble-rmw-cyclonedds-cpp
@@ -101,14 +101,14 @@ COPY ros_entrypoint.sh /
 COPY start_tb2.sh /home/ros
 COPY cyclonedds.xml /home/ros
 COPY start_tb2_nomap.sh /home/ros
-COPY zenoh-bridge-conf.json5 /home/ros
-#COPY zenoh-bridge-ros2dds /home/ros
+#COPY zenoh-bridge-conf.json5 /home/ros
 RUN sudo apt-get update && \
     sudo apt-get install -y python3-pip
-RUN sudo pip install vo-wot
+RUN sudo pip install vo-wot==0.18.12
 COPY tb2-vo/tb2-td.json /home/ros
 COPY tb2-vo/tb2.py /home/ros
 COPY tb2-vo/tb2.yaml /home/ros
 COPY start_zenoh_tb2nomap_vo.sh /home/ros
 #COPY my_map.pgm /home/ros
+COPY zenoh-bridge-conf.json5 /home/ros
 ENTRYPOINT /home/ros/start_zenoh_tb2nomap_vo.sh
