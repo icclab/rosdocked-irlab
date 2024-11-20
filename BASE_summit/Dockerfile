@@ -96,7 +96,7 @@ RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" |
     
 #RUN sudo apt-get update && \
 #    sudo apt-get install -y python3-pip 
-RUN sudo pip install vo-wot
+RUN sudo pip install vo-wot==0.18.12
 COPY summit-vo/summit-td.json /home/ros
 COPY summit-vo/summit.py /home/ros
 COPY summit-vo/summit.yaml /home/ros
