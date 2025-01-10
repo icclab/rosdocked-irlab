@@ -7,7 +7,7 @@
 # Date:         2021-11-08
 ################################################################################
 
-export IMAGE_NAME=robopaas/rosdocked-humble-nephele-summit:latest
+export IMAGE_NAME=robopaas/rosdocked-humble-nephele-summit:latest 
 
 # Get this script's path
 pushd `dirname $0` > /dev/null

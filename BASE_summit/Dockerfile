@@ -43,8 +43,9 @@ RUN sudo apt-get update && \
 ################################################################################
 
 # This is required for sharing Xauthority
-ENV QT_X11_NO_MITSHM=1
 ENV CATKIN_TOPLEVEL_WS="${workspace}/devel"
+ENV QT_X11_NO_MITSHM=1
+
 
 # Switch to the workspace
 WORKDIR ${workspace}
@@ -68,11 +69,15 @@ RUN /bin/bash -c 'echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc &
 # create catkin ws and clone projects
 RUN mkdir -p ~/colcon_ws/src && cd ~/colcon_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
 cd src && \
+git clone -b 4.5.x https://github.com/BehaviorTree/BehaviorTree.CPP.git && \
+git clone https://github.com/icclab/ros2_laser_scan_merger.git && \
+git clone https://github.com/icclab/liquid_pickup.git && \
 git clone -b humble https://github.com/RobotnikAutomation/robotnik_common.git && \
 git clone -b humble https://github.com/icclab/summit_xl_common && \
 git clone -b humble https://github.com/icclab/icclab_summit_xl && \
 git clone -b humble-devel https://github.com/RobotnikAutomation/robotnik_sensors.git && \
 git clone https://github.com/Juancams/ros_astra_camera -b humble && \
+git clone https://github.com/icclab/add-obstacle-costmap-plugin-layer.git && \
 git clone -b humble https://github.com/PickNikRobotics/ros2_robotiq_gripper.git && \
 git clone -b ros2 https://github.com/tylerjw/serial.git"
 
@@ -97,7 +102,7 @@ RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" |
 #RUN sudo apt-get update && \
 #    sudo apt-get install -y python3-pip 
 RUN sudo pip install vo-wot==0.18.12
-COPY summit-vo/summit-td.json /home/ros
 COPY summit-vo/summit.py /home/ros
+COPY summit-vo/summit-td.json /home/ros
 COPY summit-vo/summit.yaml /home/ros
 

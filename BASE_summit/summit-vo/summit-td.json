@@ -20,6 +20,14 @@
                     "type": "integer", 
                     "minimum": 0, 
                     "maximum": 100 
+                },
+                "deployed_sensors": { 
+                    "type": "integer", 
+                    "minimum": 0
+                },
+                "liquid_samples": { 
+                    "type": "integer", 
+                    "minimum": 0
                 }
            	} 
         }, 
@@ -57,6 +65,56 @@
                 } 
             } 
         },
+        "deploy_sensor_summit": { 
+            "title": "Trigger sensor deployment Behavior Tree on Summit-XL", 
+            "description": "Launch Behavior Tree. Accepts vector of x-y coordinates as input. Deploys sensors in the given coordinates.", 
+            "input": { 
+                "type": "object", 
+                "properties": { 
+                    "coordinates": { 
+                        "type": "array", 
+                        "description": "Defines x-y coordinates of sensors" 
+                    }
+                }
+            },
+            "output": { 
+                "type": "object", 
+                "description": "Returns True/false and a message when all invoked promises are resolved (asynchronous).", 
+                "properties": { 
+                    "result": { 
+                        "type": "boolean" 
+                    }, 
+                    "message": { 
+                        "type": "string" 
+                    } 
+                } 
+            } 
+        },
+        "sample_liquid_summit": { 
+            "title": "Trigger liquid sampling Behavior Tree on Summit-XL", 
+            "description": "Launch Behavior Tree. Accepts vector of x-y coordinates as input. Sample liquid in the given coordinates.", 
+            "input": { 
+                "type": "object", 
+                "properties": { 
+                    "coordinates": { 
+                        "type": "array", 
+                        "description": "Defines x-y coordinates of liquid to sample" 
+                    }
+                }
+            },
+            "output": { 
+                "type": "object", 
+                "description": "Returns True/false and a message when all invoked promises are resolved (asynchronous).", 
+                "properties": { 
+                    "result": { 
+                        "type": "boolean" 
+                    }, 
+                    "message": { 
+                        "type": "string" 
+                    } 
+                } 
+            } 
+        },
         "mapExport_summit": { 
             "title": "Export map data", 
             "description": "Get map data", 
@@ -65,19 +123,6 @@
                 "description": "Returns map in string format.", 
                 "properties": { 
                     "maptoString": { 
-                        "type": "string" 
-                    }
-                } 
-            } 
-        },
-        "bagExport_summit": { 
-            "title": "Export rosbag data", 
-            "description": "Get rosbag data", 
-            "output": { 
-                "type": "object", 
-                "description": "Returns rosbag in string format.", 
-                "properties": { 
-                    "bagtoString": { 
                         "type": "string" 
                     }
                 } 
@@ -96,4 +141,3 @@
         } 
     } 
 }
-

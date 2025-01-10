@@ -17,6 +17,9 @@ LOGGER.setLevel(logging.INFO)
 import os
 import signal
 
+import asyncio
+import json
+
 def read_from_sensor():
 #def read_from_sensor(sensorType):
    # if sensorType != 'HDD Usage (SXLS0_180227AA)':
@@ -57,13 +60,18 @@ def read_from_sensor():
     return battery_percent#, battery_charging
     
 allAvailableResources_init = {
-    'battery_percent': read_from_sensor()
+    'battery_percent': read_from_sensor(),
+    'deployed_sensors': 0,
+    'liquid_samples': 0
  #   'battery_percent': read_from_sensor('HDD Usage (SXLS0_180227AA)')[0],
  #   'battery_charging': read_from_sensor('HDD Usage (SXLS0_180227AA)')[1],
 }
 
-possibleLaunchfiles_summit_init = ['startmapping_summit', 'bringup_summit', 'savemap_summit', 'savebag_summit', 'stopbag_summit']
+possibleLaunchfiles_summit_init = ['startmapping_summit', 'bringup_summit', 'savemap_summit']
 mapdataExportTF_init = [True, False]
+
+count_deployed_sensors = 0
+count_liquid_samples = 0
 
 def get_map_as_string(map_file_path):
     try:
@@ -79,21 +87,7 @@ def get_map_as_string(map_file_path):
     except FileNotFoundError:
         print("Error: Map file not found.")
         return None
-    
-def get_rosbag_as_string(bag_file_path):
-    try:
-        # Read the bag file as binary
-        with open(bag_file_path, 'rb') as file:
-            bag_data = file.read()
 
-        # Convert the MCAP binary data to a string ??? How???
-        bag_string = base64.b64encode(bag_data).decode('utf-8')
-
-        return bag_string
-
-    except FileNotFoundError:
-        print("Error: Bagfile not found.")
-        return None
 
 async def triggerBringup_summit_handler(params):
     params = params['input'] if params['input'] else {}
@@ -115,9 +109,7 @@ async def triggerBringup_summit_handler(params):
     bringupaction = None
     mappingaction = None
     saveaction = None
-    savebagaction = None
-    stopbagaction = None
-    #process_bagrecording = None
+
     
 
     #if launchfileId == 'bringup' and batterypercent is None :
@@ -126,7 +118,7 @@ async def triggerBringup_summit_handler(params):
         print("Battery status unknown, start summit_bringup!")
         process_bringup = subprocess.Popen(['ros2', 'launch', 'icclab_summit_xl', 'summit_xl_real.launch.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         # Allow some time for the launch file to start
-        time.sleep(20)  
+        time.sleep(10)  
 
 
         # Check if the process is still running
@@ -142,7 +134,8 @@ async def triggerBringup_summit_handler(params):
         # If battery percentage is more than 50, allow to start the mapping launch file
         print("Battery sufficient, start summit mapping!")
         #process_mapping = subprocess.Popen(['ros2', 'launch', 'slam_toolbox', 'online_async_launch.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        process_mapping = subprocess.Popen(['ros2', 'launch', 'summit_xl_navigation', 'nav2_bringup_launch.py', 'use_sim_time:=false', 'slam:=True','params_file:=/home/ros/colcon_ws/install/icclab_summit_xl/share/icclab_summit_xl/config/nav2_params_real.yaml'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+       # process_mapping = subprocess.Popen(['ros2', 'launch', 'summit_xl_navigation', 'nav2_bringup_launch.py', 'use_sim_time:=false', 'slam:=True'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process_mapping = subprocess.Popen(['ros2', 'launch', 'icclab_summit_xl', 'summit_xl_nav2.launch.py', 'use_sim_time:=false', 'slam:=True', 'params_file:=/home/ros/colcon_ws/install/icclab_summit_xl/share/icclab_summit_xl/config/nav2_params_real.yaml'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         time.sleep(10) 
 
 
@@ -156,43 +149,11 @@ async def triggerBringup_summit_handler(params):
     if launchfileId == 'savemap_summit': #and mappingaction == True:
         print("Mapping finished, save the map!")
         process_savemapping = subprocess.Popen(['ros2', 'launch', 'icclab_summit_xl', 'map_save.launch.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        time.sleep(20) 
+        time.sleep(10) 
        
         print("Map saved successfully.")
         saveaction = True
-        
-    if launchfileId == 'savebag_summit':
-        print("Starting recording rosbag!")
-        global process_bagrecording
-        process_bagrecording = subprocess.Popen(['exec ros2 bag record -s mcap -o my_bag -d 20 -b 50000 -a'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
-        time.sleep(20) 
-       
-        print("Bag recording started.")
-        savebagaction = True
-    
-    if launchfileId == 'stopbag_summit':
-        print("Stopping recording rosbag!")
-        if process_bagrecording.poll() is None:
-            process_bagrecording.terminate()
-            process_bagrecording.wait()
-            time.sleep(20)
-        #print(process_bagrecording)
-        #process_bagrecording.terminate()#kill()
-        #os.killpg(process_bagrecording, signal.SIGTERM)
-        print("Bag recording stopped.")
-        stopbagaction = True
-
-            
-        
-
-
-       # if process_savemapping.poll() is None:
-       #     print("Map saved successfully.")
-       #     saveaction = True
-       # else:
-       #     print("Failed to save map.")
-       #     saveaction = False
-    
+   
 
     # Read the current level of allAvailableResources_summit
     resources = await exposed_thing.read_property('allAvailableResources_summit')
@@ -203,6 +164,7 @@ async def triggerBringup_summit_handler(params):
    # newResources['battery_charging'] = read_from_sensor('HDD Usage (SXLS0_180227AA)')[1]
     
     # Check if the amount of available resources is sufficient to launch
+    #Commenting for now as it gives an error with the return
     if newResources['battery_percent'] <= 30:
         # Emit outOfResource event
         exposed_thing.emit_event('outOfResource_summit', 'Low level of Battery Percentage')
@@ -213,31 +175,118 @@ async def triggerBringup_summit_handler(params):
 
     # Finally deliver the launchfile
     if launchfileId == 'bringup_summit':
+        print("Launch file return successfully.")
         return {'result': bringupaction, 'message': f'Your {launchfileId} is in progress!'}
     elif launchfileId == 'startmapping_summit':
         return {'result': mappingaction, 'message': f'Your {launchfileId} is in progress!'}
     elif launchfileId == 'savemap_summit':
         return {'result': saveaction, 'message': f'Your {launchfileId} is in progress!'}
-    elif launchfileId == 'savebag_summit':
-        return {'result': savebagaction, 'message': f'Your {launchfileId} is in progress!'}
-    elif launchfileId == 'stopbag_summit':
-         return {'result': stopbagaction, 'message': f'Your {launchfileId} is in progress!'}
+
     
+
+async def sample_liquid_summit_handler(params):
+        params = params.get('input', {}) or {}
+        coordinates = params.get('coordinates')
+        global count_liquid_samples 
+        count_liquid_samples += len(coordinates)
+            # Ensure coordinates are in the correct format
+        print(f"Coordinates: {coordinates}")  
+        if not coordinates:
+            return {'result': False, 'message': 'No coordinates provided for sensor deployment.'}
+
+
+        # Create the coordinates string without quotes around numbers
+        coordinates_str = json.dumps(coordinates)  # This will produce '[ [0.5, 0] ]'
+        
+        # Replace quotes around numbers (by re-serializing to a string)
+        coordinates_str = coordinates_str.replace('"', '')  # Remove quotes around numbers
+
+        # Format the coordinates string for ROS 2 launch
+        coordinates_str = f"'{coordinates_str}'"  # Wrap coordinates in single quotes for the ROS 2 command
+
+
+         # Now manually construct the final string to match: '"[[1, 0]]"'
+        coordinates_str = f"\"{coordinates_str}\""  # Wrap it with double quotes around the entire string
+        print(f"Formatted coordinates for ROS 2 command: {coordinates_str}")
+
+        # Source the ROS workspace and launch the ROS2 command
+        command = [
+            "bash", "-c",
+            f"ros2 launch liquid_pickup liquid_pickup_launch_real.py coordinates:={coordinates_str}"
+        ]
+        print(f"Final command: {command}")
+
+        # Execute the command in a subprocess
+        try:
+            subprocess.run(command, check=True)
+            return {
+            'result': True,
+            'message': f'Liquid sampling completed at coordinates: {coordinates_str}!'
+            }
+        except subprocess.CalledProcessError as e:
+            print(f"Command failed with return code {e.returncode}")
+            print(f"Error message: {e}")
+            return {'result': False, 'message': 'An undefined error occurred.'}
+
+
+
+async def deploy_sensor_summit_handler(params):
+        params = params.get('input', {}) or {}
+        coordinates = params.get('coordinates')
+        global count_deployed_sensors
+        count_deployed_sensors += len(coordinates)
+            # Ensure coordinates are in the correct format
+        print(f"Coordinates: {coordinates}")  
+        if not coordinates:
+            return {'result': False, 'message': 'No coordinates provided for sensor deployment.'}
+
+
+        # Create the coordinates string without quotes around numbers
+        coordinates_str = json.dumps(coordinates)  # This will produce '[ [0.5, 0] ]'
+        
+        # Replace quotes around numbers (by re-serializing to a string)
+        coordinates_str = coordinates_str.replace('"', '')  # Remove quotes around numbers
+
+        # Format the coordinates string for ROS 2 launch
+        coordinates_str = f"'{coordinates_str}'"  # Wrap coordinates in single quotes for the ROS 2 command
+
+
+         # Now manually construct the final string to match: '"[[1, 0]]"'
+        coordinates_str = f"\"{coordinates_str}\""  # Wrap it with double quotes around the entire string
+        print(f"Formatted coordinates for ROS 2 command: {coordinates_str}")
+
+        # Source the ROS workspace and launch the ROS2 command
+        command = [
+            "bash", "-c",
+            f"ros2 launch liquid_pickup sensors_deploy_launch_real.py coordinates:={coordinates_str}"
+        ]
+        print(f"Final command: {command}")
+
+        # Execute the command in a subprocess
+        try:
+            subprocess.run(command, check=True)
+            return {
+            'result': True,
+            'message': f'Sensor deployment completed at coordinates: {coordinates_str}!'
+            }
+        except subprocess.CalledProcessError as e:
+            print(f"Command failed with return code {e.returncode}")
+            print(f"Error message: {e}")
+            return {'result': False, 'message': 'An undefined error occurred.'}
+
+ 
 async def mapExport_summit_handler(params):
     params = params['input'] if params['input'] else {}
     map_file_path = '/home/ros/my_map.pgm'
     map_string = get_map_as_string(map_file_path)
     return map_string
 
-async def bagExport_summit_handler(params):
-    params = params['input'] if params['input'] else {}
-    bag_file_path = '/home/ros/my_bag/my_bag_0.mcap'
-    bag_string = get_rosbag_as_string(bag_file_path)
-    return bag_string
     
 async def allAvailableResources_summit_read_handler():
     allAvailableResources_current = {
-    'battery_percent': read_from_sensor()
+    'battery_percent': read_from_sensor(),
+    'deployed_sensors': count_deployed_sensors,
+    'liquid_samples': count_liquid_samples
  #   'battery_percent': read_from_sensor('HDD Usage (SXLS0_180227AA)')[0],
  #   'battery_charging': read_from_sensor('HDD Usage (SXLS0_180227AA)')[1],
     }
@@ -248,7 +297,9 @@ async def currentValues_summit_handler(params):
     return {
         'result': True,
         'message': {
-    'battery_percent': read_from_sensor()
+    'battery_percent': read_from_sensor(),
+    'deployed_sensors': count_deployed_sensors,
+    'liquid_samples': count_liquid_samples
  #   'battery_percent': read_from_sensor('HDD Usage (SXLS0_180227AA)')[0],
  #   'battery_charging': read_from_sensor('HDD Usage (SXLS0_180227AA)')[1],
         }
