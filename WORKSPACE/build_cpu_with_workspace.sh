@@ -8,11 +8,11 @@
 # Date:         2021-11-08
 ################################################################################
 
-export IMAGE_NAME=robopaas/rosdocked-humble-cpu:latest
+export IMAGE_NAME=robopaas/rosdocked-jazzy-cpu:latest
 
 # Build the docker image
 docker build \
-  --build-arg BASE_IMAGE=robopaas/rosdocked-humble-base-cpu:latest \
+  --build-arg BASE_IMAGE=robopaas/rosdocked-jazzy-base-cpu:latest \
   --build-arg USER=ros \
   --build-arg home=/home/ros \
   --build-arg workspace=/home/ros \

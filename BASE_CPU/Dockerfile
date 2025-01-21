@@ -5,13 +5,15 @@
 # Date:         2021-11-08
 ################################################################################
 
+# Use a more up-to-date base image https://github.com/sloretz/ros_oci_images
+FROM ghcr.io/sloretz/ros:jazzy-desktop-full 
 # Base image
-FROM osrf/ros:humble-desktop-full
+#FROM osrf/ros:jazzy-desktop-full
 
 ################################################################################
 
 # Arguments
-ENV ROS_DISTRO=humble
+ENV ROS_DISTRO=jazzy
 ARG USER=ros
 ARG uid
 ARG home
@@ -41,6 +43,11 @@ RUN cd /opt && sudo git clone  https://github.com/icclab/gpd && cd gpd && \
    sudo mkdir build && cd build && sudo cmake .. && sudo make -j8 && sudo make install
 
 ################################################################################
+
+### Install Gazebo Harmonic
+RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null && \
+    sudo apt-get update && sudo apt-get install -y gz-harmonic
 
 # This is required for sharing Xauthority
 ENV QT_X11_NO_MITSHM=1
