@@ -64,7 +64,8 @@ cd src && \
 # git clone -b humble https://github.com/RobotnikAutomation/robotnik_common.git && \
 git clone -b humble https://github.com/icclab/summit_xl_common && \
 git clone -b ${ROS_DISTRO} https://github.com/icclab/icclab_summit_xl && \
-git clone -b ${ROS_DISTRO} https://github.com/icclab/ros2_laser_scan_merger"
+git clone -b ${ROS_DISTRO} https://github.com/icclab/ros2_laser_scan_merger && \
+git clone https://github.com/PickNikRobotics/ros2_robotiq_gripper"
 
 # git clone https://github.com/icclab/TurtleBot2-on-ROS2.git && \
 # git clone https://github.com/icclab/kobuki_ros
@@ -81,7 +82,7 @@ rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths s
 #ros-${ROS_DISTRO}-moveit-python  doesn't work
 
 # build workspace
-# RUN touch COLCON_IGNORE; cp COLCON_IGNORE ~/colcon_ws/src/kobuki_ros ; cp COLCON_IGNORE ~/colcon_ws/src/ros2_robotiq_gripper/robotiq_driver ; cp COLCON_IGNORE ~/colcon_ws/src/ros2_robotiq_gripper/robotiq_controllers ; cp COLCON_IGNORE ~/colcon_ws/src/ros2_robotiq_gripper/robotiq_hardware_tests
+RUN touch COLCON_IGNORE ; cp COLCON_IGNORE ~/colcon_ws/src/ros2_robotiq_gripper/robotiq_driver ; cp COLCON_IGNORE ~/colcon_ws/src/ros2_robotiq_gripper/robotiq_controllers ; cp COLCON_IGNORE ~/colcon_ws/src/ros2_robotiq_gripper/robotiq_hardware_tests
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && colcon build --symlink-install"
 
 COPY env.sh /home/"${USER}"/env.sh
