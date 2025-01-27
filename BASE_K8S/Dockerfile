@@ -1,22 +1,30 @@
-################################################################################
-# ZHAW INIT
-# Description:  Dockerfile to create the Base CPU Docker image
-# Authors:      Leonardo Militano, Mark Straub, Giovanni Toffetti
-# Date:         2021-11-08
-################################################################################
+# use a more frequently updated base image from here https://github.com/sloretz/ros_oci_images
+FROM ghcr.io/sloretz/ros:jazzy-desktop-full
+#FROM osrf/ros:jazzy-desktop-noble
 
-# Base image
-#FROM ghcr.io/ehfd/nvidia-glx-desktop:latest
-ARG UBUNTU_RELEASE=22.04
-ARG CUDA_RELEASE=12.2.0
-#FROM nvcr.io/nvidia/cudagl:11.0.3-runtime-ubuntu${UBUNTU_RELEASE}
-#FROM robopaas/cudagl:11.8.0-devel-ubuntu${UBUNTU_RELEASE}
-FROM robopaas/cudagl:${CUDA_RELEASE}-devel-ubuntu${UBUNTU_RELEASE}
+# install ros2 packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ros-jazzy-desktop-full
+#\
+   # && rm -rf /var/lib/apt/lists/*
 
-################################################################################
+# Make sure the package repository is up to date.
+#RUN apt-get update && apt-get -y upgrade
+
+RUN apt-get install -y  \
+    make \
+    git \
+    gcc \
+    g++ \
+    python3 \
+    sudo \
+    pciutils \
+    cmake \
+    ubuntu-drivers-common \    
+    wget 
 
 # Arguments
-ENV ROS_DISTRO=humble
+ENV ROS_DISTRO=jazzy
 ENV DEBIAN_FRONTEND=noninteractive
 ENV USER=ros
 
@@ -85,7 +93,7 @@ RUN dpkg --add-architecture i386 && \
 #        python-numpy \
         python3 \
         python3-numpy \
-        mlocate \
+    #    mlocate \
         nano \
         vim \
         htop \
@@ -117,7 +125,7 @@ RUN dpkg --add-architecture i386 && \
         libxrandr-dev \
         xorg-dev \
         iproute2 && \
-    apt-get install -y  xfce4 xfce4-goodies vulkan-tools && \
+    apt-get install -y xfce4 xfce4-goodies vulkan-tools && \
     # Remove Bluetooth packages that throw errors
     apt-get autoremove --purge -y \
         blueman \
@@ -162,9 +170,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 RUN apt-get update && apt-get install --no-install-recommends -y \
         sudo && \
     rm -rf /var/lib/apt/lists/* && \
-    groupadd -g 1000 ${USER} && \
-    useradd -ms /bin/bash ${USER} -u 1000 -g 1000 && \
-    usermod -a -G adm,audio,cdrom,dialout,dip,fax,floppy,input,lp,netdev,plugdev,scanner,sudo,tape,tty,video,voice ${USER} && \
+    #groupadd -g 1000 ${USER} && \
+    #useradd -ms /bin/bash ${USER} -u 1000 -g 1000 && \
+    useradd -ms /bin/bash ${USER} &&\
+    usermod -a -G adm,audio,cdrom,dialout,dip,fax,floppy,input,lp,plugdev,sudo,tape,tty,video,voice ${USER} && \
     echo "${USER} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     chown ${USER}:${USER} /home/${USER} && \
     echo "${USER}:${PASSWD}" | chpasswd && \
@@ -173,72 +182,64 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 ################################################################################
 
-# install min requirements
-#RUN apt update && apt-get upgrade -y && \
-#    apt install -y lsb-release gnupg sudo python3-pip 
-
 # set up ROS
-RUN bash -c 'apt install curl gnupg2 lsb-release software-properties-common gnupg && \
-sudo add-apt-repository universe &&\
-sudo apt update &&\
-curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg &&\
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(source /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null'
 
 # install git and other needed libs including catkin build
 RUN apt update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git apt-utils ros-${ROS_DISTRO}-desktop-full \
-    ros-${ROS_DISTRO}-pcl-ros \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git apt-utils \
     python3-osrf-pycommon \
     curl wget vim less lsof net-tools git htop xterm terminator novnc python3-websockify
 
 # Install gpd
 USER $USER
-RUN cd /opt && rm -rf gpd \
-    && sudo git clone https://github.com/icclab/gpd gpd \
-    && cd gpd \
-    && sudo mkdir build \
-    && cd build \
-    && sudo cmake ..  \
-    && sudo make -j8 \
-    && sudo make install
+#RUN cd /opt && rm -rf gpd \
+ #   && sudo git clone https://github.com/icclab/gpd gpd \
+ #   && cd gpd \
+ #   && sudo mkdir build \
+ #   && cd build \
+ #   && sudo cmake ..  \
+ #   && sudo make -j8 \
+ #   && sudo make install
 
 ################################################################################
 USER ${USER}
 # Switch to the workspace
 WORKDIR /home/${USER}
 
-# create catkin ws and clone projects
-#RUN mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/ && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" && cd / 
-#RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
 # update dependencies
 RUN sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y python3-rosdep \ 
-    ros-${ROS_DISTRO}-pcl-ros build-essential g++ 
-#&& \
-    #cd ~/catkin_ws && sudo rosdep init && \
-   # rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths src 
+    ros-${ROS_DISTRO}-pcl-ros build-essential g++  ros-${ROS_DISTRO}-pcl-ros  wget vim nvidia-cuda-toolkit
 
-# install ros-pcl AGAIN. No clue why it doesn't keep it
-RUN sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-moveit wget vim  
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash"
-################################################################################
 
-# build workspace
-#RUN cd ~/catkin_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && catkin build && source devel/setup.bash"
-
-################################################################################
-
-
-USER root
-COPY entrypoint.sh /etc/entrypoint.sh
-RUN chmod 755 /etc/entrypoint.sh
 COPY supervisord.conf /etc/supervisord.conf
-RUN chmod 755 /etc/supervisord.conf
+RUN sudo chmod 755 /etc/supervisord.conf
 COPY install_nvidia_drivers.sh /opt/install_nvidia_drivers.sh
-RUN chmod 755 /opt/install_nvidia_drivers.sh
-RUN /opt/install_nvidia_drivers.sh
+RUN sudo chmod 755 /opt/install_nvidia_drivers.sh
+RUN sudo /opt/install_nvidia_drivers.sh
+COPY entrypoint.sh /etc/entrypoint.sh
+RUN sudo chmod 755 /etc/entrypoint.sh
 
+### Install Gazebo Harmonic
+RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null && \
+    sudo apt-get update && sudo apt-get install -y gz-harmonic
+
+### Zenoh
 
 EXPOSE 8080
 CMD ["/usr/bin/supervisord"]
+COPY MY_RMW_ZENOH_ROUTER_CONFIG.json5 /home/ros/MY_RMW_ZENOH_ROUTER_CONFIG.json5
+ 
 USER ${USER}
+WORKDIR /home/${USER}
+RUN echo "export RMW_IMPLEMENTATION=rmw_zenoh_cpp" > ~/env_zenoh.sh
+RUN echo "export ZENOH_ROUTER_CONFIG_URI=$HOME/MY_RMW_ZENOH_ROUTER_CONFIG.json5" >> ~/env_zenoh.sh
+RUN chmod 700 ~/env_zenoh.sh
+
+# Install Zenoh
+RUN    sudo apt update && sudo apt install -y ros-${ROS_DISTRO}-rmw-zenoh-cpp
+
+
+
