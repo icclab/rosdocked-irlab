@@ -7,7 +7,7 @@
 
 # Default value
 # ARG BASE_IMAGE=robopaas/rosdocked-noetic-base-cpu:latest
-ARG BASE_IMAGE
+ARG BASE_IMAGE=robopaas/rosdocked-jazzy-base-cpu:latest
 FROM $BASE_IMAGE 
 
 # Arguments

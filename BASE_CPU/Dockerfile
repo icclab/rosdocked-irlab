@@ -39,8 +39,8 @@ RUN sudo apt-get update && \
 ################################################################################
 
 # Only required on BASE CPU
-RUN cd /opt && sudo git clone  https://github.com/icclab/gpd && cd gpd && \
-   sudo mkdir build && cd build && sudo cmake .. && sudo make -j8 && sudo make install
+#RUN cd /opt && sudo git clone  https://github.com/icclab/gpd && cd gpd && \
+#   sudo mkdir build && cd build && sudo cmake .. && sudo make -j8 && sudo make install
 
 ################################################################################
 
