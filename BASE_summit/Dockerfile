@@ -59,7 +59,7 @@ RUN sudo apt-get update && \
     ros-${ROS_DISTRO}-pcl-ros \
     ros-${ROS_DISTRO}-image-transport-plugins python3-colcon-common-extensions \
     inetutils-ping libuvc-dev libasio-dev  ros-${ROS_DISTRO}-robot-localization \
-    ros-${ROS_DISTRO}-nmea-navsat-driver 
+    ros-${ROS_DISTRO}-nmea-navsat-driver ros-${ROS_DISTRO}-rtabmap-* 
 
 # Add environment and colcon utilities to .bashrc
 RUN /bin/bash -c 'echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc && \
@@ -82,7 +82,7 @@ git clone https://github.com/Juancams/ros_astra_camera -b humble && \
 git clone https://github.com/icclab/add-obstacle-costmap-plugin-layer.git && \
 git clone -b humble https://github.com/PickNikRobotics/ros2_robotiq_gripper.git && \
 git clone https://github.com/gokulp01/ros2-ublox-zedf9p.git && \
-git clone https://github.com/Gaurav-Kapoor-07/Zenoh-Perf-Eval.git && \
+git clone https://github.com/icclab/Zenoh-Perf-Eval.git && \
 git clone -b ros2 https://github.com/tylerjw/serial.git"
 
 # update dependencies
