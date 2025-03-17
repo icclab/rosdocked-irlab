@@ -23,9 +23,14 @@ ARG shell
 ################################################################################
 
 # add ros user to container and make sudoer
-RUN useradd -m -s /bin/bash -G video,plugdev ${USER} && \
+# RUN useradd -m -s /bin/bash -G video,plugdev ${USER} && \
+
+# rename ubuntu user and move its home
+RUN usermod -m -d /home/${USER} -l ${USER} ubuntu && \
+groupmod -n ${USER} ubuntu && \
 echo "${USER} ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/${USER}" && \
 chmod 0440 "/etc/sudoers.d/${USER}"
+
 
 # Switch to user
 USER "${USER}"
