@@ -132,6 +132,7 @@ COPY env.sh /home/"${USER}"/env.sh
 COPY cyclonedds.xml  /home/"${USER}"/cyclonedds.xml
 RUN echo "if [ -f "~/env.sh" ]; then source ~/env.sh; fi" >> ~/.bashrc
 
+RUN sudo apt install -y --no-install-recommends terminator
 # COPY gazebo /home/"${USER}"/gazebo
 # RUN sudo chown -R ros:ros gazebo
 
