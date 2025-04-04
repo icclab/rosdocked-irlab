@@ -115,6 +115,31 @@
                 } 
             } 
         },
+        "people_detect_summit": { 
+            "title": "Trigger sensor deployment Behavior Tree on Summit-XL", 
+            "description": "Launch Behavior Tree. Accepts vector of x-y coordinates as input. Deploys sensors in the given coordinates.", 
+            "input": { 
+                "type": "object", 
+                "properties": { 
+                    "coordinates": { 
+                        "type": "array", 
+                        "description": "Defines x-y coordinates of sensors" 
+                    }
+                }
+            },
+            "output": { 
+                "type": "object", 
+                "description": "Returns True/false and a message when all invoked promises are resolved (asynchronous).", 
+                "properties": { 
+                    "result": { 
+                        "type": "boolean" 
+                    }, 
+                    "message": { 
+                        "type": "string" 
+                    } 
+                } 
+            } 
+        },
         "mapExport_summit": { 
             "title": "Export map data", 
             "description": "Get map data", 

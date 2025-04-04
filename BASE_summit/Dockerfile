@@ -67,6 +67,9 @@ RUN /bin/bash -c 'echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc &
     echo "export _colcon_cd_root=/opt/ros/${ROS_DISTRO}/" >> ~/.bashrc && \
     echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> ~/.bashrc'
 
+
+RUN python3 -m pip install depthai
+
 # create catkin ws and clone projects
 RUN mkdir -p ~/colcon_ws/src && cd ~/colcon_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
 cd src && \
@@ -83,7 +86,8 @@ git clone https://github.com/icclab/add-obstacle-costmap-plugin-layer.git && \
 git clone -b humble https://github.com/PickNikRobotics/ros2_robotiq_gripper.git && \
 git clone https://github.com/gokulp01/ros2-ublox-zedf9p.git && \
 git clone https://github.com/icclab/Zenoh-Perf-Eval.git && \
-git clone -b ros2 https://github.com/tylerjw/serial.git"
+git clone -b ros2 https://github.com/tylerjw/serial.git && \
+git clone https://github.com/icclab/person_detection.git"
 
 # update dependencies
 RUN sudo apt-get update && cd ~/colcon_ws && \
@@ -93,8 +97,11 @@ rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths s
 # install cyclonedds
 RUN  sudo apt-get install -y python3-pcl ros-${ROS_DISTRO}-pcl-ros wget vim ros-${ROS_DISTRO}-rmw-cyclonedds-cpp nlohmann-json3-dev ros-humble-depthai-ros ros-${ROS_DISTRO}-rosbag2-storage-mcap
 
+# Build geographiclib first
+RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && colcon build --symlink-install --packages-ignore tf_pub"
+
 # build workspace
-RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && colcon build --symlink-install"
+RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && source install/setup.bash && colcon build --symlink-install"
 
 RUN sudo apt-get update && \
     sudo apt-get install -y python3-pip xvfb

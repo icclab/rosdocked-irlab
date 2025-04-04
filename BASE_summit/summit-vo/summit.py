@@ -26,6 +26,7 @@ process_startfrontcamera = None
 process_startarmcamera = None
 process_startliquidpicking = None
 process_startsensordeploy = None
+process_startpeopledetect = None
 
 def read_from_sensor():
     
@@ -145,7 +146,7 @@ async def triggerBringup_summit_handler(params):
         print("Battery status unknown, start summit_bringup!")
         process_bringup = subprocess.Popen(['ros2', 'launch', 'icclab_summit_xl', 'summit_xl_real.launch.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         # Allow some time for the launch file to start
-        time.sleep(10)  
+        time.sleep(5)  
 
 
         # Check if the process is still running
@@ -161,7 +162,7 @@ async def triggerBringup_summit_handler(params):
         # If battery percentage is more than 50, allow to start the mapping launch file
         print("Battery sufficient, start summit mapping!")
         process_mapping = subprocess.Popen(['ros2', 'launch', 'icclab_summit_xl', 'summit_xl_nav2.launch.py', 'use_sim_time:=false', 'slam:=True', 'params_file:=/home/ros/colcon_ws/install/icclab_summit_xl/share/icclab_summit_xl/config/nav2_params_real.yaml'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        time.sleep(10) 
+        time.sleep(5) 
 
 
         if process_mapping.poll() is None:
@@ -174,7 +175,7 @@ async def triggerBringup_summit_handler(params):
     if launchfileId == 'savemap_summit': #and mappingaction == True:
         print("Mapping finished, save the map!")
         process_savemapping = subprocess.Popen(['ros2', 'launch', 'icclab_summit_xl', 'map_save.launch.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        time.sleep(10) 
+        time.sleep(5) 
        
         print("Map saved successfully.")
         saveaction = True
@@ -182,7 +183,7 @@ async def triggerBringup_summit_handler(params):
     
     if launchfileId == 'startarmcam_summit':
         process_startarmcamera = subprocess.Popen(['ros2', 'launch', 'icclab_summit_xl', 'oak.camera.launch.py', 'namespace:=summit'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        time.sleep(10) 
+        time.sleep(5) 
 
         if process_startarmcamera.poll() is None:
             print("Arm camera started successfully.")
@@ -216,7 +217,7 @@ async def triggerBringup_summit_handler(params):
 
     if launchfileId == 'startfrontcam_summit':
         process_startfrontcamera = subprocess.Popen(['ros2', 'launch', 'icclab_summit_xl', 'astra_mini.launch.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        time.sleep(10) 
+        time.sleep(5) 
 
         if process_startfrontcamera.poll() is None:
             print("Front camera started successfully.")
@@ -498,6 +499,80 @@ async def deploy_sensor_summit_handler(params):
             print(f"Error message: {e}")
             return {'result': False, 'message': 'An undefined error occurred.'} """
 
+
+  
+
+async def people_detect_summit_handler(params):
+        global process_startpeopledetect
+
+        params = params.get('input', {}) or {}
+        
+
+        # Launch the ROS2 command
+        command = [
+            "bash", "-c",
+            f"ros2 launch liquid_pickup people_detect.launch.py"
+        ]
+
+            # **Terminate existing process if running**
+        if process_startpeopledetect:
+            if process_startpeopledetect.poll() is None:
+                print("Terminating gracefully existing process...")
+                try:
+                    # Gracefully terminate the process
+                    process_startpeopledetect.send_signal(signal.SIGINT)
+                    process_startpeopledetect.wait(timeout=10)
+                    print("Process terminated gracefully.")
+                            # **Start a new subprocess and keep track of it**
+                    try:
+                        print("Starting new process...")
+                        process_startpeopledetect = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                        return {
+                            'result': True,
+                            'message': f'People detection started!'
+                        }
+                    except subprocess.CalledProcessError as e:
+                        print(f"Failed to start process: {e}")
+                        return {'result': False, 'message': 'Failed to start process.'}    
+                except subprocess.TimeoutExpired:
+                    # Forcefully kill the process if it didn't terminate
+                    print("Process did not terminate in time. Killing it forcefully.")
+                    process_startpeopledetect.kill()
+                    process_startpeopledetect.wait()
+                    try:
+                        print("Starting new process...")
+                        process_startpeopledetect = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                        return {
+                            'result': True,
+                            'message': f'People detection started!'
+                        }
+                    except subprocess.CalledProcessError as e:
+                        print(f"Failed to start process: {e}")
+                        return {'result': False, 'message': 'Failed to start process.'} 
+                except Exception as e:
+                    print(f"An error occurred: {e}")
+            else:
+                try:
+                    print("Starting new process...")
+                    process_startpeopledetect = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    return {
+                        'result': True,
+                        'message': f'People detected started!'
+                    }
+                except Exception as e:
+                    print(f"Failed to start process: {e}")
+                    return {'result': False, 'message': 'Failed to start process.'}   
+        else:
+            try:
+                print("Starting new process...")
+                process_startpeopledetect = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                return {
+                    'result': True,
+                    'message': f'People detected started!'
+                }
+            except Exception as e:
+                print(f"Failed to start process: {e}")
+                return {'result': False, 'message': 'Failed to start process.'}       
  
 async def mapExport_summit_handler(params):
     params = params['input'] if params['input'] else {}
