@@ -69,6 +69,7 @@ RUN /bin/bash -c 'echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc &
 
 
 RUN python3 -m pip install depthai
+RUN python3 -m pip install numpy==1.26.4 
 
 # create catkin ws and clone projects
 RUN mkdir -p ~/colcon_ws/src && cd ~/colcon_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
@@ -87,7 +88,8 @@ git clone -b humble https://github.com/PickNikRobotics/ros2_robotiq_gripper.git 
 git clone https://github.com/gokulp01/ros2-ublox-zedf9p.git && \
 git clone https://github.com/icclab/Zenoh-Perf-Eval.git && \
 git clone -b ros2 https://github.com/tylerjw/serial.git && \
-git clone https://github.com/icclab/person_detection.git"
+git clone https://github.com/icclab/person_detection.git && \
+git clone https://github.com/icclab/LLM_service"
 
 # update dependencies
 RUN sudo apt-get update && cd ~/colcon_ws && \
