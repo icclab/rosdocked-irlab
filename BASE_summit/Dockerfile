@@ -121,3 +121,27 @@ COPY summit-vo/summit.yaml /home/ros
 COPY summit-vo/minica.pem /home/ros
 
 
+# Install dependencies
+RUN sudo apt-get update --fix-missing && \
+    sudo apt-get install -y python3.10-venv nano && \
+    sudo rm -rf /var/lib/apt/lists/*
+
+# Install Python packages
+RUN sudo pip install --no-cache-dir \
+    inference \
+    jinja2 \
+    typeguard \
+    'inference[transformers]' \
+    'inference[sam]' \
+    'inference[clip]' \
+    'inference[yolo-world]' \
+    'inference[gaze]' \
+    'inference[grounding-dino]'
+
+# Set environment variable for Roboflow API Key
+ENV ROBOFLOW_API_KEY="wrJRdyQTYXns1D8MwoxW"
+
+# Create the roboflow directory
+RUN sudo mkdir -p /app/roboflow
+
+
