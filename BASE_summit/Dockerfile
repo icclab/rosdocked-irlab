@@ -117,10 +117,6 @@ RUN echo "deb [trusted=yes] https://download.eclipse.org/zenoh/debian-repo/ /" |
 RUN sudo apt update && sudo bash -c "apt install -y zenoh-bridge-ros2dds=1.0.2 > /dev/null 2>1; echo $?"
 #RUN sudo apt update && sudo apt install -y ros-humble-rmw-zenoh-cpp
 #RUN echo "export RMW_IMPLEMENTATION=rmw_zenoh_cpp"
-COPY summit-vo/summit.py /home/ros
-COPY summit-vo/summit-td.json /home/ros
-COPY summit-vo/summit.yaml /home/ros
-COPY summit-vo/minica.pem /home/ros
 
 
 # Install dependencies
@@ -146,4 +142,8 @@ ENV ROBOFLOW_API_KEY="wrJRdyQTYXns1D8MwoxW"
 # Create the roboflow directory
 RUN sudo mkdir -p /app/roboflow
 
+COPY summit-vo/summit.py /home/ros
+COPY summit-vo/summit-td.json /home/ros
+COPY summit-vo/summit.yaml /home/ros
+COPY summit-vo/minica.pem /home/ros
 
