@@ -511,7 +511,7 @@ async def people_detect_summit_handler(params):
         # Launch the ROS2 command
         command = [
             "bash", "-c",
-            f"ros2 launch liquid_pickup people_detect.launch.py"
+            f"ros2 launch person_detection person_detect.launch.py"
         ]
 
             # **Terminate existing process if running**
