@@ -5,6 +5,7 @@ from rclpy.node import Node
 from std_msgs.msg import Bool
 from std_msgs.msg import Float32
 from sensor_msgs.msg import NavSatFix
+from visualization_msgs.msg import Marker
 #from diagnostic_msgs.msg import DiagnosticArray
 
 import subprocess
@@ -27,6 +28,7 @@ process_startarmcamera = None
 process_startliquidpicking = None
 process_startsensordeploy = None
 process_startpeopledetect = None
+process_startliquidpickingmarker = None
 
 def read_from_sensor():
     
@@ -83,8 +85,39 @@ def read_from_gps_sensor():
 
     return altitude, latitude, longitude
 
+
+def read_liquid_marker():
+    
+    x_marker = None 
+    y_marker = None 
+
+    class MarkerRead(Node):
+        def __init__(self):
+            super().__init__('marker_read')
+            self.marker_subscription = self.create_subscription(Marker,'/summit/leakage_marker',self.marker_callback,10)
+
+        def marker_callback(self, msg: Marker):
+            nonlocal x_marker
+            nonlocal y_marker
+            x_marker = msg.pose.position.x
+            y_marker =  msg.pose.position.y
+            self.get_logger().info(f"Marker: {x_marker}, {y_marker}")
+
+
+    def main():
+        rclpy.init()
+        marker_read = MarkerRead()
+        rclpy.spin_once(marker_read, timeout_sec=1.0)
+        marker_read.destroy_node()
+        rclpy.shutdown()
+
+    main()
+
+    return x_marker, y_marker
+
 # Initialize Resources
 altitude, latitude, longitude = read_from_gps_sensor()
+x_marker, y_marker =  read_liquid_marker()
 
 allAvailableResources_init = {
     'altitude': altitude,
@@ -92,7 +125,9 @@ allAvailableResources_init = {
     'longitude': longitude,
     'battery_percent': read_from_sensor(),
     'deployed_sensors': 0,
-    'liquid_samples': 0
+    'liquid_samples': 0,
+    'x_marker': x_marker,
+    'y_marker': y_marker 
 }
 
 possibleLaunchfiles_summit_init = ['startmapping_summit', 'bringup_summit', 'savemap_summit', 'startarmcamera_summit', 'stoparmcamera_summit', 'startfrontcamera_summit', 'stopfrontcamera_summit']
@@ -182,8 +217,10 @@ async def triggerBringup_summit_handler(params):
     
     
     if launchfileId == 'startarmcam_summit':
-        process_startarmcamera = subprocess.Popen(['ros2', 'launch', 'icclab_summit_xl', 'oak.camera.launch.py', 'namespace:=summit'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        #process_startarmcamera = subprocess.Popen(['ros2', 'launch', 'icclab_summit_xl', 'oak.camera.launch.py', 'namespace:=summit'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process_startarmcamera = subprocess.Popen(['ros2', 'launch', 'person_detect', 'person_detect.launch.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         time.sleep(5) 
+
 
         if process_startarmcamera.poll() is None:
             print("Arm camera started successfully.")
@@ -248,6 +285,106 @@ async def triggerBringup_summit_handler(params):
             print("No front camera process running.")
             stopfrontcameraaction = False
         process_startfrontcamera = None  # Reset the process variable
+
+    if launchfileId == 'liquid_sampling_from_marker':
+        global process_startliquidpickingmarker
+
+        coordinates = read_liquid_marker()
+        
+        global count_liquid_samples 
+        count_liquid_samples += len(coordinates)
+            # Ensure coordinates are in the correct format
+        print(f"Coordinates: {coordinates}")  
+        if not coordinates:
+            return {'result': False, 'message': 'No coordinates provided from marker.'}
+
+
+        # Create the coordinates string without quotes around numbers
+        coordinates_str = json.dumps(coordinates)  # This will produce '[ [0.5, 0] ]'
+
+        coordinates_str = coordinates_str.replace('[', '[[')  
+        coordinates_str = coordinates_str.replace(']', ']]')        
+        # Replace quotes around numbers (by re-serializing to a string)
+        coordinates_str = coordinates_str.replace('"', '')  # Remove quotes around numbers
+
+        # Format the coordinates string for ROS 2 launch
+        coordinates_str = f"'{coordinates_str}'"  # Wrap coordinates in single quotes for the ROS 2 command
+
+
+         # Now manually construct the final string to match: '"[[1, 0]]"'
+        coordinates_str = f"\"{coordinates_str}\""  # Wrap it with double quotes around the entire string
+
+
+        print(f"Formatted coordinates for ROS 2 command: {coordinates_str}")
+
+        # Launch the ROS2 command
+        command = [
+            "bash", "-c",
+            f"ros2 launch liquid_pickup liquid_pickup_launch_real.py coordinates:={coordinates_str}"
+        ]
+        print(f"Final command: {command}")
+
+            # **Terminate existing process if running**
+        if process_startliquidpickingmarker:
+            if process_startliquidpickingmarker.poll() is None:
+                print("Terminating gracefully existing process...")
+                try:
+                    # Gracefully terminate the process
+                    process_startliquidpickingmarker.send_signal(signal.SIGINT)
+                    process_startliquidpickingmarker.wait(timeout=10)
+                    print("Process terminated gracefully.")
+                            # **Start a new subprocess and keep track of it**
+                    try:
+                        print("Starting new process...")
+                        process_startliquidpickingmarker = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                        return {
+                            'result': True,
+                            'message': f'Liquid sampling started at coordinates: {coordinates_str}!'
+                        }
+                    except subprocess.CalledProcessError as e:
+                        print(f"Failed to start process: {e}")
+                        return {'result': False, 'message': 'Failed to start process.'}    
+                except subprocess.TimeoutExpired:
+                    # Forcefully kill the process if it didn't terminate
+                    print("Process did not terminate in time. Killing it forcefully.")
+                    process_startliquidpickingmarker.kill()
+                    process_startliquidpickingmarker.wait()
+                    try:
+                        print("Starting new process...")
+                        process_startliquidpickingmarker = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                        return {
+                            'result': True,
+                            'message': f'Liquid sampling started at coordinates: {coordinates_str}!'
+                        }
+                    except subprocess.CalledProcessError as e:
+                        print(f"Failed to start process: {e}")
+                        return {'result': False, 'message': 'Failed to start process.'} 
+                except Exception as e:
+                    print(f"An error occurred: {e}")
+            else:
+                try:
+                    print("Starting new process...")
+                    process_startliquidpickingmarker = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    return {
+                        'result': True,
+                        'message': f'Liquid sampling started at coordinates: {coordinates_str}!'
+                    }
+                except Exception as e:
+                    print(f"Failed to start process: {e}")
+                    return {'result': False, 'message': 'Failed to start process.'}   
+        else:
+            try:
+                print("Starting new process...")
+                process_startliquidpickingmarker = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                return {
+                    'result': True,
+                    'message': f'Liquid sampling started at coordinates: {coordinates_str}!'
+                }
+            except Exception as e:
+                print(f"Failed to start process: {e}")
+                return {'result': False, 'message': 'Failed to start process.'}   
+
+
 
     # Read the current level of allAvailableResources_summit
     resources = await exposed_thing.read_property('allAvailableResources_summit')
@@ -557,7 +694,7 @@ async def people_detect_summit_handler(params):
                     process_startpeopledetect = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     return {
                         'result': True,
-                        'message': f'People detected started!'
+                        'message': f'People detection started!'
                     }
                 except Exception as e:
                     print(f"Failed to start process: {e}")
@@ -583,13 +720,16 @@ async def mapExport_summit_handler(params):
     
 async def allAvailableResources_summit_read_handler():
     altitude, latitude, longitude = read_from_gps_sensor()
+    x_marker, y_marker =  read_liquid_marker()
     allAvailableResources_current = {
     'altitude': altitude,
     'latitude': latitude,
     'longitude': longitude,
     'battery_percent': read_from_sensor(),
     'deployed_sensors': count_deployed_sensors,
-    'liquid_samples': count_liquid_samples
+    'liquid_samples': count_liquid_samples,
+    'x_marker': x_marker,
+    'y_marker': y_marker 
  #   'battery_percent': read_from_sensor('HDD Usage (SXLS0_180227AA)')[0],
  #   'battery_charging': read_from_sensor('HDD Usage (SXLS0_180227AA)')[1],
     }
@@ -598,6 +738,7 @@ async def allAvailableResources_summit_read_handler():
 
 async def currentValues_summit_handler(params):
     altitude, latitude, longitude = read_from_gps_sensor()
+    x_marker, y_marker =  read_liquid_marker()
     return {
         'result': True,
         'message': {
@@ -606,7 +747,9 @@ async def currentValues_summit_handler(params):
     'longitude': longitude,
     'battery_percent': read_from_sensor(),
     'deployed_sensors': count_deployed_sensors,
-    'liquid_samples': count_liquid_samples
+    'liquid_samples': count_liquid_samples,
+    'x_marker': x_marker,
+    'y_marker': y_marker 
  #   'battery_percent': read_from_sensor('HDD Usage (SXLS0_180227AA)')[0],
  #   'battery_charging': read_from_sensor('HDD Usage (SXLS0_180227AA)')[1],
         }

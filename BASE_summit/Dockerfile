@@ -142,8 +142,8 @@ ENV ROBOFLOW_API_KEY="wrJRdyQTYXns1D8MwoxW"
 # Create the roboflow directory
 RUN sudo mkdir -p /app/roboflow
 
-COPY summit-vo/summit.py /home/ros
 COPY summit-vo/summit-td.json /home/ros
 COPY summit-vo/summit.yaml /home/ros
 COPY summit-vo/minica.pem /home/ros
+COPY summit-vo/summit.py /home/ros
 
