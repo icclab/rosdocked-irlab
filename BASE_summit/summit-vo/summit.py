@@ -88,8 +88,8 @@ def read_from_gps_sensor():
 
 def read_liquid_marker():
     
-    x_marker = None 
-    y_marker = None 
+    x_liquid = None 
+    y_liquid = None 
 
     class MarkerRead(Node):
         def __init__(self):
@@ -97,11 +97,11 @@ def read_liquid_marker():
             self.marker_subscription = self.create_subscription(Marker,'/summit/leakage_marker',self.marker_callback,10)
 
         def marker_callback(self, msg: Marker):
-            nonlocal x_marker
-            nonlocal y_marker
-            x_marker = msg.pose.position.x
-            y_marker =  msg.pose.position.y
-            self.get_logger().info(f"Marker: {x_marker}, {y_marker}")
+            nonlocal x_liquid
+            nonlocal y_liquid
+            x_liquid = msg.pose.position.x
+            y_liquid =  msg.pose.position.y
+            self.get_logger().info(f"Marker: {x_liquid}, {y_liquid}")
 
 
     def main():
@@ -113,11 +113,41 @@ def read_liquid_marker():
 
     main()
 
-    return x_marker, y_marker
+    return x_liquid, y_liquid
+
+def read_person_marker():
+    
+    x_person = None 
+    y_person = None 
+
+    class PersonMarkerRead(Node):
+        def __init__(self):
+            super().__init__('marker_person_read')
+            self.marker_person_subscription = self.create_subscription(Marker,'/summit/person_marker',self.person_marker_callback,10)
+
+        def person_marker_callback(self, msg: Marker):
+            nonlocal x_person
+            nonlocal y_person
+            x_person = msg.pose.position.x
+            y_person = msg.pose.position.y
+            self.get_logger().info(f"Marker: {x_person}, {y_person}")
+
+
+    def main():
+        rclpy.init()
+        person_marker_read = PersonMarkerRead()
+        rclpy.spin_once(person_marker_read, timeout_sec=1.0)
+        person_marker_read.destroy_node()
+        rclpy.shutdown()
+
+    main()
+
+    return x_person, y_person
 
 # Initialize Resources
 altitude, latitude, longitude = read_from_gps_sensor()
-x_marker, y_marker =  read_liquid_marker()
+x_liquid, y_liquid =  read_liquid_marker()
+x_person, y_person =  read_person_marker()
 
 allAvailableResources_init = {
     'altitude': altitude,
@@ -126,8 +156,10 @@ allAvailableResources_init = {
     'battery_percent': read_from_sensor(),
     'deployed_sensors': 0,
     'liquid_samples': 0,
-    'x_marker': x_marker,
-    'y_marker': y_marker 
+    'x_liquid': x_liquid,
+    'y_liquid': y_liquid,
+    'x_person': x_person,
+    'y_person': y_person 
 }
 
 possibleLaunchfiles_summit_init = ['startmapping_summit', 'bringup_summit', 'savemap_summit', 'startarmcamera_summit', 'stoparmcamera_summit', 'startfrontcamera_summit', 'stopfrontcamera_summit']
@@ -720,7 +752,8 @@ async def mapExport_summit_handler(params):
     
 async def allAvailableResources_summit_read_handler():
     altitude, latitude, longitude = read_from_gps_sensor()
-    x_marker, y_marker =  read_liquid_marker()
+    x_liquid, y_liquid =  read_liquid_marker()
+    x_person, y_person =  read_person_marker()
     allAvailableResources_current = {
     'altitude': altitude,
     'latitude': latitude,
@@ -728,8 +761,10 @@ async def allAvailableResources_summit_read_handler():
     'battery_percent': read_from_sensor(),
     'deployed_sensors': count_deployed_sensors,
     'liquid_samples': count_liquid_samples,
-    'x_marker': x_marker,
-    'y_marker': y_marker 
+    'x_liquid': x_liquid,
+    'y_liquid': y_liquid,
+    'x_person': x_person,
+    'y_person': y_person 
  #   'battery_percent': read_from_sensor('HDD Usage (SXLS0_180227AA)')[0],
  #   'battery_charging': read_from_sensor('HDD Usage (SXLS0_180227AA)')[1],
     }
@@ -738,7 +773,8 @@ async def allAvailableResources_summit_read_handler():
 
 async def currentValues_summit_handler(params):
     altitude, latitude, longitude = read_from_gps_sensor()
-    x_marker, y_marker =  read_liquid_marker()
+    x_liquid, y_liquid =  read_liquid_marker()
+    x_person, y_person =  read_person_marker()
     return {
         'result': True,
         'message': {
@@ -748,11 +784,14 @@ async def currentValues_summit_handler(params):
     'battery_percent': read_from_sensor(),
     'deployed_sensors': count_deployed_sensors,
     'liquid_samples': count_liquid_samples,
-    'x_marker': x_marker,
-    'y_marker': y_marker 
+    'x_liquid': x_liquid,
+    'y_liquid': y_liquid,
+    'x_person': x_person,
+    'y_person': y_person 
  #   'battery_percent': read_from_sensor('HDD Usage (SXLS0_180227AA)')[0],
  #   'battery_charging': read_from_sensor('HDD Usage (SXLS0_180227AA)')[1],
         }
     }
+
 
 
