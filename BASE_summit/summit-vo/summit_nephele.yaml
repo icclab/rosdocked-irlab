@@ -10,11 +10,11 @@ deploymentType: B
 catalogue: 9090
 bindingNB:
   bindingModeNB: [Z]
-  routerURL: "160.85.253.140:30447"
-  hostname: 160.85.253.140 
+ # routerURL: "160.85.253.140:30447"
+ # hostname: 160.85.253.140 
 
-    # routerURL: "160.85.253.56:30447"
-    #hostname: 160.85.253.56
+  routerURL: "160.85.253.56:30447"
+  hostname: 160.85.253.56
 #  brokerIP: "mqtt://160.85.253.140:30884"
   securityNB:
     securityScheme: basic
