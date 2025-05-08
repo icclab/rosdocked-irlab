@@ -153,6 +153,19 @@
                 } 
             } 
         },
+        "mapOriginExport_summit": { 
+            "title": "Export map origin data", 
+            "description": "Get map origin data", 
+            "output": { 
+                "type": "object", 
+                "description": "Returns map origin in string format.", 
+                "properties": { 
+                    "mapOrigin": { 
+                        "type": "string" 
+                    }
+                } 
+            } 
+        },
         "currentValues_summit": {
             "description": "Returns the current values"
         }

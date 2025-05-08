@@ -22,6 +22,7 @@ import signal
 import asyncio
 import json
 
+import yaml
 
 process_startfrontcamera = None
 process_startarmcamera = None
@@ -29,6 +30,25 @@ process_startliquidpicking = None
 process_startsensordeploy = None
 process_startpeopledetect = None
 process_startliquidpickingmarker = None
+
+
+def load_map_origin(yaml_file_path):
+    """
+    Loads a ROS map YAML file and returns the origin coordinates.
+
+    Args:
+        yaml_file_path (str): Path to the YAML file.
+
+    Returns:
+        tuple: (x, y, yaw) origin coordinates as floats.
+    """
+    with open(yaml_file_path, 'r') as file:
+        map_data = yaml.safe_load(file)
+        origin = map_data.get('origin', [0.0, 0.0, 0.0])
+        x, y, yaw = origin
+        return x, y, yaw
+
+
 
 def read_from_sensor():
     
@@ -749,7 +769,19 @@ async def mapExport_summit_handler(params):
     map_string = get_map_as_string(map_file_path)
     return map_string
 
+async def mapOriginExport_summit_handler(params):
+    params = params['input'] if params['input'] else {}
+    map_metadata_file_path = '/home/ros/my_map.yaml'
+    x, y, yaw = load_map_origin("/home/ros/my_map.yaml")
+    mapOrigin = {
+    'x': x,
+    'y': y,
+    'yaw': yaw
+    }
+    print(f"Origin coordinates: x={x}, y={y}, yaw={yaw}")
+    return mapOrigin
     
+        
 async def allAvailableResources_summit_read_handler():
     altitude, latitude, longitude = read_from_gps_sensor()
     x_liquid, y_liquid =  read_liquid_marker()
@@ -792,6 +824,5 @@ async def currentValues_summit_handler(params):
  #   'battery_charging': read_from_sensor('HDD Usage (SXLS0_180227AA)')[1],
         }
     }
-
 
 
