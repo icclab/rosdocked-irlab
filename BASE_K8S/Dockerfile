@@ -166,16 +166,19 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     ln -s /opt/noVNC/vnc.html /opt/noVNC/index.html && \
     git clone https://github.com/novnc/websockify /opt/noVNC/utils/websockify
 
-# Create user with password ${PASSWD}
-RUN apt-get update && apt-get install --no-install-recommends -y \
-        sudo && \
-    rm -rf /var/lib/apt/lists/* && \
-    #groupadd -g 1000 ${USER} && \
-    #useradd -ms /bin/bash ${USER} -u 1000 -g 1000 && \
-    useradd -ms /bin/bash ${USER} &&\
+## Create user with password ${PASSWD}
+#RUN apt-get update && apt-get install --no-install-recommends -y \
+#        sudo && \
+#    rm -rf /var/lib/apt/lists/* && \
+#    #groupadd -g 1000 ${USER} && \
+#    #useradd -ms /bin/bash ${USER} -u 1000 -g 1000 && \
+#    useradd -ms /bin/bash ${USER} &&\
+
+# Rename ubuntu user and move its home
+RUN usermod -m -d /home/${USER} -l ${USER} ubuntu && \
+    groupmod -n ${USER} ubuntu && \
     usermod -a -G adm,audio,cdrom,dialout,dip,fax,floppy,input,lp,plugdev,sudo,tape,tty,video,voice ${USER} && \
     echo "${USER} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
-    chown ${USER}:${USER} /home/${USER} && \
     echo "${USER}:${PASSWD}" | chpasswd && \
     ln -snf "/usr/share/zoneinfo/$TZ" /etc/localtime && echo "$TZ" > /etc/timezone
 
