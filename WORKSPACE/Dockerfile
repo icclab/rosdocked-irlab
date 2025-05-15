@@ -110,7 +110,8 @@ RUN mkdir -p ~/colcon_ws/src && cd ~/colcon_ws && /bin/bash -c "source /opt/ros/
     git clone https://github.com/IntelligentRoboticsLabs/kobuki.git -b jazzy && \
     vcs import < kobuki/thirdparty.repos && \
     git clone https://oauth2:${GITHUB_TOKEN}@github.zhaw.ch/CloudRobotics/kobuki_ros.git && \
-    git clone https://oauth2:${GITHUB_TOKEN}@github.zhaw.ch/CloudRobotics/mahroboter_api.git"
+    git clone https://oauth2:${GITHUB_TOKEN}@github.zhaw.ch/CloudRobotics/mahroboter_api.git && \
+    git clone https://oauth2:${GITHUB_TOKEN}@github.zhaw.ch/CloudRobotics/mahrbt.git"
 
 RUN rm -rf ~/colcon_ws/src/ThirdParty/kobuki_ros/
 
