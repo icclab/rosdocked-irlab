@@ -114,6 +114,7 @@ RUN mkdir -p ~/colcon_ws/src && cd ~/colcon_ws && /bin/bash -c "source /opt/ros/
     git clone https://oauth2:${GITHUB_TOKEN}@github.zhaw.ch/CloudRobotics/mahrbt.git"
 
 RUN rm -rf ~/colcon_ws/src/ThirdParty/kobuki_ros/
+RUN rm -rf ~/colcon_ws/src/mahrbt/mahrbt
 
 # update dependencies
 RUN sudo apt update && cd ~/colcon_ws && \
