@@ -58,7 +58,7 @@ RUN /bin/bash -c 'echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc &
     echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> ~/.bashrc && \
     echo "export GZ_IP=127.0.0.1" >> ~/.bashrc && \
     # echo "export GZ_SIM_RESOURCE_PATH=~/models" >> ~/.bashrc && \
-    echo "export GZ_SIM_RESOURCE_PATH=~/colcon_ws/src/mahroboter_api/worlds/models" >> ~/.bashrc && \
+    echo "export GZ_SIM_RESOURCE_PATH=~/colcon_ws/src/mahrbt/mahrbt_py/worlds/models" >> ~/.bashrc && \
     echo "alias srcc=\"source ~/colcon_ws/install/setup.bash\"" >> ~/.bashrc && \
     echo "alias bldc=\"cd ~/colcon_ws/ && colcon build --symlink-install --packages-skip-build-finished\"" >> ~/.bashrc && \
     echo "alias rebldc=\"cd ~/colcon_ws/ && colcon build --symlink-install\"" >> ~/.bashrc && \
