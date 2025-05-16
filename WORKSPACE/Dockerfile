@@ -111,10 +111,13 @@ RUN mkdir -p ~/colcon_ws/src && cd ~/colcon_ws && /bin/bash -c "source /opt/ros/
     vcs import < kobuki/thirdparty.repos && \
     git clone https://oauth2:${GITHUB_TOKEN}@github.zhaw.ch/CloudRobotics/kobuki_ros.git && \
     git clone https://oauth2:${GITHUB_TOKEN}@github.zhaw.ch/CloudRobotics/mahroboter_api.git && \
-    git clone https://oauth2:${GITHUB_TOKEN}@github.zhaw.ch/CloudRobotics/mahrbt.git"
+    git clone https://oauth2:${GITHUB_TOKEN}@github.zhaw.ch/CloudRobotics/mahrbt.git && \
+    git clone -b jazzy-devel https://github.com/blackcoffeerobotics/vector_pursuit_controller.git
 
 RUN rm -rf ~/colcon_ws/src/ThirdParty/kobuki_ros/
-RUN rm -rf ~/colcon_ws/src/mahrbt/mahrbt
+# RUN rm -rf ~/colcon_ws/src/mahrbt/mahrbt
+RUN touch ~/colcon_ws/src/mahrbt/mahrbt/COLCON_IGNORE
+
 
 # update dependencies
 RUN sudo apt update && cd ~/colcon_ws && \
