@@ -182,7 +182,7 @@ allAvailableResources_init = {
     'y_person': y_person 
 }
 
-possibleLaunchfiles_summit_init = ['startmapping_summit', 'bringup_summit', 'savemap_summit', 'startarmcamera_summit', 'stoparmcamera_summit', 'startfrontcamera_summit', 'stopfrontcamera_summit']
+possibleLaunchfiles_summit_init = ['startmapping_summit', 'start3dmapping_summit', 'bringup_summit', 'savemap_summit', 'startarmcamera_summit', 'stoparmcamera_summit', 'startfrontcamera_summit', 'stopfrontcamera_summit']
 mapdataExportTF_init = [True, False]
 
 count_deployed_sensors = 0
@@ -219,6 +219,7 @@ async def triggerBringup_summit_handler(params):
     print(f'Battery Percentage: {batterypercent}%')
     bringupaction = None
     mappingaction = None
+    mapping3daction = None
     saveaction = None
     startarmcameraaction = None
     startfrontcameraaction = None
@@ -258,6 +259,17 @@ async def triggerBringup_summit_handler(params):
         else:
             print("Failed to start mapping.")
             mappingaction = False
+           
+    if launchfileId == 'start3dmapping_summit':
+        process_3dmapping = subprocess.Popen(['ros2', 'launch', 'icclab_summit_xl', 'rtabmap.launch.py', 'use_sim_time:=false'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        time.sleep(5) 
+
+        if process_3dmapping.poll() is None:
+            print("3D Mapping started successfully.")
+            mapping3daction = True
+        else:
+            print("Failed to start 3D mapping.")
+            mapping3daction = False
 
     if launchfileId == 'savemap_summit': #and mappingaction == True:
         print("Mapping finished, save the map!")
@@ -460,6 +472,8 @@ async def triggerBringup_summit_handler(params):
         return {'result': bringupaction, 'message': f'Your {launchfileId} is in progress!'}
     elif launchfileId == 'startmapping_summit':
         return {'result': mappingaction, 'message': f'Your {launchfileId} is in progress!'}
+    elif launchfileId == 'start3dmapping_summit':
+        return {'result': mapping3daction, 'message': f'Your {launchfileId} is in progress!'}
     elif launchfileId == 'savemap_summit':
         return {'result': saveaction, 'message': f'Your {launchfileId} is in progress!'}
     elif launchfileId == 'startarmcam_summit':
