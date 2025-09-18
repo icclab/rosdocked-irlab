@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-IMAGE=robopaas/rosdocked-jazzy-cpu:latest
+IMAGE=robopaas/rosdocked-jazzy-cpu-mahroboter:latest
 # Get this script's path
 pushd `dirname $0` > /dev/null
 SCRIPTPATH=`pwd`

@@ -33,19 +33,28 @@ RUN cd /home/ && \
 USER "${USER}"
 
 # install git and other needed libs including catkin build
+
 RUN sudo apt update && \
     sudo apt upgrade -y && \
-    sudo apt install -y python3-pip ros-${ROS_DISTRO}-tf2-msgs build-essential \
-    ros-${ROS_DISTRO}-pcl-ros \
-    python3-osrf-pycommon ros-${ROS_DISTRO}-dynamixel-sdk \ 
-#    ros-${ROS_DISTRO}-turtlebot3-msgs ros-${ROS_DISTRO}-turtlebot3 \ 
-#    ros-${ROS_DISTRO}-turtlebot3-simulations  \
-    ros-${ROS_DISTRO}-image-transport-plugins python3-colcon-common-extensions \
-    ros-${ROS_DISTRO}-rqt-tf-tree inetutils-ping \
-    python3-dev python3-pip python3-venv python3-virtualenv python3-pytest python3-openssl python3-matplotlib python3-tk libpython3-dev \
-    python3-flask python3-flask-cors python3-icecream python3-vcstool \
-    ros-jazzy-navigation2 ros-jazzy-nav2-bringup ros-jazzy-nav2-controller ros-jazzy-nav2-behavior-tree ros-jazzy-ros-gz-sim ros-jazzy-ros-gz-bridge ros-jazzy-ros-gz-interfaces ros-jazzy-rmw-cyclonedds-cpp ros-jazzy-rtabmap-ros \
-    libusb-1.0-0-dev libftdi1-dev libuvc-dev ros-dev-tools
+    sudo apt install -y python3-pip build-essential python3-dev python3-pip python3-venv python3-virtualenv python3-pytest python3-openssl \
+    python3-matplotlib python3-tk libpython3-dev python3-flask python3-flask-cors python3-icecream python3-vcstool curl
+
+RUN sudo apt update && \
+    sudo apt install -y software-properties-common && \
+    sudo add-apt-repository universe && \
+    export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}') && \
+    curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo $VERSION_CODENAME)_all.deb" && \
+    sudo rm -f /etc/apt/sources.list.d/ros2-latest.list && \
+    sudo dpkg -i /tmp/ros2-apt-source.deb
+
+RUN sudo apt update && sudo apt install -y \
+    ros-dev-tools python3-osrf-pycommon \
+    ros-${ROS_DISTRO}-pcl-ros ros-${ROS_DISTRO}-image-transport-plugins python3-colcon-common-extensions \
+    ros-${ROS_DISTRO}-rqt-tf-tree ros-${ROS_DISTRO}-tf2-msgs \
+    ros-jazzy-navigation2 ros-jazzy-nav2-bringup ros-jazzy-nav2-controller ros-jazzy-nav2-behavior-tree \
+    ros-jazzy-ros-gz-sim ros-jazzy-ros-gz-bridge ros-jazzy-ros-gz-interfaces \
+    ros-jazzy-rmw-cyclonedds-cpp ros-jazzy-rtabmap-ros \
+    ros-${ROS_DISTRO}-dynamixel-sdk libusb-1.0-0-dev libftdi1-dev libuvc-dev inetutils-ping
 
 RUN sudo apt install -y --no-install-recommends build-essential ca-certificates cmake \
     software-properties-common lsb-release swig doxygen g++ git libeigen3-dev libgdal-dev libgeos++-dev \
@@ -112,7 +121,7 @@ RUN mkdir -p ~/colcon_ws/src && cd ~/colcon_ws && /bin/bash -c "source /opt/ros/
     git clone https://oauth2:${GITHUB_TOKEN}@github.zhaw.ch/CloudRobotics/kobuki_ros.git && \
     git clone https://oauth2:${GITHUB_TOKEN}@github.zhaw.ch/CloudRobotics/mahroboter_api.git && \
     git clone https://oauth2:${GITHUB_TOKEN}@github.zhaw.ch/CloudRobotics/mahrbt.git && \
-    git clone -b jazzy-devel https://github.com/blackcoffeerobotics/vector_pursuit_controller.git
+    git clone -b jazzy-devel https://github.com/blackcoffeerobotics/vector_pursuit_controller.git"
 
 RUN rm -rf ~/colcon_ws/src/ThirdParty/kobuki_ros/
 # RUN rm -rf ~/colcon_ws/src/mahrbt/mahrbt
@@ -131,7 +140,7 @@ RUN sudo apt update && cd ~/colcon_ws && \
 
 # build workspace
 # RUN touch COLCON_IGNORE ; cp COLCON_IGNORE ~/colcon_ws/src/ros2_robotiq_gripper/robotiq_driver ; cp COLCON_IGNORE ~/colcon_ws/src/ros2_robotiq_gripper/robotiq_controllers ; cp COLCON_IGNORE ~/colcon_ws/src/ros2_robotiq_gripper/robotiq_hardware_tests
-RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && colcon build --symlink-install"
+RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && colcon build --symlink-install --executor sequential"
 
 COPY env.sh /home/"${USER}"/env.sh
 COPY cyclonedds.xml  /home/"${USER}"/cyclonedds.xml
