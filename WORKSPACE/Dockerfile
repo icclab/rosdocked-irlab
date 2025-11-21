@@ -109,14 +109,12 @@ RUN mkdir -p ~/colcon_ws/src && cd ~/colcon_ws && /bin/bash -c "source /opt/ros/
     cd src && \
     git clone https://github.com/IntelligentRoboticsLabs/kobuki.git -b jazzy && \
     vcs import < kobuki/thirdparty.repos && \
-    git clone https://oauth2:${GITHUB_TOKEN}@github.zhaw.ch/CloudRobotics/kobuki_ros.git && \
-    git clone https://oauth2:${GITHUB_TOKEN}@github.zhaw.ch/CloudRobotics/mahroboter_api.git && \
-    git clone https://oauth2:${GITHUB_TOKEN}@github.zhaw.ch/CloudRobotics/mahrbt.git && \
     git clone -b jazzy-devel https://github.com/blackcoffeerobotics/vector_pursuit_controller.git
 
+ADD https://github.zhaw.ch/CloudRobotics/kobuki_ros.git /home/${USER}/colcon_ws/src/kobuki_ros
+ADD https://github.zhaw.ch/CloudRobotics/mahrbt.git /home/${USER}/colcon_ws/src/mahrbt
+    
 RUN rm -rf ~/colcon_ws/src/ThirdParty/kobuki_ros/
-# RUN rm -rf ~/colcon_ws/src/mahrbt/mahrbt
-RUN touch ~/colcon_ws/src/mahrbt/mahrbt/COLCON_IGNORE
 
 
 # update dependencies
@@ -141,12 +139,12 @@ RUN sudo apt install -y --no-install-recommends terminator
 # COPY gazebo /home/"${USER}"/gazebo
 # RUN sudo chown -R ros:ros gazebo
 
-# Create non_ros_ws and clone Mahroboter GUI repo (React, ROS-agnostic)
-RUN mkdir -p ~/non_ros_ws && cd ~/non_ros_ws && \
-    git clone https://oauth2:${GITHUB_TOKEN}@github.zhaw.ch/CloudRobotics/mahroboter_gui.git
-
-#RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash"
-# patch summit_xl old files and add unmerged PRs
-#RUN bash -c "cd ~/catkin_ws/src/summit_xl_sources/summit_xl_common/summit_xl_description/urdf/wheels ; \
-#    git checkout remotes/origin/kinetic-devel -- omni_wheel.urdf.xacro"
+# Setup mahroboter_gui (React/Vite frontend - non-ROS)
+# Copy GUI directly to non_ros_ws instead of symlinking
+RUN mkdir -p ~/non_ros_ws && \
+    cp -r ~/colcon_ws/src/mahrbt/mahroboter_gui ~/non_ros_ws/ && \
+    bash -c 'export NVM_DIR="$HOME/.nvm" && \
+    [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh" && \
+    cd ~/non_ros_ws/mahroboter_gui && \
+    npm install'
 ################################################################################

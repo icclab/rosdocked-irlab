@@ -20,6 +20,7 @@ export GITHUB_TOKEN=$1
 export CUDA_RELEASE=12.5.0
 export IMAGE_NAME=robopaas/rosdocked-jazzy-k8s-mahroboter:cuda${CUDA_RELEASE}
 
+
 # Build the docker image
 docker build \
   --build-arg BASE_IMAGE=robopaas/rosdocked-jazzy-base-k8s:cuda${CUDA_RELEASE} \
