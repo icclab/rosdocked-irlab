@@ -157,9 +157,9 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     ln -s /opt/noVNC/vnc.html /opt/noVNC/index.html && \
     git clone https://github.com/novnc/websockify /opt/noVNC/utils/websockify
 
-# Rename ubuntu user to ros (ubuntu user exists in osrf/ros base image)
-RUN usermod -m -d /home/${USER} -l ${USER} ubuntu && \
-    groupmod -n ${USER} ubuntu && \
+# Create ros user (osrf/ros base image runs as root with no default ubuntu user)
+RUN groupadd -g 1000 ${USER} && \
+    useradd -ms /bin/bash ${USER} -u 1000 -g 1000 && \
     usermod -a -G adm,audio,cdrom,dialout,dip,fax,floppy,input,lp,netdev,plugdev,scanner,sudo,tape,tty,video,voice ${USER} && \
     echo "${USER} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     echo "${USER}:${PASSWD}" | chpasswd && \
