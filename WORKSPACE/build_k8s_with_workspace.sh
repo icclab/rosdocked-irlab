@@ -7,11 +7,12 @@
 # Authors:      Leonardo Militano, Mark Straub, Giovanni Toffetti
 # Date:         2021-11-08
 ################################################################################
-export CUDA_RELEASE=12.2.0
+export CUDA_RELEASE=12.5.0
 export IMAGE_NAME=robopaas/rosdocked-humble-k8s:cuda${CUDA_RELEASE}
 
 # Build the docker image
 docker build \
+  --network=host \
   --build-arg BASE_IMAGE=robopaas/rosdocked-humble-base-k8s:cuda${CUDA_RELEASE} \
   --build-arg USER=ros \
   --build-arg shell=$SHELL\
