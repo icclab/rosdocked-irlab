@@ -39,7 +39,7 @@ USER "${USER}"
 
 # install git
 RUN sudo apt-get update && \
-    sudo apt-get install -y wget apt-utils git iproute2
+    sudo apt-get install -y wget git iproute2
 
 ################################################################################
 

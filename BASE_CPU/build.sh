@@ -9,6 +9,9 @@
 
 export IMAGE_NAME=robopaas/rosdocked-jazzy-base-cpu:latest
 
+# Update latest base image
+docker pull ghcr.io/sloretz/ros:jazzy-desktop-full
+
 # Get this script's path
 pushd `dirname $0` > /dev/null
 SCRIPTPATH=`pwd`
@@ -21,4 +24,5 @@ docker build \
   --build-arg home=/home/ros \
   --build-arg workspace=/home/ros \
   --build-arg shell=$SHELL\
+  --allow network.host\
   -t $IMAGE_NAME .
