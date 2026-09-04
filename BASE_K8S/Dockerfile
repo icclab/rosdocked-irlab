@@ -239,6 +239,19 @@ RUN sudo chmod 755 /etc/supervisord.conf /opt/install_nvidia_drivers.sh /etc/ent
 ARG NVIDIA_DRIVER_VERSION=
 RUN sudo /opt/install_nvidia_drivers.sh "${NVIDIA_DRIVER_VERSION}"
 
+# Turn off xfwm4 compositing. It buys nothing over VNC (there is no local screen
+# to composite for) and costs both GPU work -- shared four ways on one A30 -- and
+# a full-screen redraw on every window move, which is what makes the desktop feel
+# sluggish through noVNC.
+RUN mkdir -p ~/.config/xfconf/xfce-perchannel-xml && printf '%s\n' \
+    '<?xml version="1.0" encoding="UTF-8"?>' \
+    '<channel name="xfwm4" version="1.0">' \
+    '  <property name="general" type="empty">' \
+    '    <property name="use_compositing" type="bool" value="false"/>' \
+    '  </property>' \
+    '</channel>' \
+    > ~/.config/xfconf/xfce-perchannel-xml/xfwm4.xml
+
 ### Install Gazebo Harmonic
 RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null && \

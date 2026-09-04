@@ -64,6 +64,20 @@ sudo sed -i 's/Option         "DPMS"/Option         "DPMS" "false"/g' /etc/X11/x
 
 export DISPLAY=":0"
 export __GL_SYNC_TO_VBLANK="0"
+# Let the driver use its worker thread for GL submission. With ~4 pods sharing one
+# A30 this keeps each session's GL calls off the app's critical path.
+export __GL_THREADED_OPTIMIZATIONS="1"
+# Persist the shader cache. The container home is ephemeral, so without this rviz
+# and Gazebo recompile their shaders on every single pod start; /home/ros/rap is
+# the PVC, so put it there when it is mounted and fall back to home when it is not
+# (e.g. a plain docker run).
+if [ -d /home/ros/rap ] && [ -w /home/ros/rap ]; then
+  export __GL_SHADER_DISK_CACHE_PATH="/home/ros/rap/.cache/nv"
+else
+  export __GL_SHADER_DISK_CACHE_PATH="${HOME}/.cache/nv"
+fi
+export __GL_SHADER_DISK_CACHE="1"
+mkdir -p "$__GL_SHADER_DISK_CACHE_PATH"
 Xorg vt7 -novtswitch -sharevts -dpi "${DPI}" +extension "MIT-SHM" "${DISPLAY}" &
 
 # Wait for X11 to start
@@ -83,7 +97,10 @@ case "$GL_RENDERER" in
 esac
 
 # start noVNC
-sudo x11vnc -display "${DISPLAY}" -passwd "${BASIC_AUTH_PASSWORD:-$PASSWD}" -shared -forever -repeat -xkb -xrandr "resize" -rfbport 5900 &
+# -threads: handle viewers on their own threads instead of one serial loop.
+# -defer/-wait 5 (default 30 ms): coalesce updates less aggressively, which trades
+# a little CPU for a noticeably less laggy desktop over noVNC.
+sudo x11vnc -display "${DISPLAY}" -passwd "${BASIC_AUTH_PASSWORD:-$PASSWD}" -shared -forever -repeat -xkb -xrandr "resize" -rfbport 5900 -threads -defer 5 -wait 5 &
 /opt/noVNC/utils/novnc_proxy --vnc localhost:5900 --listen 8080 --heartbeat 10 &
 
 # Add custom processes below this section or within `supervisord.conf`
