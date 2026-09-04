@@ -16,8 +16,8 @@ FROM ghcr.io/sloretz/ros:jazzy-desktop-full
 ENV ROS_DISTRO=jazzy
 ARG USER=ros
 ARG uid
-ARG home
-ARG workspace
+ARG home=/home/ros
+ARG workspace=/home/ros
 ARG shell
 
 ################################################################################

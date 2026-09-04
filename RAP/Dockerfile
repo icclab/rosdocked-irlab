@@ -1,5 +1,5 @@
-ARG BASE_IMAGE
-FROM $BASE_IMAGE 
+ARG BASE_IMAGE=robopaas/rosdocked-jazzy-k8s:cuda12.5.0
+FROM $BASE_IMAGE
 
 RUN sudo apt update && \
     sudo apt install -y iputils-ping dnsutils xfce4-terminal

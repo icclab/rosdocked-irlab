@@ -32,23 +32,25 @@ ARG UBUNTU_RELEASE
 # Make all NVIDIA GPUs visible, but we want to manually install drivers
 ARG NVIDIA_VISIBLE_DEVICES=all
 # Supress interactive menu while installing keyboard-configuration
-ENV NVIDIA_DRIVER_CAPABILITIES all
-ENV PULSE_SERVER 127.0.0.1:4713
+ENV NVIDIA_DRIVER_CAPABILITIES=all
+ENV PULSE_SERVER=127.0.0.1:4713
 
 # Default environment variables (password is "mypasswd")
-ENV TZ UTC
-ENV SIZEW 1920
-ENV SIZEH 1080
-ENV REFRESH 60
-ENV DPI 96
-ENV CDEPTH 24
-ENV VIDEO_PORT DFP
-ENV PASSWD mypasswd
-ENV NOVNC_ENABLE false
-ENV WEBRTC_ENCODER nvh264enc
-ENV WEBRTC_ENABLE_RESIZE false
-ENV ENABLE_AUDIO true
-ENV ENABLE_BASIC_AUTH true
+ENV TZ=UTC
+ENV SIZEW=1920
+ENV SIZEH=1080
+ENV REFRESH=60
+ENV DPI=96
+ENV CDEPTH=24
+ENV VIDEO_PORT=DFP
+ENV PASSWD=mypasswd
+ENV NOVNC_ENABLE=false
+# WEBRTC_ENCODER/WEBRTC_ENABLE_RESIZE were removed: nothing in this image reads
+# them (there is no WebRTC/GStreamer stack -- the gst-env source in entrypoint.sh
+# is commented out), and nvh264enc could not work on an A30 regardless, since
+# like the A100 it ships no NVENC engine. Verify with: nvidia-smi -q | grep -i encoder
+ENV ENABLE_AUDIO=true
+ENV ENABLE_BASIC_AUTH=true
 
 ################################################################################
 
@@ -65,9 +67,9 @@ RUN apt-get clean && \
     apt-get update && apt-get install --no-install-recommends -y locales && \
     rm -rf /var/lib/apt/lists/* && \
     locale-gen en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 # Install Xorg, MATE Desktop, and others
 RUN dpkg --add-architecture i386 && \
