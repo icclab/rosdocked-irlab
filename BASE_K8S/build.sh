@@ -6,18 +6,17 @@
 # Authors:      Leonardo Militano, Mark Straub, Giovanni Toffetti
 # Date:         2021-11-08
 ################################################################################
-export IMAGE_NAME=robopaas/rosdocked-jazzy-base-k8s:cuda12.5.0
-
 # Get this script's path
 pushd `dirname $0` > /dev/null
 SCRIPTPATH=`pwd`
 popd > /dev/null
 
-# Build the docker image
+. "${SCRIPTPATH}/../images.env"
+export IMAGE_NAME=${BASE_K8S_IMAGE}
+
+# NOTE: the user/uid/home/workspace build args this used to pass are not declared
+# by BASE_K8S/Dockerfile (it hardcodes ENV USER=ros), so they were silently
+# ignored. Only NVIDIA_DRIVER_VERSION is actually consumed -- see images.env.
 docker build  \
-  --build-arg user=user\
-  --build-arg uid=$UID\
-  --build-arg home=/home/user \
-  --build-arg workspace=/home/user \
-  --build-arg shell=$SHELL\
+  --build-arg NVIDIA_DRIVER_VERSION=${NVIDIA_DRIVER_VERSION} \
   -t $IMAGE_NAME .

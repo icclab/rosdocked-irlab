@@ -211,18 +211,31 @@ WORKDIR /home/${USER}
 
 
 # update dependencies
-RUN sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y python3-rosdep \ 
-    ros-${ROS_DISTRO}-pcl-ros build-essential g++  ros-${ROS_DISTRO}-pcl-ros  wget vim nvidia-cuda-toolkit
+# NOTE: nvidia-cuda-toolkit was removed here. It pulled 253 packages / 2.4 GiB of
+# debs (3.36 GB of the image), including nvidia-visual-profiler and Ubuntu's CUDA
+# 12.0 -- and nothing in this image compiles CUDA since gpd was dropped. libcuda.so
+# is injected at runtime by nvidia-container-toolkit anyway. If you ever need nvcc,
+# install cuda-nvcc-<ver> from NVIDIA's repo (~120 MB) instead of the metapackage.
+RUN sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
+    python3-rosdep ros-${ROS_DISTRO}-pcl-ros build-essential g++ wget vim && \
+    sudo rm -rf /var/lib/apt/lists/*
 
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash"
 
+# NB: plain COPY + one chmod, not `COPY --chmod`, so this still builds with the
+# legacy (non-BuildKit) builder.
 COPY supervisord.conf /etc/supervisord.conf
-RUN sudo chmod 755 /etc/supervisord.conf
 COPY install_nvidia_drivers.sh /opt/install_nvidia_drivers.sh
-RUN sudo chmod 755 /opt/install_nvidia_drivers.sh
-RUN sudo /opt/install_nvidia_drivers.sh
 COPY entrypoint.sh /etc/entrypoint.sh
-RUN sudo chmod 755 /etc/entrypoint.sh
+RUN sudo chmod 755 /etc/supervisord.conf /opt/install_nvidia_drivers.sh /etc/entrypoint.sh
+
+# Bake the userspace NVIDIA driver matching the RAP nodes. This is only a fast
+# path: entrypoint.sh re-installs at start if the host driver turns out to be
+# different, so the image keeps working across cluster driver upgrades.
+# Leave empty to skip the bake entirely (then every pod installs on first start,
+# and the image can be built on a machine with no GPU).
+ARG NVIDIA_DRIVER_VERSION=
+RUN sudo /opt/install_nvidia_drivers.sh "${NVIDIA_DRIVER_VERSION}"
 
 ### Install Gazebo Harmonic
 RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \

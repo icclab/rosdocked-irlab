@@ -10,29 +10,23 @@ sudo ln -snf /dev/ptmx /dev/tty7
 sudo /etc/init.d/dbus start
 # source /opt/gstreamer/gst-env
 
-# Install NVIDIA drivers, including X graphic drivers by omitting --x-{prefix,module-path,library-path,sysconfig-path}
-#if ! command -v nvidia-xconfig &> /dev/null; then
-#  export DRIVER_VERSION=$(head -n1 </proc/driver/nvidia/version | awk '{print $8}')
-#  cd /tmp
-  # remove any remnants which could be there from before...
-#  rm -fr /tmp/NVIDIA-Linux-x86_64-470.82.01 /tmp/NVIDIA-Linux-x86_64-470.82.01.run
-#  if [ ! -f "/tmp/NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" ]; then
- #    curl -fsL -O "https://us.download.nvidia.com/XFree86/Linux-x86_64/$DRIVER_VERSION/NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" || curl -fsL -O "https://us.download.nvidia.com/tesla/$DRIVER_VERSION/NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" || { echo "Failed NVIDIA GPU driver download. Exiting."; exit 1; }
-#  fi
-#  sudo sh "NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" -x
-#  cd "NVIDIA-Linux-x86_64-$DRIVER_VERSION"
-#  sudo ./nvidia-installer --silent \
-#                    --no-kernel-module \
-#                    --install-compat32-libs \
-#                    --no-nouveau-check \
-#                    --no-nvidia-modprobe \
-#                    --no-rpms \
-#                    --no-backup \
-#                    --no-check-for-alternate-installs \
-#                    --no-libglx-indirect \
-#                    --no-install-libglvnd
-#  sudo rm -rf /tmp/NVIDIA* && cd ~
-#fi
+# Make sure the userspace driver in the image matches the host kernel module.
+# They must agree exactly or GLX breaks; a cluster driver upgrade would otherwise
+# silently leave every pod on software rendering. install_nvidia_drivers.sh is a
+# no-op when the baked version already matches, so this normally costs nothing.
+if [ -r /proc/driver/nvidia/version ]; then
+  HOST_DRIVER=$(awk '{print $8; exit}' /proc/driver/nvidia/version)
+  IMAGE_DRIVER=$(cat /etc/nvidia-userspace-driver-version 2>/dev/null || true)
+  if [ "$HOST_DRIVER" != "$IMAGE_DRIVER" ]; then
+    echo "NVIDIA userspace driver in image: '${IMAGE_DRIVER:-none}', host: '$HOST_DRIVER' -- installing match."
+    # Non-fatal: a node without egress to us.download.nvidia.com should not put
+    # the pod in a crash loop. The renderer check below reports the consequence.
+    sudo /opt/install_nvidia_drivers.sh "$HOST_DRIVER" \
+      || echo "WARNING: driver install failed -- expect software rendering." >&2
+  fi
+else
+  echo "WARNING: /proc/driver/nvidia/version not readable -- no GPU visible to this container?" >&2
+fi
 
 if grep -Fxq "allowed_users=console" /etc/X11/Xwrapper.config; then
   sudo sed -i "s/allowed_users=console/allowed_users=anybody/;$ a needs_root_rights=yes" /etc/X11/Xwrapper.config
@@ -76,6 +70,17 @@ Xorg vt7 -novtswitch -sharevts -dpi "${DPI}" +extension "MIT-SHM" "${DISPLAY}" &
 echo "Waiting for X socket"
 until [ -S "/tmp/.X11-unix/X${DISPLAY/:/}" ]; do sleep 1; done
 echo "X socket is ready"
+
+# Fail loudly rather than silently rendering in software: llvmpipe here means the
+# driver/X setup is broken, and Gazebo and rviz will crawl.
+GL_RENDERER=$(DISPLAY="${DISPLAY}" glxinfo -B 2>/dev/null | sed -n 's/^OpenGL renderer string: //p')
+case "$GL_RENDERER" in
+  "")                     echo "WARNING: could not query OpenGL renderer -- GL may be broken." >&2 ;;
+  *llvmpipe*|*softpipe*|*swrast*)
+    echo "WARNING: SOFTWARE RENDERING ACTIVE (renderer: $GL_RENDERER)." >&2
+    echo "         The GPU is not being used. Check the driver version match above and Xorg.0.log." >&2 ;;
+  *)                      echo "GPU rendering active: $GL_RENDERER" ;;
+esac
 
 # start noVNC
 sudo x11vnc -display "${DISPLAY}" -passwd "${BASIC_AUTH_PASSWORD:-$PASSWD}" -shared -forever -repeat -xkb -xrandr "resize" -rfbport 5900 &

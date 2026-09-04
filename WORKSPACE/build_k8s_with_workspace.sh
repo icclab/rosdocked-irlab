@@ -7,12 +7,20 @@
 # Authors:      Leonardo Militano, Mark Straub, Giovanni Toffetti
 # Date:         2021-11-08
 ################################################################################
-export CUDA_RELEASE=12.5.0
-export IMAGE_NAME=robopaas/rosdocked-jazzy-k8s:cuda${CUDA_RELEASE}
+# Get this script's path
+pushd `dirname $0` > /dev/null
+SCRIPTPATH=`pwd`
+popd > /dev/null
+
+. "${SCRIPTPATH}/../images.env"
+export IMAGE_NAME=${K8S_IMAGE}
 
 # Build the docker image
 docker build \
-  --build-arg BASE_IMAGE=robopaas/rosdocked-jazzy-base-k8s:cuda${CUDA_RELEASE} \
+  --build-arg BASE_IMAGE=${BASE_K8S_IMAGE} \
   --build-arg USER=ros \
+  --build-arg uid=$UID \
+  --build-arg home=/home/ros \
+  --build-arg workspace=/home/ros \
   --build-arg shell=$SHELL\
   -t $IMAGE_NAME .

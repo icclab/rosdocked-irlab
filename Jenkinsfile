@@ -83,14 +83,19 @@ pipeline {
 	 
 	stage('Push') {
 			steps {
-				//sh 'docker image tag robopaas/rosdocked-noetic-base-cpu robopaas/rosdocked-noetic-base-cpu:jenkins'
-				//sh 'docker image tag robopaas/rosdocked-noetic-base-k8s robopaas/rosdocked-noetic-base-k8s:jenkins'
-				sh 'docker image tag robopaas/rosdocked-noetic-cpu robopaas/rosdocked-noetic-cpu:jenkins'
-				sh 'docker image tag robopaas/rosdocked-noetic-k8s robopaas/rosdocked-noetic-k8s:jenkins'
-				//sh 'docker push robopaas/rosdocked-noetic-base-cpu:jenkins'
-				//sh 'docker push robopaas/rosdocked-noetic-base-k8s:jenkins'
-				sh 'docker push robopaas/rosdocked-noetic-cpu:jenkins'
-        			sh 'docker push robopaas/rosdocked-noetic-k8s:jenkins'
+				// Push exactly the images the build stages above produced. These
+				// names come from images.env, the same file the build scripts use,
+				// so CI can no longer publish a different set than it built (it
+				// used to build jazzy and push noetic).
+				sh '''
+				  . ./images.env
+				  for img in "$CPU_IMAGE" "$K8S_IMAGE"; do
+				    docker push "$img"
+				    # Also publish an immutable build-numbered tag for rollbacks.
+				    docker image tag "$img" "${img%:*}:jenkins-${BUILD_NUMBER}"
+				    docker push "${img%:*}:jenkins-${BUILD_NUMBER}"
+				  done
+				'''
 				}
      			 post {
       				  failure {
