@@ -10,4 +10,4 @@ export IMAGE_NAME=${RAP_IMAGE}
 # Build the docker image
 docker build \
   --build-arg BASE_IMAGE=${K8S_IMAGE} \
-  -t $IMAGE_NAME .
+  -t "$IMAGE_NAME" "$SCRIPTPATH"

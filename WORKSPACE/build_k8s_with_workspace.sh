@@ -23,4 +23,4 @@ docker build \
   --build-arg home=/home/ros \
   --build-arg workspace=/home/ros \
   --build-arg shell=$SHELL\
-  -t $IMAGE_NAME .
+  -t "$IMAGE_NAME" "$SCRIPTPATH"

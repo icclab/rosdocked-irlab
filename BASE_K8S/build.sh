@@ -19,4 +19,4 @@ export IMAGE_NAME=${BASE_K8S_IMAGE}
 # ignored. Only NVIDIA_DRIVER_VERSION is actually consumed -- see images.env.
 docker build  \
   --build-arg NVIDIA_DRIVER_VERSION=${NVIDIA_DRIVER_VERSION} \
-  -t $IMAGE_NAME .
+  -t "$IMAGE_NAME" "$SCRIPTPATH"
