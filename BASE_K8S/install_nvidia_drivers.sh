@@ -89,7 +89,6 @@ sh "$WORK_DIR/$RUN_FILE" -x
 cd "NVIDIA-Linux-x86_64-$DRIVER_VERSION"
 ./nvidia-installer --silent \
                   --no-kernel-module \
-                  --install-compat32-libs \
                   --no-nouveau-check \
                   --no-nvidia-modprobe \
                   --no-rpms \

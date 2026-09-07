@@ -72,14 +72,15 @@ ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
 # Install Xorg, MATE Desktop, and others
-RUN dpkg --add-architecture i386 && \
-    apt-get update && apt-get install --no-install-recommends -y \
+# No i386 architecture: nothing here is a 32-bit GL client (Gazebo, rviz, VS Code
+# and Firefox are all 64-bit), and enabling it adds 25 MiB of apt metadata to
+# every layer that keeps its lists, on top of the 32-bit packages themselves.
+RUN apt-get update && apt-get install --no-install-recommends -y \
         software-properties-common \
         apt-utils \
         build-essential \
         ca-certificates \
         kmod \
-        libc6:i386 \
         libc6-dev \
         curl \
         file \
@@ -109,12 +110,9 @@ RUN dpkg --add-architecture i386 && \
         mesa-utils \
         mesa-utils-extra \
         libglu1 \
-        libglu1:i386 \
         libsm6 \
         libxv1 \
-        libxv1:i386 \
         libxtst6 \
-        libxtst6:i386 \
         x11-xkb-utils \
         x11-xserver-utils \
         x11-apps \
