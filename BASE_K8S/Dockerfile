@@ -241,14 +241,25 @@ RUN sudo /opt/install_nvidia_drivers.sh "${NVIDIA_DRIVER_VERSION}"
 # to composite for) and costs both GPU work -- shared four ways on one A30 -- and
 # a full-screen redraw on every window move, which is what makes the desktop feel
 # sluggish through noVNC.
-RUN mkdir -p ~/.config/xfconf/xfce-perchannel-xml && printf '%s\n' \
+# The store is ~/.config/xfce4/xfconf/xfce-perchannel-xml/ -- NOT
+# ~/.config/xfconf/, which is where this first wrote the file and why
+# `xfconf-query -c xfwm4 -p /general/use_compositing` still reported true.
+# Written to both the per-user store and the system-wide default under /etc/xdg,
+# so it survives a wiped or replaced home directory.
+RUN mkdir -p ~/.config/xfce4/xfconf/xfce-perchannel-xml \
+             /tmp/xfconf-default && printf '%s\n' \
     '<?xml version="1.0" encoding="UTF-8"?>' \
     '<channel name="xfwm4" version="1.0">' \
     '  <property name="general" type="empty">' \
     '    <property name="use_compositing" type="bool" value="false"/>' \
     '  </property>' \
     '</channel>' \
-    > ~/.config/xfconf/xfce-perchannel-xml/xfwm4.xml
+    | tee ~/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml \
+          /tmp/xfconf-default/xfwm4.xml > /dev/null && \
+    sudo install -d /etc/xdg/xfce4/xfconf/xfce-perchannel-xml && \
+    sudo install -m 644 /tmp/xfconf-default/xfwm4.xml \
+        /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml && \
+    rm -rf /tmp/xfconf-default
 
 ### Install Gazebo Harmonic
 RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \

@@ -8,19 +8,41 @@ source ~/colcon_ws/install/setup.bash
 # therefore oversubscribes 2x and gets CFS-throttled, which is slower than simply
 # using the right number of threads. Derive the real budget from the cgroup.
 _rap_cpu_budget() {
-  local quota period
-  if [ -r /sys/fs/cgroup/cpu.max ]; then                      # cgroup v2
-    read -r quota period < /sys/fs/cgroup/cpu.max
-    if [ "$quota" != "max" ] && [ "${period:-0}" -gt 0 ] 2>/dev/null; then
-      echo $(( quota / period )); return
-    fi
-  elif [ -r /sys/fs/cgroup/cpu/cpu.cfs_quota_us ]; then       # cgroup v1
-    quota=$(cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us 2>/dev/null)
-    period=$(cat /sys/fs/cgroup/cpu/cpu.cfs_period_us 2>/dev/null)
-    if [ "${quota:-0}" -gt 0 ] && [ "${period:-0}" -gt 0 ] 2>/dev/null; then
-      echo $(( quota / period )); return
-    fi
+  local rel quota period dir
+  # Walk from this process's OWN cgroup up to the root, taking the first concrete
+  # quota. Reading /sys/fs/cgroup/cpu.max directly is not enough: the RAP pod runs
+  # privileged, so it sees the host cgroup hierarchy, whose root cpu.max is "max"
+  # while the pod's real limit sits in its own subdirectory.
+  if [ -e /sys/fs/cgroup/cgroup.controllers ] || [ -e /sys/fs/cgroup/cpu.max ]; then
+    rel=$(awk -F: '$1=="0"{print $3; exit}' /proc/self/cgroup 2>/dev/null)
+    dir="/sys/fs/cgroup${rel}"
+    [ -d "$dir" ] || dir=/sys/fs/cgroup
+    while : ; do
+      if [ -r "$dir/cpu.max" ]; then
+        read -r quota period < "$dir/cpu.max"
+        if [ "$quota" != "max" ] && [ "${period:-0}" -gt 0 ] 2>/dev/null; then
+          echo $(( quota / period )); return
+        fi
+      fi
+      [ "$dir" = "/sys/fs/cgroup" ] && break
+      dir=$(dirname "$dir")
+    done
   fi
+  # cgroup v1, same walk.
+  rel=$(awk -F: '$2 ~ /(^|,)cpu(,|$)/ {print $3; exit}' /proc/self/cgroup 2>/dev/null)
+  dir="/sys/fs/cgroup/cpu${rel}"
+  [ -d "$dir" ] || dir=/sys/fs/cgroup/cpu
+  while [ -d "$dir" ]; do
+    if [ -r "$dir/cpu.cfs_quota_us" ] && [ -r "$dir/cpu.cfs_period_us" ]; then
+      quota=$(cat "$dir/cpu.cfs_quota_us" 2>/dev/null)
+      period=$(cat "$dir/cpu.cfs_period_us" 2>/dev/null)
+      if [ "${quota:-0}" -gt 0 ] && [ "${period:-0}" -gt 0 ] 2>/dev/null; then
+        echo $(( quota / period )); return
+      fi
+    fi
+    [ "$dir" = "/sys/fs/cgroup/cpu" ] && break
+    dir=$(dirname "$dir")
+  done
   nproc                                                        # not capped
 }
 RAP_CPUS=$(_rap_cpu_budget)
