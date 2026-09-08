@@ -97,10 +97,14 @@ case "$GL_RENDERER" in
 esac
 
 # start noVNC
-# -threads: handle viewers on their own threads instead of one serial loop.
-# -defer/-wait 5 (default 30 ms): coalesce updates less aggressively, which trades
-# a little CPU for a noticeably less laggy desktop over noVNC.
-sudo x11vnc -display "${DISPLAY}" -passwd "${BASIC_AUTH_PASSWORD:-$PASSWD}" -shared -forever -repeat -xkb -xrandr "resize" -rfbport 5900 -threads -defer 5 -wait 5 &
+# -threads: handle viewers on their own threads instead of one serial loop. Kept.
+#
+# -defer 5 -wait 5 was REVERTED to the 30 ms defaults. `-wait` is the screen poll
+# interval, so 5 ms made x11vnc scan the framebuffer 6x more often; measured on
+# gpu-2 that left Xorg at ~50% of a core and x11vnc at ~23% continuously. Xorg is
+# single-threaded and also serves the sim's render calls, so paying 6x the polling
+# cost to shave VNC latency is the wrong trade for a machine running Gazebo.
+sudo x11vnc -display "${DISPLAY}" -passwd "${BASIC_AUTH_PASSWORD:-$PASSWD}" -shared -forever -repeat -xkb -xrandr "resize" -rfbport 5900 -threads &
 /opt/noVNC/utils/novnc_proxy --vnc localhost:5900 --listen 8080 --heartbeat 10 &
 
 # Add custom processes below this section or within `supervisord.conf`
