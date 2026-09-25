@@ -40,7 +40,9 @@ CACHE_DIR=${NVIDIA_DRIVER_CACHE_DIR:-/var/cache/nvidia-driver}
 
 DRIVER_VERSION="$1"
 if [ -z "$DRIVER_VERSION" ] && [ -r /proc/driver/nvidia/version ]; then
-  DRIVER_VERSION=$(awk '{print $8; exit}' /proc/driver/nvidia/version)
+  # See entrypoint.sh: a fixed field index breaks on "Open Kernel Module"
+  # driver builds (13.x), which shift the version off column 8.
+  DRIVER_VERSION=$(head -n1 /proc/driver/nvidia/version | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?')
 fi
 
 if [ -z "$DRIVER_VERSION" ]; then

@@ -15,7 +15,11 @@ sudo /etc/init.d/dbus start
 # silently leave every pod on software rendering. install_nvidia_drivers.sh is a
 # no-op when the baked version already matches, so this normally costs nothing.
 if [ -r /proc/driver/nvidia/version ]; then
-  HOST_DRIVER=$(awk '{print $8; exit}' /proc/driver/nvidia/version)
+  # A fixed field index breaks on newer "Open Kernel Module" driver builds,
+  # which insert extra words before x86_64 and shift the version off column 8
+  # (e.g. "NVRM version: NVIDIA UNIX Open Kernel Module for x86_64  570.133.20").
+  # Match the version pattern itself instead.
+  HOST_DRIVER=$(head -n1 /proc/driver/nvidia/version | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?')
   IMAGE_DRIVER=$(cat /etc/nvidia-userspace-driver-version 2>/dev/null || true)
   if [ "$HOST_DRIVER" != "$IMAGE_DRIVER" ]; then
     echo "NVIDIA userspace driver in image: '${IMAGE_DRIVER:-none}', host: '$HOST_DRIVER' -- installing match."

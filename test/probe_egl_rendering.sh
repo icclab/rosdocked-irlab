@@ -30,7 +30,7 @@ note() { echo; echo "=== $* ==="; }
 record() { RESULTS+=("$1|$2"); }
 
 note "0. Environment"
-echo "host driver: $(awk '{print $8; exit}' /proc/driver/nvidia/version 2>/dev/null || echo UNKNOWN)"
+echo "host driver: $(head -n1 /proc/driver/nvidia/version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' || echo UNKNOWN)"
 nvidia-smi --query-gpu=name,driver_version --format=csv,noheader 2>&1 | head -3
 for f in /usr/lib/xorg/modules/drivers/nvidia_drv.so \
          /usr/lib/x86_64-linux-gnu/libEGL_nvidia.so.0 \
