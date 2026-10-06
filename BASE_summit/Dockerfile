@@ -22,7 +22,8 @@ ARG shell
 
 # add ros user to container and make sudoer
 # Ubuntu 24.04 images ship a default "ubuntu" user with uid 1000: rename it to ${USER}
-# (as in BASE_CPU) so ros keeps uid 1000 like in the humble image
+# (as in BASE_CPU) so ros keeps uid 1000 like in the humble image. Files written to a
+# mounted host folder are owned by uid 1000 on the host, which is the summit user on the robot.
 RUN usermod -m -d /home/${USER} -l ${USER} -aG video,plugdev ubuntu && \
 groupmod -n ${USER} ubuntu && \
 echo "${USER} ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/${USER}" && \
@@ -70,6 +71,8 @@ RUN /bin/bash -c 'echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc &
     echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> ~/.bashrc'
 
 # create catkin ws and clone projects
+# summit_xl_common has no jazzy branch; humble builds on jazzy (as in WORKSPACE).
+# ros_astra_camera: the humble branch does not build on jazzy, rolling does.
 RUN mkdir -p ~/colcon_ws/src && cd ~/colcon_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
 cd src && \
 git clone -b jazzy https://github.com/RobotnikAutomation/robotnik_common.git && \
