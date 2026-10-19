@@ -71,12 +71,10 @@ RUN /bin/bash -c 'echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc &
     echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> ~/.bashrc'
 
 # create catkin ws and clone projects
-# summit_xl_common has no jazzy branch; humble builds on jazzy (as in WORKSPACE).
 # ros_astra_camera: the humble branch does not build on jazzy, rolling does.
 RUN mkdir -p ~/colcon_ws/src && cd ~/colcon_ws && /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
 cd src && \
 git clone -b jazzy https://github.com/RobotnikAutomation/robotnik_common.git && \
-git clone -b humble https://github.com/icclab/summit_xl_common && \
 git clone -b ${ROS_DISTRO} https://github.com/icclab/icclab_summit_xl && \
 git clone -b ${ROS_DISTRO} https://github.com/icclab/ros2_laser_scan_merger && \
 git clone -b jazzy-devel https://github.com/RobotnikAutomation/robotnik_sensors.git && \
