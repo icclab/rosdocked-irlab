@@ -32,23 +32,25 @@ ARG UBUNTU_RELEASE
 # Make all NVIDIA GPUs visible, but we want to manually install drivers
 ARG NVIDIA_VISIBLE_DEVICES=all
 # Supress interactive menu while installing keyboard-configuration
-ENV NVIDIA_DRIVER_CAPABILITIES all
-ENV PULSE_SERVER 127.0.0.1:4713
+ENV NVIDIA_DRIVER_CAPABILITIES=all
+ENV PULSE_SERVER=127.0.0.1:4713
 
 # Default environment variables (password is "mypasswd")
-ENV TZ UTC
-ENV SIZEW 1920
-ENV SIZEH 1080
-ENV REFRESH 60
-ENV DPI 96
-ENV CDEPTH 24
-ENV VIDEO_PORT DFP
-ENV PASSWD mypasswd
-ENV NOVNC_ENABLE false
-ENV WEBRTC_ENCODER nvh264enc
-ENV WEBRTC_ENABLE_RESIZE false
-ENV ENABLE_AUDIO true
-ENV ENABLE_BASIC_AUTH true
+ENV TZ=UTC
+ENV SIZEW=1920
+ENV SIZEH=1080
+ENV REFRESH=60
+ENV DPI=96
+ENV CDEPTH=24
+ENV VIDEO_PORT=DFP
+ENV PASSWD=mypasswd
+ENV NOVNC_ENABLE=false
+# WEBRTC_ENCODER/WEBRTC_ENABLE_RESIZE were removed: nothing in this image reads
+# them (there is no WebRTC/GStreamer stack -- the gst-env source in entrypoint.sh
+# is commented out), and nvh264enc could not work on an A30 regardless, since
+# like the A100 it ships no NVENC engine. Verify with: nvidia-smi -q | grep -i encoder
+ENV ENABLE_AUDIO=true
+ENV ENABLE_BASIC_AUTH=true
 
 ################################################################################
 
@@ -65,19 +67,20 @@ RUN apt-get clean && \
     apt-get update && apt-get install --no-install-recommends -y locales && \
     rm -rf /var/lib/apt/lists/* && \
     locale-gen en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 # Install Xorg, MATE Desktop, and others
-RUN dpkg --add-architecture i386 && \
-    apt-get update && apt-get install --no-install-recommends -y \
+# No i386 architecture: nothing here is a 32-bit GL client (Gazebo, rviz, VS Code
+# and Firefox are all 64-bit), and enabling it adds 25 MiB of apt metadata to
+# every layer that keeps its lists, on top of the 32-bit packages themselves.
+RUN apt-get update && apt-get install --no-install-recommends -y \
         software-properties-common \
         apt-utils \
         build-essential \
         ca-certificates \
         kmod \
-        libc6:i386 \
         libc6-dev \
         curl \
         file \
@@ -107,12 +110,9 @@ RUN dpkg --add-architecture i386 && \
         mesa-utils \
         mesa-utils-extra \
         libglu1 \
-        libglu1:i386 \
         libsm6 \
         libxv1 \
-        libxv1:i386 \
         libxtst6 \
-        libxtst6:i386 \
         x11-xkb-utils \
         x11-xserver-utils \
         x11-apps \
@@ -211,18 +211,55 @@ WORKDIR /home/${USER}
 
 
 # update dependencies
-RUN sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y python3-rosdep \ 
-    ros-${ROS_DISTRO}-pcl-ros build-essential g++  ros-${ROS_DISTRO}-pcl-ros  wget vim nvidia-cuda-toolkit
+# NOTE: nvidia-cuda-toolkit was removed here. It pulled 253 packages / 2.4 GiB of
+# debs (3.36 GB of the image), including nvidia-visual-profiler and Ubuntu's CUDA
+# 12.0 -- and nothing in this image compiles CUDA since gpd was dropped. libcuda.so
+# is injected at runtime by nvidia-container-toolkit anyway. If you ever need nvcc,
+# install cuda-nvcc-<ver> from NVIDIA's repo (~120 MB) instead of the metapackage.
+RUN sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
+    python3-rosdep ros-${ROS_DISTRO}-pcl-ros build-essential g++ wget vim && \
+    sudo rm -rf /var/lib/apt/lists/*
 
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash"
 
+# NB: plain COPY + one chmod, not `COPY --chmod`, so this still builds with the
+# legacy (non-BuildKit) builder.
 COPY supervisord.conf /etc/supervisord.conf
-RUN sudo chmod 755 /etc/supervisord.conf
 COPY install_nvidia_drivers.sh /opt/install_nvidia_drivers.sh
-RUN sudo chmod 755 /opt/install_nvidia_drivers.sh
-RUN sudo /opt/install_nvidia_drivers.sh
 COPY entrypoint.sh /etc/entrypoint.sh
-RUN sudo chmod 755 /etc/entrypoint.sh
+RUN sudo chmod 755 /etc/supervisord.conf /opt/install_nvidia_drivers.sh /etc/entrypoint.sh
+
+# Bake the userspace NVIDIA driver matching the RAP nodes. This is only a fast
+# path: entrypoint.sh re-installs at start if the host driver turns out to be
+# different, so the image keeps working across cluster driver upgrades.
+# Leave empty to skip the bake entirely (then every pod installs on first start,
+# and the image can be built on a machine with no GPU).
+ARG NVIDIA_DRIVER_VERSION=
+RUN sudo /opt/install_nvidia_drivers.sh "${NVIDIA_DRIVER_VERSION}"
+
+# Turn off xfwm4 compositing. It buys nothing over VNC (there is no local screen
+# to composite for) and costs both GPU work -- shared four ways on one A30 -- and
+# a full-screen redraw on every window move, which is what makes the desktop feel
+# sluggish through noVNC.
+# The store is ~/.config/xfce4/xfconf/xfce-perchannel-xml/ -- NOT
+# ~/.config/xfconf/, which is where this first wrote the file and why
+# `xfconf-query -c xfwm4 -p /general/use_compositing` still reported true.
+# Written to both the per-user store and the system-wide default under /etc/xdg,
+# so it survives a wiped or replaced home directory.
+RUN mkdir -p ~/.config/xfce4/xfconf/xfce-perchannel-xml \
+             /tmp/xfconf-default && printf '%s\n' \
+    '<?xml version="1.0" encoding="UTF-8"?>' \
+    '<channel name="xfwm4" version="1.0">' \
+    '  <property name="general" type="empty">' \
+    '    <property name="use_compositing" type="bool" value="false"/>' \
+    '  </property>' \
+    '</channel>' \
+    | tee ~/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml \
+          /tmp/xfconf-default/xfwm4.xml > /dev/null && \
+    sudo install -d /etc/xdg/xfce4/xfconf/xfce-perchannel-xml && \
+    sudo install -m 644 /tmp/xfconf-default/xfwm4.xml \
+        /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml && \
+    rm -rf /tmp/xfconf-default
 
 ### Install Gazebo Harmonic
 RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \

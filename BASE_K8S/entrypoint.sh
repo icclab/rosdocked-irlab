@@ -10,29 +10,27 @@ sudo ln -snf /dev/ptmx /dev/tty7
 sudo /etc/init.d/dbus start
 # source /opt/gstreamer/gst-env
 
-# Install NVIDIA drivers, including X graphic drivers by omitting --x-{prefix,module-path,library-path,sysconfig-path}
-#if ! command -v nvidia-xconfig &> /dev/null; then
-#  export DRIVER_VERSION=$(head -n1 </proc/driver/nvidia/version | awk '{print $8}')
-#  cd /tmp
-  # remove any remnants which could be there from before...
-#  rm -fr /tmp/NVIDIA-Linux-x86_64-470.82.01 /tmp/NVIDIA-Linux-x86_64-470.82.01.run
-#  if [ ! -f "/tmp/NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" ]; then
- #    curl -fsL -O "https://us.download.nvidia.com/XFree86/Linux-x86_64/$DRIVER_VERSION/NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" || curl -fsL -O "https://us.download.nvidia.com/tesla/$DRIVER_VERSION/NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" || { echo "Failed NVIDIA GPU driver download. Exiting."; exit 1; }
-#  fi
-#  sudo sh "NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" -x
-#  cd "NVIDIA-Linux-x86_64-$DRIVER_VERSION"
-#  sudo ./nvidia-installer --silent \
-#                    --no-kernel-module \
-#                    --install-compat32-libs \
-#                    --no-nouveau-check \
-#                    --no-nvidia-modprobe \
-#                    --no-rpms \
-#                    --no-backup \
-#                    --no-check-for-alternate-installs \
-#                    --no-libglx-indirect \
-#                    --no-install-libglvnd
-#  sudo rm -rf /tmp/NVIDIA* && cd ~
-#fi
+# Make sure the userspace driver in the image matches the host kernel module.
+# They must agree exactly or GLX breaks; a cluster driver upgrade would otherwise
+# silently leave every pod on software rendering. install_nvidia_drivers.sh is a
+# no-op when the baked version already matches, so this normally costs nothing.
+if [ -r /proc/driver/nvidia/version ]; then
+  # A fixed field index breaks on newer "Open Kernel Module" driver builds,
+  # which insert extra words before x86_64 and shift the version off column 8
+  # (e.g. "NVRM version: NVIDIA UNIX Open Kernel Module for x86_64  570.133.20").
+  # Match the version pattern itself instead.
+  HOST_DRIVER=$(head -n1 /proc/driver/nvidia/version | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?')
+  IMAGE_DRIVER=$(cat /etc/nvidia-userspace-driver-version 2>/dev/null || true)
+  if [ "$HOST_DRIVER" != "$IMAGE_DRIVER" ]; then
+    echo "NVIDIA userspace driver in image: '${IMAGE_DRIVER:-none}', host: '$HOST_DRIVER' -- installing match."
+    # Non-fatal: a node without egress to us.download.nvidia.com should not put
+    # the pod in a crash loop. The renderer check below reports the consequence.
+    sudo /opt/install_nvidia_drivers.sh "$HOST_DRIVER" \
+      || echo "WARNING: driver install failed -- expect software rendering." >&2
+  fi
+else
+  echo "WARNING: /proc/driver/nvidia/version not readable -- no GPU visible to this container?" >&2
+fi
 
 if grep -Fxq "allowed_users=console" /etc/X11/Xwrapper.config; then
   sudo sed -i "s/allowed_users=console/allowed_users=anybody/;$ a needs_root_rights=yes" /etc/X11/Xwrapper.config
@@ -70,6 +68,20 @@ sudo sed -i 's/Option         "DPMS"/Option         "DPMS" "false"/g' /etc/X11/x
 
 export DISPLAY=":0"
 export __GL_SYNC_TO_VBLANK="0"
+# Let the driver use its worker thread for GL submission. With ~4 pods sharing one
+# A30 this keeps each session's GL calls off the app's critical path.
+export __GL_THREADED_OPTIMIZATIONS="1"
+# Persist the shader cache. The container home is ephemeral, so without this rviz
+# and Gazebo recompile their shaders on every single pod start; /home/ros/rap is
+# the PVC, so put it there when it is mounted and fall back to home when it is not
+# (e.g. a plain docker run).
+if [ -d /home/ros/rap ] && [ -w /home/ros/rap ]; then
+  export __GL_SHADER_DISK_CACHE_PATH="/home/ros/rap/.cache/nv"
+else
+  export __GL_SHADER_DISK_CACHE_PATH="${HOME}/.cache/nv"
+fi
+export __GL_SHADER_DISK_CACHE="1"
+mkdir -p "$__GL_SHADER_DISK_CACHE_PATH"
 Xorg vt7 -novtswitch -sharevts -dpi "${DPI}" +extension "MIT-SHM" "${DISPLAY}" &
 
 # Wait for X11 to start
@@ -77,8 +89,26 @@ echo "Waiting for X socket"
 until [ -S "/tmp/.X11-unix/X${DISPLAY/:/}" ]; do sleep 1; done
 echo "X socket is ready"
 
+# Fail loudly rather than silently rendering in software: llvmpipe here means the
+# driver/X setup is broken, and Gazebo and rviz will crawl.
+GL_RENDERER=$(DISPLAY="${DISPLAY}" glxinfo -B 2>/dev/null | sed -n 's/^OpenGL renderer string: //p')
+case "$GL_RENDERER" in
+  "")                     echo "WARNING: could not query OpenGL renderer -- GL may be broken." >&2 ;;
+  *llvmpipe*|*softpipe*|*swrast*)
+    echo "WARNING: SOFTWARE RENDERING ACTIVE (renderer: $GL_RENDERER)." >&2
+    echo "         The GPU is not being used. Check the driver version match above and Xorg.0.log." >&2 ;;
+  *)                      echo "GPU rendering active: $GL_RENDERER" ;;
+esac
+
 # start noVNC
-sudo x11vnc -display "${DISPLAY}" -passwd "${BASIC_AUTH_PASSWORD:-$PASSWD}" -shared -forever -repeat -xkb -xrandr "resize" -rfbport 5900 &
+# -threads: handle viewers on their own threads instead of one serial loop. Kept.
+#
+# -defer 5 -wait 5 was REVERTED to the 30 ms defaults. `-wait` is the screen poll
+# interval, so 5 ms made x11vnc scan the framebuffer 6x more often; measured on
+# gpu-2 that left Xorg at ~50% of a core and x11vnc at ~23% continuously. Xorg is
+# single-threaded and also serves the sim's render calls, so paying 6x the polling
+# cost to shave VNC latency is the wrong trade for a machine running Gazebo.
+sudo x11vnc -display "${DISPLAY}" -passwd "${BASIC_AUTH_PASSWORD:-$PASSWD}" -shared -forever -repeat -xkb -xrandr "resize" -rfbport 5900 -threads &
 /opt/noVNC/utils/novnc_proxy --vnc localhost:5900 --listen 8080 --heartbeat 10 &
 
 # Add custom processes below this section or within `supervisord.conf`

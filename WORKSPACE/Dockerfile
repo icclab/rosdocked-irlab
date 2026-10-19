@@ -83,7 +83,25 @@ rosdep update && rosdep install -ry --ignore-packages-from-source --from-paths s
 
 # build workspace
 RUN touch COLCON_IGNORE ; cp COLCON_IGNORE ~/colcon_ws/src/ros2_robotiq_gripper/robotiq_driver ; cp COLCON_IGNORE ~/colcon_ws/src/ros2_robotiq_gripper/robotiq_controllers ; cp COLCON_IGNORE ~/colcon_ws/src/ros2_robotiq_gripper/robotiq_hardware_tests
-RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && colcon build --symlink-install"
+# CMAKE_BUILD_TYPE=Release matters: neither colcon nor any of the workspace
+# packages set a build type, so without this every C++ node (ros2_laser_scan_merger
+# does per-scan pointcloud math) is compiled unoptimised.
+# --symlink-install is kept on purpose: students edit packages in place inside
+# the container and expect the change to take effect without a full rebuild.
+RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && cd colcon_ws && \
+    colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release"
+
+# Defaults for rebuilds students run themselves inside the container. Without
+# these, `colcon build` fans out to nproc (32 on a RAP node) parallel packages
+# against a 16-CPU cgroup quota, and builds unoptimised just like our image build
+# did before -DCMAKE_BUILD_TYPE=Release was added above.
+RUN mkdir -p ~/.colcon && printf '%s\n' \
+    'build:' \
+    '  parallel-workers: 2' \
+    '  cmake-args: ["-DCMAKE_BUILD_TYPE=Release"]' \
+    'test:' \
+    '  parallel-workers: 2' \
+    > ~/.colcon/defaults.yaml
 
 COPY env.sh /home/"${USER}"/env.sh
 COPY cyclonedds.xml  /home/"${USER}"/cyclonedds.xml
