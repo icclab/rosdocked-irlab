@@ -61,8 +61,12 @@ RUN sudo apt-get update && \
     sudo apt-get install -y python3-pip ros-${ROS_DISTRO}-tf2-msgs build-essential \
     ros-${ROS_DISTRO}-pcl-ros \
     ros-${ROS_DISTRO}-image-transport-plugins python3-colcon-common-extensions \
-    inetutils-ping libuvc-dev \
+    inetutils-ping libuvc-dev python3-requests \
     ros-${ROS_DISTRO}-depthai-ros
+
+# open3d for the segmentation node: not packaged for Ubuntu 24.04, so pip. CPU build (no GPU on the
+# robot); --user because a system-wide pip cannot replace apt's psutil; numpy<2 for cv_bridge.
+RUN pip3 install --user --break-system-packages --no-cache-dir "numpy<2" open3d-cpu==0.20.0
 
 # Add environment and colcon utilities to .bashrc
 RUN /bin/bash -c 'echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc && \
