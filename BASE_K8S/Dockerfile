@@ -270,15 +270,11 @@ RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/
 
 EXPOSE 8080
 CMD ["/usr/bin/supervisord"]
-COPY MY_RMW_ZENOH_ROUTER_CONFIG.json5 /home/ros/MY_RMW_ZENOH_ROUTER_CONFIG.json5
- 
+# rmw_zenoh's default configs; zenoh_router connects to ZENOH_ROUTER from the deployment
+COPY env_zenoh.sh /home/ros/env_zenoh.sh
+
 USER ${USER}
 WORKDIR /home/${USER}
-RUN echo "export RMW_IMPLEMENTATION=rmw_zenoh_cpp" > ~/env_zenoh.sh
-RUN echo "export ZENOH_ROUTER_CONFIG_URI=$HOME/MY_RMW_ZENOH_ROUTER_CONFIG.json5" >> ~/env_zenoh.sh
-# Router to connect to, from the deployment (e.g. ZENOH_ROUTER=tcp/<router>:<port>)
-RUN echo 'if [ -n "$ZENOH_ROUTER" ] && [ -z "$ZENOH_CONFIG_OVERRIDE" ]; then export ZENOH_CONFIG_OVERRIDE="connect/endpoints=[\"$ZENOH_ROUTER\"]"; fi' >> ~/env_zenoh.sh
-RUN chmod 700 ~/env_zenoh.sh
 
 # Install Zenoh
 RUN    sudo apt update && sudo apt install -y ros-${ROS_DISTRO}-rmw-zenoh-cpp
