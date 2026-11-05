@@ -24,16 +24,6 @@ def patch(rel_path, old, new, why):
     print(f"patch_src: {rel_path}: {why}")
 
 
-# Boost >= 1.89 (conda-forge ships 1.90) no longer has the boost_system stub, so
-# this lookup fails at configure time. Nothing in the package uses Boost.
-# Ubuntu Noble ships 1.83, which is why the Docker build does not hit it.
-patch(
-    "ros2_laser_scan_merger/CMakeLists.txt",
-    "find_package(Boost REQUIRED COMPONENTS system)",
-    "# Boost::system lookup removed by patch_src.py (unused; gone in Boost >= 1.89)",
-    "dropped unused Boost::system lookup",
-)
-
 # RoboStack has no trac_ik build for Windows; KDL ships with MoveIt everywhere.
 if sys.platform == "win32":
     patch(
