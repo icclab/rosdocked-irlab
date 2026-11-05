@@ -276,6 +276,8 @@ USER ${USER}
 WORKDIR /home/${USER}
 RUN echo "export RMW_IMPLEMENTATION=rmw_zenoh_cpp" > ~/env_zenoh.sh
 RUN echo "export ZENOH_ROUTER_CONFIG_URI=$HOME/MY_RMW_ZENOH_ROUTER_CONFIG.json5" >> ~/env_zenoh.sh
+# Router to connect to, from the deployment (e.g. ZENOH_ROUTER=tcp/<router>:<port>)
+RUN echo 'if [ -n "$ZENOH_ROUTER" ] && [ -z "$ZENOH_CONFIG_OVERRIDE" ]; then export ZENOH_CONFIG_OVERRIDE="connect/endpoints=[\"$ZENOH_ROUTER\"]"; fi' >> ~/env_zenoh.sh
 RUN chmod 700 ~/env_zenoh.sh
 
 # Install Zenoh

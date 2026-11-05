@@ -14,8 +14,8 @@
   /// Which endpoints to connect to. E.g. tcp/localhost:7447.
   /// By configuring the endpoints, it is possible to tell zenoh which router/peer to connect to at startup.
   connect: {
+    /// Set per deployment, not in the image: ZENOH_ROUTER=tcp/<router>:<port> (see ~/env_zenoh.sh)
     endpoints: [
-      "tcp/160.85.253.140:30447",
       // "<proto>/<address>"
     ],
   },
