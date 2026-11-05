@@ -1,0 +1,12 @@
+# Used via COLCON_DEFAULTS_FILE (set in pixi.toml). Same reasoning as the
+# ~/.colcon/defaults.yaml baked into the Docker image: nothing sets a build type,
+# so without this every C++ node is compiled unoptimised.
+# base-paths: colcon otherwise crawls all of WORKSPACE/ and picks up
+# issues_solvers/ (an old ROS 1 gpd_ros) as a package.
+build:
+  base-paths: ["src"]
+  cmake-args: ["-DCMAKE_BUILD_TYPE=Release"]
+test:
+  base-paths: ["src"]
+list:
+  base-paths: ["src"]

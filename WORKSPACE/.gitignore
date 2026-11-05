@@ -1,0 +1,7 @@
+# pixi environment
+.pixi/
+# colcon workspace (sources come from summit.repos via `pixi run setup`)
+src/
+build/
+install/
+log/

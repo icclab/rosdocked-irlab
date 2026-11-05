@@ -1,0 +1,148 @@
+# ROS 2 Jazzy + the Summit XL workspace without Docker, via pixi + RoboStack.
+#
+#   cd WORKSPACE
+#   pixi run setup     # clone the source repos listed in summit.repos into src/
+#   pixi run build     # colcon build
+#   pixi run sim       # Gazebo simulation of the Summit XL
+#   pixi shell         # a shell with ROS and the built workspace sourced
+#
+# Mirrors what WORKSPACE/Dockerfile installs with apt + rosdep. Packages come from
+# the robostack-jazzy channel (ros-jazzy-*) and conda-forge, so no system ROS
+# install or sudo is needed. Keep the dependency list in step with the
+# Dockerfile and with the package.xml files of the repos in summit.repos.
+#
+# Platforms: Linux (x86_64, ARM) is the full stack. macOS and Windows lack a few
+# packages on RoboStack, see the [target.*] tables at the end. None of them is
+# needed for the simulation; on Windows trac_ik is missing, so patch_src.py
+# switches the arm's MoveIt IK solver to KDL there.
+#
+# Not available on RoboStack at all, so left out (rosdep skips them in the Docker build
+# too, it runs with -r): robotnik_sensors, robotnik_msgs, ira_laser_tools,
+# astra_camera, ign_ros2_control (replaced by gz_ros2_control on Jazzy).
+
+[workspace]
+name = "summit-xl"
+description = "ROS 2 Jazzy environment for the ICCLab Summit XL workspace"
+channels = ["robostack-jazzy", "conda-forge"]
+# rtabmap on osx-arm64 is built against macOS 14, hence the minimum.
+platforms = [
+  "linux-64",
+  "linux-aarch64",
+  { name = "osx-arm64-14", platform = "osx-arm64", macos = "14.0" },
+  "win-64",
+]
+# Per-platform `macos = ...` above needs a recent pixi.
+requires-pixi = ">=0.84"
+
+[target.unix.activation]
+scripts = ["pixi-activate.sh"]
+
+[target.win.activation]
+scripts = ["pixi-activate.bat"]
+
+[activation.env]
+# The Docker image runs with the default RMW; cyclonedds is installed so
+# `export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp` works like in env.sh.
+ROS_DISTRO = "jazzy"
+COLCON_DEFAULTS_FILE = "$PIXI_PROJECT_ROOT/colcon-defaults.yaml"
+
+[tasks]
+setup = { cmd = "mkdir -p src && vcs import --recursive src < summit.repos && touch src/ros2_robotiq_gripper/robotiq_driver/COLCON_IGNORE src/ros2_robotiq_gripper/robotiq_controllers/COLCON_IGNORE src/ros2_robotiq_gripper/robotiq_hardware_tests/COLCON_IGNORE && python patch_src.py", description = "Clone the workspace repos into src/ and apply patch_src.py" }
+update = { cmd = "vcs pull src && python patch_src.py", description = "git pull every repo in src/" }
+build = { cmd = "colcon build --symlink-install", description = "Build the workspace (Release, see colcon-defaults.yaml)" }
+clean = { cmd = "rm -rf build install log", description = "Remove colcon build output" }
+sim = { cmd = "ros2 launch icclab_summit_xl summit_xl_simulation_ign.launch.py", description = "Gazebo simulation of the Summit XL" }
+nav = { cmd = "ros2 launch icclab_summit_xl summit_xl_nav2.launch.py rviz:=true", description = "Nav2 + RViz against the running simulation" }
+moveit = { cmd = "ros2 launch icclab_summit_xl summit_xl_move_it.launch.py", description = "MoveIt for the arm" }
+
+[dependencies]
+# Build tooling
+compilers = "*"
+cmake = "*"
+make = "*"
+ninja = "*"
+pkg-config = "*"
+colcon-common-extensions = "*"
+vcstool = "*"
+rosdep = "*"
+git = "*"
+
+# ROS core + tools from WORKSPACE/Dockerfile
+ros-jazzy-desktop = "*"
+ros-jazzy-tf2-msgs = "*"
+ros-jazzy-pcl-ros = "*"
+ros-jazzy-dynamixel-sdk = "*"
+ros-jazzy-image-transport-plugins = "*"
+ros-jazzy-rmw-cyclonedds-cpp = "*"
+
+# rosdep keys of the packages in summit.repos
+ros-jazzy-ament-lint-auto = "*"
+ros-jazzy-ament-lint-common = "*"
+ros-jazzy-pcl-conversions = "*"
+ros-jazzy-tf2-eigen = "*"
+ros-jazzy-tf2-geometry-msgs = "*"
+ros-jazzy-xacro = "*"
+ros-jazzy-robot-state-publisher = "*"
+ros-jazzy-joint-state-publisher-gui = "*"
+ros-jazzy-interactive-markers = "*"
+ros-jazzy-geometric-shapes = "*"
+ros-jazzy-control-msgs = "*"
+ros-jazzy-joy = "*"
+ros-jazzy-teleop-twist-keyboard = "*"
+
+# control
+ros-jazzy-ros2-control = "*"
+ros-jazzy-ros2-controllers = "*"
+ros-jazzy-controller-manager = "*"
+ros-jazzy-joint-state-broadcaster = "*"
+ros-jazzy-joint-trajectory-controller = "*"
+ros-jazzy-parallel-gripper-controller = "*"
+ros-jazzy-twist-mux = "*"
+
+# simulation
+ros-jazzy-ros-gz = "*"
+ros-jazzy-gz-ros2-control = "*"
+ros-jazzy-ur = "*"
+ros-jazzy-ur-description = "*"
+ros-jazzy-ur-moveit-config = "*"
+ros-jazzy-ur-simulation-gz = "*"
+ros-jazzy-robotiq-description = "*"
+ros-jazzy-realsense2-description = "*"
+
+# localization / navigation
+ros-jazzy-navigation2 = "*"
+ros-jazzy-nav2-bringup = "*"
+ros-jazzy-robot-localization = "*"
+ros-jazzy-imu-complementary-filter = "*"
+ros-jazzy-slam-toolbox = "*"
+ros-jazzy-laser-filters = "*"
+ros-jazzy-pointcloud-to-laserscan = "*"
+ros-jazzy-depthimage-to-laserscan = "*"
+ros-jazzy-geographic-msgs = "*"
+ros-jazzy-mavros-msgs = "*"
+
+# manipulation
+ros-jazzy-moveit = "*"
+ros-jazzy-moveit-py = "*"
+ros-jazzy-moveit-servo = "*"
+ros-jazzy-moveit-visual-tools = "*"
+ros-jazzy-moveit-configs-utils = "*"
+
+# perception / real-robot drivers
+ros-jazzy-depth-image-proc = "*"
+ros-jazzy-rtabmap-ros = "*"
+ros-jazzy-hls-lfcd-lds-driver = "*"
+
+# Python deps of the segmentation node in icclab_summit_xl (BASE_summit pip-installs
+# these too).
+open3d = "*"
+requests = "*"
+
+# Not built for every platform on RoboStack.
+[target.unix.dependencies]
+ros-jazzy-rqt-tf-tree = "*"
+ros-jazzy-trac-ik-kinematics-plugin = "*"
+
+[target.linux.dependencies]
+ros-jazzy-spatio-temporal-voxel-layer = "*"
+ros-jazzy-depthai-ros-driver = "*"
